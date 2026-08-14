@@ -128,13 +128,20 @@
 
     .portfolio-link {
       display: inline-block;
-      margin-top: 10px;
+      margin-top: 12px;
       font-size: 13px;
       font-weight: 600;
-      color: #a78bfa;
+      color: #fff;
       text-decoration: none;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: 0 0 12px rgba(124, 58, 237, 0.6);
     }
-    .portfolio-link:hover { color: #fff; }
+    .portfolio-link:hover {
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.9);
+      opacity: 0.9;
+    }
 
     @media (max-width: 480px) {
       .hero { flex-direction: column; }
