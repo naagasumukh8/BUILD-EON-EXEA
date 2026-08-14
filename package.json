@@ -1,0 +1,18 @@
+{
+  "name": "polyinnovae-ai-hackathon-foundation",
+  "version": "1.0.0",
+  "description": "Polyinnovae AI Hackathon solution foundation and application portfolio",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "dev": "python server.py"
+  },
+  "keywords": [
+    "polyinnovae",
+    "hackathon",
+    "ai",
+    "eon-exea"
+  ],
+  "author": "Naaga Sumukh B S",
+  "license": "MIT"
+}

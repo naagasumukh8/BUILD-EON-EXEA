@@ -3,209 +3,295 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naaga Sumukh B S — EON EXEA Application</title>
-  <meta name="description" content="Naaga Sumukh B S — EON EXEA Hackathon Application Portfolio" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #0f0f13;
-      color: #e8e8f0;
-      line-height: 1.6;
-    }
-
-    header {
-      background: #12121a;
-      border-bottom: 1px solid #1e1e2e;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .badge {
-      background: #7c3aed;
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-    header span {
-      font-size: 14px;
-      color: #7c7c9a;
-      font-weight: 500;
-    }
-
-    main {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 40px 20px 80px;
-    }
-
-    /* Hero */
-    .hero {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      margin-bottom: 48px;
-      flex-wrap: wrap;
-    }
-    .hero img {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #7c3aed;
-      flex-shrink: 0;
-    }
-    .hero-text h1 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .hero-text .sub { font-size: 14px; color: #7c7c9a; margin-bottom: 8px; }
-    .hero-text .bio { font-size: 14px; color: #a0a0b8; max-width: 460px; }
-
-    /* Sections */
-    section { margin-bottom: 44px; }
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #7c3aed;
-      margin-bottom: 14px;
-    }
-
-    /* Video */
-    .video-wrap {
-      border-radius: 10px;
-      overflow: hidden;
-      background: #16161f;
-      border: 1px solid #1e1e2e;
-    }
-    .video-wrap video { width: 100%; display: block; max-height: 420px; }
-
-    /* Resume buttons */
-    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-    .btn:hover { opacity: 0.8; }
-    .btn-purple { background: #7c3aed; color: #fff; }
-    .btn-outline { background: #1e1e2e; color: #e8e8f0; border: 1px solid #2e2e45; }
-
-    /* Write-up box */
-    .writeup {
-      background: #16161f;
-      border: 1px solid #1e1e2e;
-      border-left: 3px solid #7c3aed;
-      border-radius: 8px;
-      padding: 22px 24px;
-    }
-    .writeup p {
-      font-size: 15px;
-      color: #c8c8e0;
-      line-height: 1.8;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 12px;
-      color: #3a3a55;
-      border-top: 1px solid #1e1e2e;
-    }
-
-    .portfolio-link {
-      display: inline-block;
-      margin-top: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-      text-decoration: none;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      padding: 6px 14px;
-      border-radius: 20px;
-      box-shadow: 0 0 12px rgba(124, 58, 237, 0.6);
-    }
-    .portfolio-link:hover {
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.9);
-      opacity: 0.9;
-    }
-
-    @media (max-width: 480px) {
-      .hero { flex-direction: column; }
-      .hero img { width: 90px; height: 90px; }
-    }
-  </style>
+  <title>Polyinnovae AI Hackathon — Solution Platform & Portfolio</title>
+  <meta name="description" content="Polyinnovae AI Hackathon solution foundation and application portfolio for Naaga Sumukh B S." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<header>
-  <span class="badge">EON EXEA</span>
-  <span>Application Portfolio — Naaga Sumukh B S</span>
-</header>
+  <!-- App Header & Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1 class="brand-title">POLYINNOVAE HACKATHON</h1>
+          <p class="brand-sub">AI Application Foundation</p>
+        </div>
+      </div>
 
-<main>
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist">
+        <button id="tab-btn-hackathon" class="nav-btn active" role="tab" aria-selected="true" aria-controls="tab-hackathon" onclick="switchTab('hackathon')">
+          <span class="nav-icon">🚀</span> Hackathon Solution Platform
+        </button>
+        <button id="tab-btn-portfolio" class="nav-btn" role="tab" aria-selected="false" aria-controls="tab-portfolio" onclick="switchTab('portfolio')">
+          <span class="nav-icon">👤</span> Application Portfolio
+        </button>
+      </nav>
 
-  <!-- 1. Photo + Intro -->
-  <div class="hero">
-    <img src="assets/photo.jpg" alt="Naaga Sumukh B S" />
-    <div class="hero-text">
-      <h1>Naaga Sumukh B S</h1>
-      <p class="sub">Builder · Innovator · Polymath</p>
-      <p class="bio">Founder of SachhAI &amp; EasyHospital. Leader at Adwaitha. I connect AI, product, marketing, and leadership to build things that actually matter.</p>
-      <a href="https://naagasumukh.engineer" target="_blank" rel="noopener" class="portfolio-link">🔗 naagasumukh.engineer &rarr;</a>
+      <!-- Status Indicator -->
+      <div class="status-badge" id="api-status-badge">
+        <span class="pulse-dot status-offline" id="status-dot"></span>
+        <span id="status-text">Checking API...</span>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <!-- 2. Intro Video -->
-  <section id="video">
-    <div class="section-label">Intro Video</div>
-    <div class="video-wrap">
-      <video controls preload="metadata" playsinline>
-        <source src="assets/intro.mp4" type="video/mp4" />
-        Your browser does not support HTML5 video.
-      </video>
+  <!-- Main Content Container -->
+  <main class="main-content">
+
+    <!-- TAB 1: POLYINNOVAE HACKATHON SOLUTION PLATFORM -->
+    <section id="tab-hackathon" class="tab-pane active" role="tabpanel">
+
+      <!-- Problem Statement Banner Card -->
+      <div class="card problem-card">
+        <div class="card-header border-purple">
+          <div class="badge badge-purple">POLYINNOVAE HACKATHON PROBLEM</div>
+          <span class="timestamp-badge">Release Window: 9:00 PM IST</span>
+        </div>
+        <div class="card-body">
+          <h2 class="problem-title" id="problem-title">POLYINNOVAE HACKATHON PROBLEM</h2>
+          <p class="problem-desc" id="problem-description">
+            Problem statement will be inserted here.
+          </p>
+          <div class="problem-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Status</span>
+              <span class="meta-val highlight-green">Foundation Ready &bull; Awaiting Live Prompt</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Core Pipeline</span>
+              <span class="meta-val">Modular API &bull; AI Service &bull; Database Service</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Target Engine</span>
+              <span class="meta-val">Python / Node.js Serverless Microservice</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solution Overview & Config Panel -->
+      <div class="card solution-card">
+        <div class="card-header border-blue">
+          <div class="badge badge-blue">PLACEHOLDER SOLUTION</div>
+          <span class="solution-status">Module: <code>lib/solution_logic.py</code></span>
+        </div>
+        <div class="card-body">
+          <h3 class="solution-heading">PLACEHOLDER SOLUTION</h3>
+          <p class="solution-body">
+            The actual solution logic will be implemented here after the problem statement is released.
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Input Section (INPUT) -->
+      <div class="card input-card">
+        <div class="card-header border-amber">
+          <div class="badge badge-amber">INPUT</div>
+          <div class="input-controls-header">
+            <span class="input-label-text">Select Input Mode:</span>
+            <div class="mode-selector">
+              <button class="mode-btn active" id="mode-text" onclick="setInputMode('text')">Text Prompt</button>
+              <button class="mode-btn" id="mode-json" onclick="setInputMode('json')">JSON Payload</button>
+              <button class="mode-btn" id="mode-file" onclick="setInputMode('file')">File Upload</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <form id="solution-form" onsubmit="handleFormSubmit(event)">
+            
+            <!-- Text Mode Input -->
+            <div id="input-container-text" class="input-group">
+              <label for="input-text-area" class="field-label">INPUT DATA</label>
+              <textarea 
+                id="input-text-area" 
+                class="form-control text-area" 
+                rows="4" 
+                placeholder="Placeholder input"
+              >Placeholder input</textarea>
+            </div>
+
+            <!-- JSON Mode Input (Hidden by default) -->
+            <div id="input-container-json" class="input-group hidden">
+              <label for="input-json-area" class="field-label">JSON CONFIGURATION & PARAMS</label>
+              <textarea 
+                id="input-json-area" 
+                class="form-control text-area code-font" 
+                rows="4" 
+                placeholder='{ "input": "Placeholder input", "mode": "analysis" }'
+              >{
+  "input": "Placeholder input",
+  "mode": "standard",
+  "parameters": {
+    "temperature": 0.7,
+    "max_tokens": 1000
+  }
+}</textarea>
+            </div>
+
+            <!-- File Upload Input (Hidden by default) -->
+            <div id="input-container-file" class="input-group hidden">
+              <label class="field-label">ATTACH FILE OR IMAGE</label>
+              <div class="file-dropzone" onclick="document.getElementById('file-input').click()">
+                <div class="drop-icon">📁</div>
+                <div class="drop-title">Click or drag file here to attach</div>
+                <div class="drop-sub" id="file-name-display">Supports PDF, PNG, JPG, CSV, JSON (Placeholder upload handler)</div>
+                <input type="file" id="file-input" class="hidden" onchange="handleFileSelected(event)" />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+              <button type="submit" id="btn-submit" class="btn btn-primary">
+                <span class="btn-icon">⚡</span> Run Solution API
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="loadSampleInput()">
+                <span>📄</span> Load Sample Input
+              </button>
+              <button type="button" class="btn btn-tertiary" onclick="clearInput()">
+                <span>🗑️</span> Clear
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Results & Output Section (OUTPUT) -->
+      <div class="card output-card" id="output-section">
+        <div class="card-header border-green">
+          <div class="badge badge-green">OUTPUT</div>
+          <div id="output-meta-header" class="output-meta hidden">
+            <span id="output-timer-badge" class="meta-tag">0 ms</span>
+            <span id="output-status-tag" class="meta-tag tag-success">200 OK</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- 1. EMPTY STATE -->
+          <div id="state-empty" class="state-container">
+            <div class="state-icon">📥</div>
+            <h4 class="state-title">OUTPUT</h4>
+            <p class="state-desc">Placeholder output. Submit input above to test end-to-end execution.</p>
+          </div>
+
+          <!-- 2. LOADING STATE -->
+          <div id="state-loading" class="state-container hidden">
+            <div class="spinner"></div>
+            <h4 class="state-title">Processing Hackathon Solution...</h4>
+            <p class="state-desc">Sending request to backend serverless pipeline...</p>
+            <div class="loading-progress">
+              <div class="progress-step active" id="step-1">1. Validating Input</div>
+              <div class="progress-step" id="step-2">2. Executing Core Solution</div>
+              <div class="progress-step" id="step-3">3. Formatting Output</div>
+            </div>
+          </div>
+
+          <!-- 3. ERROR STATE -->
+          <div id="state-error" class="state-container hidden">
+            <div class="state-icon error-icon">⚠️</div>
+            <h4 class="state-title text-red">Execution Error</h4>
+            <p id="error-message-text" class="state-desc text-red-sub">Failed to communicate with API server.</p>
+            <button class="btn btn-secondary mt-12" onclick="handleFormSubmit(event)">🔄 Retry Request</button>
+          </div>
+
+          <!-- 4. SUCCESS RESULT STATE -->
+          <div id="state-success" class="state-container align-left hidden">
+            <div class="output-banner">
+              <div class="banner-title">
+                <span class="check-icon">✓</span>
+                <span id="result-title">PLACEHOLDER SOLUTION</span>
+              </div>
+              <button class="btn-copy" onclick="copyOutputToClipboard()">📋 Copy Output</button>
+            </div>
+
+            <div class="result-message-box">
+              <p id="result-message-text">The actual solution logic will be implemented here after the problem statement is released.</p>
+            </div>
+
+            <!-- Formatted Output Details -->
+            <div class="output-json-box">
+              <div class="code-box-header">
+                <span>STRUCTURED RESPONSE JSON</span>
+                <span class="code-lang">json</span>
+              </div>
+              <pre id="output-json-display">Placeholder output</pre>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 2: EXISTING APPLICATION PORTFOLIO -->
+    <section id="tab-portfolio" class="tab-pane" role="tabpanel">
+
+      <!-- Hero Section -->
+      <div class="hero">
+        <img src="assets/photo.jpg" alt="Naaga Sumukh B S" class="profile-img" />
+        <div class="hero-text">
+          <h1>Naaga Sumukh B S</h1>
+          <p class="sub">Builder &bull; Innovator &bull; Polymath</p>
+          <p class="bio">Founder of SachhAI &amp; EasyHospital. Leader at Adwaitha. I connect AI, product, marketing, and leadership to build things that actually matter.</p>
+          <a href="https://naagasumukh.engineer" target="_blank" rel="noopener" class="portfolio-link">🔗 naagasumukh.engineer &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Intro Video -->
+      <div class="portfolio-card" id="video">
+        <div class="section-label">Intro Video</div>
+        <div class="video-wrap">
+          <video controls preload="metadata" playsinline>
+            <source src="assets/intro.mp4" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+      </div>
+
+      <!-- Resume Section -->
+      <div class="portfolio-card" id="resume">
+        <div class="section-label">Resume</div>
+        <div class="btn-row">
+          <a id="view-resume" class="btn btn-purple" href="assets/resume.pdf" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View Resume
+          </a>
+          <a id="download-resume" class="btn btn-outline" href="assets/resume.pdf" download="Naaga_Sumukh_Resume.pdf">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Resume
+          </a>
+        </div>
+      </div>
+
+      <!-- Why EON EXEA Section -->
+      <div class="portfolio-card" id="why-eon">
+        <div class="section-label">Why I Want to Join EON EXEA</div>
+        <div class="writeup">
+          <p>I want to join EON EXEA because it is built for people like me who never fit into just one box. I have spent the last two years building things across AI, product, marketing, leadership and community. SachhAI, EasyHospital, Adwaitha, events, collabs, digital marketing, LinkedIn growth. None of it was planned. I just kept saying yes to problems and figuring it out. Losing my father made me realise time is not something you wait with. EON EXEA feels like the right room to be in, full of people who build wide and think deep, and that is exactly who I am trying to become.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <span>&copy; 2026 Naaga Sumukh B S &mdash; Polyinnovae AI Hackathon App &amp; EON EXEA Application</span>
     </div>
-  </section>
+  </footer>
 
-  <!-- 3. Resume -->
-  <section id="resume">
-    <div class="section-label">Resume</div>
-    <div class="btn-row">
-      <a id="view-resume" class="btn btn-purple" href="assets/resume.pdf" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        View Resume
-      </a>
-      <a id="download-resume" class="btn btn-outline" href="assets/resume.pdf" download="Naaga_Sumukh_Resume.pdf">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Resume
-      </a>
-    </div>
-  </section>
-
-  <!-- 4. Why EON EXEA -->
-  <section id="why-eon">
-    <div class="section-label">Why I Want to Join EON EXEA</div>
-    <div class="writeup">
-      <p>I want to join EON EXEA because it is built for people like me who never fit into just one box. I have spent the last two years building things across AI, product, marketing, leadership and community. SachhAI, EasyHospital, Adwaitha, events, collabs, digital marketing, LinkedIn growth. None of it was planned. I just kept saying yes to problems and figuring it out. Losing my father made me realise time is not something you wait with. EON EXEA feels like the right room to be in, full of people who build wide and think deep, and that is exactly who I am trying to become.</p>
-    </div>
-  </section>
-
-</main>
-
-<footer>&copy; 2026 Naaga Sumukh B S &mdash; EON EXEA Application</footer>
-
+  <script src="app.js"></script>
 </body>
 </html>
