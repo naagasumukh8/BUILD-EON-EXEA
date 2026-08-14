@@ -1,0 +1,7 @@
+# Original root-level media files (not needed, assets are in /assets)
+/WhatsApp*
+/Naaga_Sumukh_B_S_.pdf
+
+# OS
+.DS_Store
+Thumbs.db
