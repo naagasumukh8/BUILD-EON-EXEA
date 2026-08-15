@@ -38,7 +38,7 @@ class OptOption:
     cost_per_bbl: float       # total landed cost per bbl
     eta_days: int
     risk_score: float = 0.1   # 0.0 → 1.0
-    product: str = "diesel"
+    product: str = ""
     provenance_status: str = "CONFIRMED"
     notes: str = ""
 
@@ -47,7 +47,7 @@ class OptOption:
 class OptConfig:
     required_volume: float
     deadline_days: int
-    product: str = "diesel"
+    product: str = ""
     cost_weight: float = 0.40
     time_weight: float = 0.35
     risk_weight: float = 0.25
@@ -250,7 +250,10 @@ def solve_optimization(
     # Check product compatibility if product provided
     product_matched = [
         o for o in verified_options
-        if not config.product or not o.product or o.product.lower() == config.product.lower()
+        if not config.product
+        or not o.product
+        or o.product.lower() in config.product.lower()
+        or config.product.lower() in o.product.lower()
     ]
 
     # Filter by deadline feasibility
