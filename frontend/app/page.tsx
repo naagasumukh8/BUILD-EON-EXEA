@@ -35,7 +35,7 @@ function LandingContent() {
               <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
             </svg>
             <span className="font-['Instrument_Serif'] text-xl font-bold tracking-tight text-[#1B133C]">
-              Wide Hormuz
+              POLY EXEA
             </span>
           </Link>
 
@@ -100,7 +100,7 @@ function LandingContent() {
 
       {/* Footer minimal spacer for 100vh layout */}
       <footer className="relative z-10 pb-4 text-center text-[11px] text-[#1B133C]/40">
-        Wide Hormuz &copy; 2026. AI Maritime Decision Platform.
+        POLY EXEA &copy; 2026. AI Maritime Decision Platform.
       </footer>
 
     </div>
