@@ -1,1 +1,1 @@
-{"version":1,"functions":{"/deals/[id]":{},"/map":{},"/deals/new":{},"/intake":{},"/report":{},"/strategy":{}}}
+{"version":1,"functions":{"/report":{},"/intake":{},"/map":{},"/strategy":{},"/deals/new":{},"/deals/[id]":{}}}
