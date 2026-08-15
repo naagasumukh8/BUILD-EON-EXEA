@@ -191,8 +191,9 @@ def get_route_weather_risk(lat: float, lon: float) -> dict:
             data = json.loads(response.read().decode("utf-8"))
         
         wave_heights = data.get("hourly", {}).get("wave_height", [])
-        if wave_heights:
-            max_wave = max(h for h in wave_heights if h is not None)
+        valid_waves = [h for h in wave_heights if h is not None]
+        if valid_waves:
+            max_wave = max(valid_waves)
             # Risk: 0-1, waves over 6m = high risk
             risk = min(max_wave / 6.0, 1.0)
             return {"weather_risk": round(risk, 3), "max_wave_m": round(max_wave, 1), "source": "open-meteo.com"}

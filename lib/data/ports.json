@@ -14,6 +14,7 @@
     { "id": "MUM", "name": "Mumbai Port (JNPT)", "country": "India", "lat": 18.95, "lon": 72.83, "region": "Arabian Sea", "products": ["crude", "refined"], "max_dwt": 250000 },
     { "id": "CHN", "name": "Chennai Port", "country": "India", "lat": 13.08, "lon": 80.29, "region": "Bay of Bengal", "products": ["crude", "refined"], "max_dwt": 150000 },
     { "id": "SIN", "name": "Port of Singapore", "country": "Singapore", "lat": 1.26, "lon": 103.82, "region": "Strait of Malacca", "products": ["crude", "refined", "bunkers"], "max_dwt": 350000 },
+    { "id": "TYO", "name": "Yokohama / Tokyo Port", "country": "Japan", "lat": 35.44, "lon": 139.64, "region": "Pacific Ocean", "products": ["crude", "refined", "lng"], "max_dwt": 350000 },
     { "id": "SHG", "name": "Shanghai Port", "country": "China", "lat": 31.23, "lon": 121.47, "region": "East China Sea", "products": ["crude", "refined"], "max_dwt": 300000 },
     { "id": "RDM", "name": "Rotterdam Port", "country": "Netherlands", "lat": 51.89, "lon": 4.49, "region": "North Sea", "products": ["crude", "refined"], "max_dwt": 500000 },
     { "id": "HPT", "name": "Houston Ship Channel", "country": "USA", "lat": 29.75, "lon": -95.27, "region": "Gulf of Mexico", "products": ["crude", "refined"], "max_dwt": 300000 },
