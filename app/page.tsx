@@ -45,7 +45,6 @@ export default function Home() {
 
             {/* Nav Links */}
             <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-[#1B133C]/80">
-              <a href="#overview" className="hover:text-[#1B133C] transition-colors">Overview</a>
               <a href="#explanation" className="hover:text-[#1B133C] transition-colors">Capabilities</a>
               <Link href="/map" className="hover:text-[#1B133C] transition-colors">Map Network</Link>
               <Link href="/report" className="hover:text-[#1B133C] transition-colors">AI Briefing</Link>
