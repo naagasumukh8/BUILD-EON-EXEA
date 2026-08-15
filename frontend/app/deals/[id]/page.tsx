@@ -1,49 +1,44 @@
 'use client'
+
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { Navbar } from '@/components/ui/Navbar'
+import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
+import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
-function VerdictCard({ verdict, reason }: { verdict: string; reason: string }) {
-  const config: Record<string, { cls: string; icon: string; title: string }> = {
-    GO:        { cls: 'verdict-go',        icon: '✅', title: 'GO — Accept this deal' },
-    NEGOTIATE: { cls: 'verdict-negotiate', icon: '🤝', title: 'NEGOTIATE — Counter offer' },
-    REJECT:    { cls: 'verdict-reject',    icon: '❌', title: 'REJECT — Walk away' },
-  }
-  const c = config[verdict] || config['REJECT']
-  return (
-    <div className={`badge ${c.cls} text-base px-6 py-3 rounded-card w-full justify-center gap-3`}>
-      <span className="text-2xl">{c.icon}</span>
-      <span className="font-bold tracking-wide">{c.title}</span>
-    </div>
-  )
-}
+function VerdictHeroCard({ verdict, reason }: { verdict: string; reason: string }) {
+  const isGo = verdict === 'GO'
+  const isNegotiate = verdict === 'NEGOTIATE'
 
-function ProvenanceBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    CONFIRMED:    'badge-confirmed',
-    REAL_REFERENCE: 'badge-reference',
-    ESTIMATED:    'badge-estimated',
-    SIMULATED:    'badge-simulated',
-    CALCULATED:   'badge-calculated',
-  }
-  return <span className={`badge ${map[status] || 'badge-simulated'}`}>{status.replace('_', ' ')}</span>
-}
+  const borderClass = isGo
+    ? 'border-[#10b981]/50 bg-[#10b981]/10 shadow-[0_0_50px_rgba(16,185,129,0.25)]'
+    : isNegotiate
+    ? 'border-[#f59e0b]/50 bg-[#f59e0b]/10 shadow-[0_0_50px_rgba(245,158,11,0.25)]'
+    : 'border-[#ef4444]/50 bg-[#ef4444]/10 shadow-[0_0_50px_rgba(239,68,68,0.25)]'
 
-function Metric({ label, value, prov, highlight }: { label: string; value: string; prov?: string; highlight?: string }) {
+  const textClass = isGo ? 'text-[#10b981]' : isNegotiate ? 'text-[#f59e0b]' : 'text-[#ef4444]'
+  const icon = isGo ? '✅' : isNegotiate ? '🤝' : '❌'
+
   return (
-    <div className="card p-4">
-      <div className="label mb-1">{label}</div>
-      <div className={`text-xl font-bold ${highlight || 'text-text-primary'}`}>{value}</div>
-      {prov && <div className="mt-1"><ProvenanceBadge status={prov} /></div>}
+    <div className={`p-8 rounded-3xl border ${borderClass} text-center space-y-3 transition-all duration-300`}>
+      <div className="text-4xl">{icon}</div>
+      <div className={`title-ogg text-5xl font-semibold tracking-wide ${textClass}`}>
+        {verdict}
+      </div>
+      <p className="text-sm sm:text-base text-[#e2eaf4] max-w-xl mx-auto font-light leading-relaxed">
+        {reason}
+      </p>
     </div>
   )
 }
 
 export default function DealEvaluatorPage() {
-  const { id: dealId } = useParams<{ id: string }>()
-  const params = useSearchParams()
+  const params = useParams()
+  const dealId = params?.id as string
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const scenarioId = params.get('scenario_id') || ''
+  const scenarioId = searchParams.get('scenario_id') || ''
 
   const [deal, setDeal] = useState<any>(null)
   const [evaluation, setEvaluation] = useState<any>(null)
@@ -51,7 +46,7 @@ export default function DealEvaluatorPage() {
   const [evalLoading, setEvalLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // What-if state
+  // Interactive What-If Simulator state
   const [whatIfPrice, setWhatIfPrice] = useState<number>(0)
   const [whatIfResult, setWhatIfResult] = useState<any>(null)
   const [whatIfLoading, setWhatIfLoading] = useState(false)
@@ -60,7 +55,7 @@ export default function DealEvaluatorPage() {
     try {
       const d = await api.getDeal(dealId)
       setDeal(d)
-      setWhatIfPrice(parseFloat(d.quoted_price) || 0)
+      setWhatIfPrice(parseFloat(d.quoted_price_usd || d.quoted_price) || 0)
 
       setEvalLoading(true)
       const ev = await api.evaluate(dealId)
@@ -74,12 +69,16 @@ export default function DealEvaluatorPage() {
     }
   }, [dealId])
 
-  useEffect(() => { loadAndEvaluate() }, [loadAndEvaluate])
+  useEffect(() => {
+    loadAndEvaluate()
+  }, [loadAndEvaluate])
 
-  const runWhatIf = async () => {
+  // Recalculate What-If
+  const handleWhatIfChange = async (newPrice: number) => {
+    setWhatIfPrice(newPrice)
     setWhatIfLoading(true)
     try {
-      const res = await api.whatIf(dealId, whatIfPrice)
+      const res = await api.whatIf(dealId, newPrice)
       setWhatIfResult(res)
     } catch (e: any) {
       setError(e.message)
@@ -88,163 +87,209 @@ export default function DealEvaluatorPage() {
     }
   }
 
-  const fmt = (n: number | undefined, prefix = '$', decimals = 0) =>
-    n != null ? `${prefix}${n.toLocaleString('en', { maximumFractionDigits: decimals })}` : '—'
-  const fmtPct = (n: number | undefined) =>
-    n != null ? `${n.toFixed(1)}%` : '—'
-
   const ev = whatIfResult || evaluation
 
-  if (loading) return <LoadingScreen />
+  const fmt = (n: number | undefined, prefix = '$', decimals = 0) =>
+    n != null ? `${prefix}${n.toLocaleString('en', { maximumFractionDigits: decimals })}` : '—'
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="text-4xl animate-spin">⚙️</div>
+          <div className="text-[#8aacca] text-sm">Evaluating Commercial Deal Economics...</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-maritime">
-      {/* Topbar */}
-      <div className="bg-bg-panel border-b border-border-dim px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <span className="font-display text-accent-bright">MARITIME</span>
-          <span className="text-text-muted text-sm">/ Deal Evaluator</span>
-        </div>
-        <div className="flex gap-3">
-          <button className="btn-ghost" onClick={() => router.push(`/map?scenario_id=${scenarioId}`)}>← Map</button>
-          {evaluation && (
+    <div className="min-h-screen flex flex-col">
+      <Navbar scenarioId={scenarioId} />
+
+      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
+                Commercial Deal Evaluation
+              </span>
+              <GlassBadge status="CALCULATED" label="Deterministic P&L" />
+            </div>
+            <h1 className="title-ogg text-3xl sm:text-4xl text-[#fdf1e1]">
+              {deal?.counterparty || 'Vessel Opportunity'} P&L Analysis
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
             <button
-              className="btn-primary"
               onClick={() => router.push(`/strategy?scenario_id=${scenarioId}&deal_id=${dealId}`)}
+              className="btn-paper px-6 py-2.5 text-sm font-semibold"
             >
-              ⚡ Run Optimizer →
+              ⚡ Run OR-Tools Optimizer →
             </button>
-          )}
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto p-8">
-        <div className="grid grid-cols-3 gap-6">
-
-          {/* Left: Deal info */}
-          <div className="col-span-1 space-y-4">
-            <div className="card p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="label">Confirmed Deal</div>
-                <span className="badge badge-confirmed">CONFIRMED</span>
-              </div>
-              {deal && (
-                <div className="space-y-2 text-sm">
-                  <div className="data-row"><span className="data-label">Type</span><span className="data-value capitalize">{deal.deal_type}</span></div>
-                  <div className="data-row"><span className="data-label">Counterparty</span><span className="data-value">{deal.counterparty || '—'}</span></div>
-                  <div className="data-row"><span className="data-label">Product</span><span className="data-value capitalize">{deal.product}</span></div>
-                  <div className="data-row"><span className="data-label">Volume</span><span className="data-value">{fmt(deal.capacity_volume, '', 0)} bbls</span></div>
-                  <div className="data-row"><span className="data-label">Quoted</span><span className="data-value">{deal.quoted_price_currency} {Number(deal.quoted_price).toLocaleString()} ({deal.quoted_price_unit})</span></div>
-                </div>
-              )}
-            </div>
-
-            {/* What-if */}
-            <div className="card p-5">
-              <div className="label mb-3">What-If Simulator</div>
-              <div className="text-xs text-text-muted mb-3">
-                Change the quoted price and see how it affects the verdict instantly.
-                <br/><span className="text-prov-calculated">DETERMINISTIC — no AI</span>
-              </div>
-              <label className="label mb-1 block">New Quote (USD)</label>
-              <input
-                type="number"
-                className="input mb-3"
-                value={whatIfPrice}
-                step={10000}
-                onChange={e => setWhatIfPrice(parseFloat(e.target.value))}
-              />
-              {ev && (
-                <div className="text-xs text-text-muted mb-3">
-                  Max acceptable: <strong className="text-go">{fmt(ev.max_acceptable_price_usd)}</strong>
-                </div>
-              )}
-              <input
-                type="range"
-                className="w-full mb-3 accent-accent-bright"
-                min={ev ? ev.max_acceptable_price_usd * 0.5 : 0}
-                max={ev ? ev.quoted_price_usd * 2 : 10000000}
-                step={10000}
-                value={whatIfPrice}
-                onChange={e => setWhatIfPrice(parseFloat(e.target.value))}
-              />
-              <button className="btn-primary w-full" onClick={runWhatIf} disabled={whatIfLoading}>
-                {whatIfLoading ? 'Calculating...' : '⚡ Recalculate'}
-              </button>
-              {whatIfResult && (
-                <div className="mt-3">
-                  <VerdictCard verdict={whatIfResult.deal_verdict} reason={whatIfResult.verdict_reason} />
-                </div>
-              )}
-            </div>
           </div>
+        </div>
 
-          {/* Right: Evaluation results */}
-          <div className="col-span-2 space-y-4">
-            {evalLoading && (
-              <div className="card p-8 text-center text-text-secondary">
-                <div className="text-2xl mb-2 animate-spin-slow">⚙️</div>
-                Evaluating deal economics...
+        {error && (
+          <div className="p-4 rounded-xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Hero Verdict Banner */}
+        {ev && <VerdictHeroCard verdict={ev.deal_verdict} reason={ev.verdict_reason} />}
+
+        {/* Metric Cards Row */}
+        {ev && (
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <GlassCard>
+              <div className="text-xs text-[#8aacca] mb-1 flex justify-between">
+                <span>Quoted Price</span>
+                <GlassBadge status="CONFIRMED" />
               </div>
-            )}
+              <div className="text-2xl font-bold text-[#fdf1e1]">{fmt(ev.quoted_price_usd)}</div>
+              <div className="text-xs text-[#6b8499] mt-1">${(ev.quoted_price_per_bbl || 0).toFixed(2)} / bbl</div>
+            </GlassCard>
 
-            {ev && !evalLoading && (
-              <>
-                <VerdictCard verdict={ev.deal_verdict} reason={ev.verdict_reason} />
-                <p className="text-sm text-text-secondary px-1">{ev.verdict_reason}</p>
+            <GlassCard>
+              <div className="text-xs text-[#8aacca] mb-1 flex justify-between">
+                <span>Price Ceiling (Target)</span>
+                <GlassBadge status="CALCULATED" />
+              </div>
+              <div className="text-2xl font-bold text-[#f59e0b]">{fmt(ev.max_acceptable_price_usd)}</div>
+              <div className="text-xs text-[#6b8499] mt-1">Max price for 8% target margin</div>
+            </GlassCard>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <Metric label="Quoted Price" value={fmt(ev.quoted_price_usd)} prov="CONFIRMED" />
-                  <Metric label="Max Acceptable Price" value={fmt(ev.max_acceptable_price_usd)} prov="CALCULATED" highlight="text-negotiate" />
-                  <Metric label="Expected Margin" value={fmtPct(ev.expected_margin_pct)} prov="CALCULATED"
-                    highlight={ev.expected_margin_pct > 8 ? 'text-go' : ev.expected_margin_pct > 0 ? 'text-negotiate' : 'text-reject'} />
+            <GlassCard>
+              <div className="text-xs text-[#8aacca] mb-1 flex justify-between">
+                <span>Expected Profit</span>
+                <GlassBadge status="CALCULATED" />
+              </div>
+              <div className={`text-2xl font-bold ${ev.expected_profit_usd >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
+                {fmt(ev.expected_profit_usd)}
+              </div>
+              <div className="text-xs text-[#6b8499] mt-1">Net of landed costs</div>
+            </GlassCard>
+
+            <GlassCard>
+              <div className="text-xs text-[#8aacca] mb-1 flex justify-between">
+                <span>Expected Margin</span>
+                <GlassBadge status="CALCULATED" />
+              </div>
+              <div className={`text-2xl font-bold ${ev.expected_margin_pct >= 8 ? 'text-[#10b981]' : 'text-[#f59e0b]'}`}>
+                {(ev.expected_margin_pct || 0).toFixed(1)}%
+              </div>
+              <div className="text-xs text-[#6b8499] mt-1">Target threshold: 8.0%</div>
+            </GlassCard>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column: Interactive What-If Simulator */}
+          <GlassPanel className="lg:col-span-1 space-y-6">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="title-ogg text-xl text-[#fdf1e1]">What-If Simulator</h3>
+                <GlassBadge status="CALCULATED" label="Live Math" />
+              </div>
+              <p className="text-xs text-[#8aacca]">
+                Slide shipowner quote to see immediate impact on verdict and target margin.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-xs text-[#8aacca] mb-2">
+                  <span>Simulated Quote (USD)</span>
+                  <span className="font-bold text-[#fdf1e1]">{fmt(whatIfPrice)}</span>
                 </div>
+                <input
+                  type="range"
+                  min={Math.max(100000, (ev?.max_acceptable_price_usd || 1000000) * 0.4)}
+                  max={(ev?.quoted_price_usd || 3000000) * 2}
+                  step={50000}
+                  value={whatIfPrice}
+                  onChange={(e) => handleWhatIfChange(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-[#0a121c] rounded-lg appearance-none cursor-pointer accent-[#2a9aff]"
+                />
+                <div className="flex justify-between text-[10px] text-[#6b8499] mt-1">
+                  <span>Min: ${((ev?.max_acceptable_price_usd || 1000000) * 0.4 / 1e6).toFixed(1)}M</span>
+                  <span>Target: ${((ev?.max_acceptable_price_usd || 0) / 1e6).toFixed(2)}M</span>
+                  <span>Max: ${(((ev?.quoted_price_usd || 3000000) * 2) / 1e6).toFixed(1)}M</span>
+                </div>
+              </div>
 
-                <div className="card p-5">
-                  <div className="label mb-3">P&L Breakdown <span className="badge badge-calculated ml-2">CALCULATED</span></div>
-                  <div className="space-y-2 text-sm">
-                    {[
-                      { l: 'Volume', v: `${ev.volume_bbls?.toLocaleString()} bbls`, p: 'CONFIRMED' },
-                      { l: 'Quoted Price', v: fmt(ev.quoted_price_usd), p: 'CONFIRMED' },
-                      { l: 'Freight Cost', v: `${fmt(ev.freight_usd)} (${fmt(ev.freight_per_bbl, '$', 2)}/bbl)`, p: 'SIMULATED' },
-                      { l: 'Insurance', v: fmt(ev.insurance_usd), p: 'SIMULATED' },
-                      { l: 'Handling', v: fmt(ev.handling_usd), p: 'SIMULATED' },
-                      { l: 'Landed Cost', v: fmt(ev.landed_cost_usd), p: 'CALCULATED', bold: true },
-                      { l: 'Cost per Barrel', v: fmt(ev.landed_cost_per_bbl, '$', 2), p: 'CALCULATED' },
-                      { l: 'Market Price Used', v: `$${ev.market_price_used_usd}/bbl`, p: ev.market_price_provenance },
-                      { l: 'Expected Revenue', v: fmt(ev.expected_revenue_usd), p: 'CALCULATED' },
-                      { l: 'Expected Profit', v: fmt(ev.expected_profit_usd), p: 'CALCULATED', highlight: ev.expected_profit_usd > 0 ? 'text-go' : 'text-reject' },
-                    ].map(row => (
-                      <div key={row.l} className={`data-row ${row.bold ? 'border-t border-border-mid pt-2' : ''}`}>
-                        <span className="data-label">{row.l}</span>
-                        <div className="flex items-center gap-2">
-                          <span className={`data-value ${row.highlight || ''} ${row.bold ? 'font-bold' : ''}`}>{row.v}</span>
-                          <ProvenanceBadge status={row.p} />
-                        </div>
-                      </div>
-                    ))}
+              {whatIfLoading && (
+                <div className="text-xs text-[#2a9aff] text-center animate-pulse">
+                  Recalculating P&L arithmetic...
+                </div>
+              )}
+
+              <div className="p-4 rounded-2xl bg-[#0a121c]/70 border border-[rgba(30,90,140,0.3)] space-y-3 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-[#8aacca]">Simulated Per-Barrel Cost:</span>
+                  <span className="font-semibold text-[#fdf1e1]">
+                    ${ev ? (ev.landed_cost_per_bbl || 0).toFixed(2) : '—'} / bbl
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8aacca]">Simulated Margin:</span>
+                  <span className={`font-semibold ${ev?.expected_margin_pct >= 8 ? 'text-[#10b981]' : 'text-[#f59e0b]'}`}>
+                    {ev ? (ev.expected_margin_pct || 0).toFixed(1) : '—'}%
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#8aacca]">Simulated Verdict:</span>
+                  <GlassBadge status={ev?.deal_verdict || 'GO'} />
+                </div>
+              </div>
+            </div>
+          </GlassPanel>
+
+          {/* Right Column: Full P&L Breakdown Table with Provenance Badges */}
+          <GlassPanel className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between border-b border-[rgba(30,90,140,0.3)] pb-4">
+              <div>
+                <h3 className="title-ogg text-xl text-[#fdf1e1]">Complete Financial P&L Statement</h3>
+                <p className="text-xs text-[#8aacca]">Every line item carries explicit provenance verification.</p>
+              </div>
+              <GlassBadge status="CALCULATED" label="No LLM Math" />
+            </div>
+
+            {ev && (
+              <div className="space-y-3 text-sm">
+                {[
+                  { label: 'Cargo Volume', val: `${ev.volume_bbls?.toLocaleString()} Barrels`, prov: 'CONFIRMED' },
+                  { label: 'Shipowner Quoted Price', val: fmt(ev.quoted_price_usd), prov: 'CONFIRMED' },
+                  { label: 'Freight Transport Cost', val: `${fmt(ev.freight_usd)} ($${(ev.freight_per_bbl || 0).toFixed(2)}/bbl)`, prov: 'SIMULATED' },
+                  { label: 'Insurance Fee ($0.15/bbl)', val: fmt(ev.insurance_usd), prov: 'SIMULATED' },
+                  { label: 'Port Handling Fee ($0.10/bbl)', val: fmt(ev.handling_usd), prov: 'SIMULATED' },
+                  { label: 'Total Landed Cost', val: fmt(ev.landed_cost_usd), prov: 'CALCULATED', bold: true },
+                  { label: 'Landed Cost per Barrel', val: `$${(ev.landed_cost_per_bbl || 0).toFixed(2)} / bbl`, prov: 'CALCULATED', highlight: 'text-[#2a9aff]' },
+                  { label: 'Market Selling Price Used', val: `$${ev.market_price_used_usd || 85.00} / bbl`, prov: ev.market_price_provenance || 'SIMULATED' },
+                  { label: 'Expected Total Revenue', val: fmt(ev.expected_revenue_usd), prov: 'CALCULATED' },
+                  { label: 'Expected Net Profit', val: fmt(ev.expected_profit_usd), prov: 'CALCULATED', highlight: ev.expected_profit_usd >= 0 ? 'text-[#10b981]' : 'text-[#ef4444]' },
+                  { label: 'Maximum Acceptable Price Ceiling', val: fmt(ev.max_acceptable_price_usd), prov: 'CALCULATED', highlight: 'text-[#f59e0b]' },
+                ].map((row, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-between py-2.5 px-3 rounded-xl ${
+                      row.bold ? 'bg-[#1e6faa]/15 border border-[#2a9aff]/30 font-semibold' : 'hover:bg-white/5'
+                    }`}
+                  >
+                    <span className="text-[#8aacca]">{row.label}</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`font-medium ${row.highlight || 'text-[#fdf1e1]'}`}>{row.val}</span>
+                      <GlassBadge status={row.prov} />
+                    </div>
                   </div>
-                </div>
-              </>
+                ))}
+              </div>
             )}
-
-            {error && (
-              <div className="p-3 bg-reject/10 border border-reject/30 rounded-btn text-sm text-reject">{error}</div>
-            )}
-          </div>
+          </GlassPanel>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function LoadingScreen() {
-  return (
-    <div className="min-h-screen bg-gradient-maritime flex items-center justify-center">
-      <div className="text-center">
-        <div className="text-4xl mb-4 animate-spin-slow">⚙️</div>
-        <div className="text-text-secondary">Evaluating deal economics...</div>
-      </div>
+      </main>
     </div>
   )
 }

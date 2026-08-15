@@ -1,9 +1,12 @@
 'use client'
+
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Navbar } from '@/components/ui/Navbar'
+import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
+import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
-// Leaflet must be loaded client-side only
 let L: any = null
 
 const PORT_COORDS: Record<string, [number, number]> = {
@@ -19,13 +22,13 @@ const PORT_COORDS: Record<string, [number, number]> = {
 }
 
 export default function MapPage() {
-  const params = useSearchParams()
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const scenarioId = params.get('scenario_id') || ''
+  const scenarioId = searchParams.get('scenario_id') || ''
+  
   const mapRef = useRef<any>(null)
   const mapInstanceRef = useRef<any>(null)
 
-  const [loading, setLoading] = useState(false)
   const [vessels, setVessels] = useState<any[]>([])
   const [scenario, setScenario] = useState<any>(null)
   const [selected, setSelected] = useState<any>(null)
@@ -33,7 +36,7 @@ export default function MapPage() {
   const [sourceLabel, setSourceLabel] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Load scenario
+  // Load Scenario Data
   useEffect(() => {
     if (!scenarioId) return
     api.getScenario(scenarioId)
@@ -41,12 +44,11 @@ export default function MapPage() {
       .catch(() => {})
   }, [scenarioId])
 
-  // Init Leaflet map
+  // Initialize Leaflet Dark Canvas Map
   useEffect(() => {
     if (typeof window === 'undefined' || mapInstanceRef.current) return
-    import('leaflet').then(leaflet => {
+    import('leaflet').then((leaflet) => {
       L = leaflet.default
-      // Fix Leaflet default icons
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -55,68 +57,70 @@ export default function MapPage() {
       })
 
       const map = L.map(mapRef.current, {
-        center: [15, 60],
+        center: [18, 62],
         zoom: 4,
-        zoomControl: true,
+        zoomControl: false,
       })
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO',
+        attribution: '© CARTO © OpenStreetMap',
         maxZoom: 18,
       }).addTo(map)
 
+      L.control.zoom({ position: 'bottomright' }).addTo(map)
       mapInstanceRef.current = map
     })
   }, [])
 
-  // Add vessel markers
+  // Render Markers
   useEffect(() => {
     if (!mapInstanceRef.current || !L || vessels.length === 0) return
     const map = mapInstanceRef.current
 
-    vessels.forEach(v => {
+    vessels.forEach((v) => {
       if (!v.current_lat || !v.current_lon) return
 
-      const icon = L.divIcon({
+      const vesselIcon = L.divIcon({
         className: '',
         html: `<div style="
-          background: rgba(239,68,68,0.2);
-          border: 2px solid #ef4444;
+          background: rgba(244,63,94,0.25);
+          border: 2px solid #fb7185;
           border-radius: 50%;
-          width: 14px; height: 14px;
+          width: 16px; height: 16px;
+          box-shadow: 0 0 14px rgba(244,63,94,0.7);
           cursor: pointer;
-          box-shadow: 0 0 8px rgba(239,68,68,0.5);
         "></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       })
 
-      const marker = L.marker([v.current_lat, v.current_lon], { icon })
+      const marker = L.marker([v.current_lat, v.current_lon], { icon: vesselIcon })
         .addTo(map)
         .on('click', () => setSelected(v))
 
       marker.bindTooltip(`
-        <b>${v.name}</b><br/>
-        ${v.vessel_type || ''} · ${v.flag || ''}<br/>
-        <span style="color:#ef4444;font-size:10px">CANDIDATE — UNVERIFIED</span>
-      `, { permanent: false })
+        <div style="background:#0f1a26; color:#fdf1e1; padding:6px 10px; border-radius:8px; border:1px solid rgba(30,90,140,0.4);">
+          <strong style="font-size:12px;">${v.name}</strong><br/>
+          <span style="font-size:10px; color:#fb7185;">CANDIDATE — UNVERIFIED</span>
+        </div>
+      `, { permanent: false, direction: 'top' })
     })
 
-    // Add port markers
+    // Render Ports
     Object.entries(PORT_COORDS).forEach(([name, coords]) => {
       const portIcon = L.divIcon({
         className: '',
         html: `<div style="
-          background: rgba(42,154,255,0.2);
+          background: rgba(42,154,255,0.3);
           border: 2px solid #2a9aff;
-          border-radius: 3px;
-          width: 10px; height: 10px;
-        " title="${name}"></div>`,
-        iconSize: [10, 10],
-        iconAnchor: [5, 5],
+          border-radius: 4px;
+          width: 12px; height: 12px;
+          box-shadow: 0 0 10px rgba(42,154,255,0.5);
+        "></div>`,
+        iconSize: [12, 12],
+        iconAnchor: [6, 6],
       })
-      L.marker(coords, { icon: portIcon }).addTo(map)
-        .bindTooltip(name)
+      L.marker(coords, { icon: portIcon }).addTo(map).bindTooltip(name)
     })
   }, [vessels])
 
@@ -136,143 +140,163 @@ export default function MapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-maritime flex flex-col">
-      {/* Topbar */}
-      <div className="bg-bg-panel border-b border-border-dim px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <span className="font-display text-accent-bright">MARITIME</span>
-          <span className="text-text-muted text-sm">/ Network Map</span>
-        </div>
-        <div className="flex items-center gap-3">
-          {scenario && (
-            <span className="text-sm text-text-secondary">
-              {scenario.product?.toUpperCase()} · {Number(scenario.volume_required).toLocaleString()} {scenario.volume_unit} → {scenario.destination_port_name}
-            </span>
-          )}
-          <button className="btn-primary" onClick={handleDiscover} disabled={discovering || !scenarioId}>
-            {discovering ? '🔍 Searching AIS...' : '🔍 Discover Vessels'}
-          </button>
-          <button className="btn-ghost" onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}`)}>
-            ✅ Confirm a Deal →
-          </button>
-        </div>
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#080e14]">
+      <Navbar scenarioId={scenarioId} />
+
+      {/* Fullscreen Map Canvas */}
+      <div className="absolute inset-0 z-0 top-[60px]">
+        <div ref={mapRef} className="w-full h-full" />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Map */}
-        <div className="flex-1 relative">
-          <div ref={mapRef} className="w-full h-full" style={{ minHeight: 'calc(100vh - 56px)' }} />
-          {vessels.length === 0 && !discovering && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="card p-6 text-center max-w-sm pointer-events-auto">
-                <div className="text-4xl mb-3">🗺️</div>
-                <div className="section-title text-lg mb-2">No Vessels Yet</div>
-                <p className="text-sm text-text-secondary mb-4">Click "Discover Vessels" to search AIS for candidates near your destination.</p>
-                <button className="btn-primary w-full" onClick={handleDiscover} disabled={!scenarioId}>
-                  {discovering ? 'Searching...' : 'Discover Vessels'}
-                </button>
-              </div>
+      {/* Floating UI Overlays */}
+      <div className="relative z-10 p-4 sm:p-6 flex-1 flex flex-col justify-between pointer-events-none">
+        
+        {/* Top Floating Glass Summary & Action */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-auto">
+          {/* Scenario Floating Card */}
+          <GlassPanel className="p-4 sm:p-5 border-[#1e6faa]/40 shadow-[0_16px_40px_rgba(0,0,0,0.7)] backdrop-blur-3xl">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">Active Supply Scenario</span>
+              <GlassBadge status="CONFIRMED" label="Active" />
             </div>
-          )}
+            {scenario ? (
+              <div className="flex items-center gap-4 flex-wrap text-sm text-[#fdf1e1]">
+                <div className="font-semibold text-lg text-[#2a9aff]">
+                  {Number(scenario.volume_required).toLocaleString()} {scenario.volume_unit}
+                </div>
+                <div className="text-xs text-[#8aacca]">
+                  Product: <strong className="text-[#fdf1e1] uppercase">{scenario.product}</strong>
+                </div>
+                <div className="text-xs text-[#8aacca]">
+                  Destination: <strong className="text-[#fdf1e1]">{scenario.destination_port_name}</strong>
+                </div>
+                <div className="text-xs text-[#8aacca]">
+                  Deadline: <strong className="text-[#fdf1e1]">{scenario.deadline_days} Days</strong>
+                </div>
+              </div>
+            ) : (
+              <span className="text-xs text-[#6b8499]">Loading scenario details...</span>
+            )}
+          </GlassPanel>
+
+          {/* Discover Button Floating Card */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDiscover}
+              disabled={discovering || !scenarioId}
+              className="btn-paper text-sm px-6 py-3 shadow-[0_12px_30px_rgba(0,0,0,0.5)] font-semibold"
+            >
+              {discovering ? '🔍 Scanning AIS Network...' : '🔍 Discover Vessels'}
+            </button>
+          </div>
         </div>
 
-        {/* Side panel */}
-        <aside className="w-80 bg-bg-panel border-l border-border-dim flex flex-col overflow-y-auto">
-          {selected ? (
-            <VesselDetail vessel={selected} scenarioId={scenarioId} onClose={() => setSelected(null)} router={router} />
-          ) : (
-            <VesselList vessels={vessels} sourceLabel={sourceLabel} onSelect={setSelected} />
+        {/* Bottom Floating Vessel Candidate Drawer / Side Glass */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pointer-events-auto items-end">
+          {/* Candidate Vessel List Panel */}
+          <GlassPanel className="col-span-1 md:col-span-1 p-5 max-h-[380px] overflow-y-auto space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
+                AIS Candidates ({vessels.length})
+              </span>
+              {sourceLabel && <GlassBadge status="SIMULATED" label={sourceLabel} />}
+            </div>
+
+            {vessels.length === 0 && (
+              <div className="text-center py-8 text-[#6b8499] text-xs">
+                Click "Discover Vessels" to scan AIS network positions near your destination.
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {vessels.map((v) => (
+                <GlassCard
+                  key={v.id}
+                  onClick={() => setSelected(v)}
+                  className={`p-3.5 border ${
+                    selected?.id === v.id
+                      ? 'border-[#2a9aff] bg-[#1e6faa]/25'
+                      : 'border-[rgba(30,80,120,0.25)] hover:border-[#1e6faa]/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="font-semibold text-sm text-[#fdf1e1]">{v.name}</div>
+                      <div className="text-xs text-[#8aacca]">{v.vessel_type || 'Tanker'} · {v.flag || 'Marshall Islands'}</div>
+                    </div>
+                    <GlassBadge status="CANDIDATE_UNVERIFIED" />
+                  </div>
+                  {v.speed_knots && (
+                    <div className="mt-2 text-xs text-[#6b8499] flex justify-between">
+                      <span>Speed: {v.speed_knots} kn</span>
+                      <span>ETA: ~{v.eta_days_to_dest || 4} days</span>
+                    </div>
+                  )}
+                </GlassCard>
+              ))}
+            </div>
+          </GlassPanel>
+
+          {/* Selected Vessel Detail Floating Panel */}
+          {selected && (
+            <GlassPanel className="col-span-1 md:col-span-2 p-6 animate-slide-up border-[#2a9aff]/50 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h2 className="title-ogg text-2xl text-[#fdf1e1]">{selected.name}</h2>
+                    <GlassBadge status="CANDIDATE_UNVERIFIED" />
+                  </div>
+                  <p className="text-xs text-[#8aacca]">
+                    {selected.vessel_type} · Flag: {selected.flag || 'N/A'} · DWT: {selected.dwt ? selected.dwt.toLocaleString() : 'N/A'} MT
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelected(null)}
+                  className="text-[#6b8499] hover:text-[#fdf1e1] text-lg font-bold"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-xs">
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                  <div className="text-[#6b8499]">Destination</div>
+                  <div className="font-semibold text-[#fdf1e1] mt-1">{selected.current_destination || 'En route'}</div>
+                </div>
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                  <div className="text-[#6b8499]">Speed</div>
+                  <div className="font-semibold text-[#fdf1e1] mt-1">{selected.speed_knots || 13} knots</div>
+                </div>
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                  <div className="text-[#6b8499]">Coordinates</div>
+                  <div className="font-semibold text-[#fdf1e1] mt-1">{selected.current_lat?.toFixed(2)}, {selected.current_lon?.toFixed(2)}</div>
+                </div>
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                  <div className="text-[#6b8499]">AIS Source</div>
+                  <div className="font-semibold text-[#2a9aff] mt-1">{selected.source}</div>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-xs text-[#fbbf24] mb-4 flex items-center justify-between">
+                <span>⚠️ AIS tracks vessel movement. Commercial cargo availability must be verified with shipowner.</span>
+              </div>
+
+              <button
+                onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selected.id}&vessel_name=${encodeURIComponent(selected.name)}`)}
+                className="btn-paper text-sm px-6 py-3 w-full font-semibold"
+              >
+                ✅ Verify Commercial Opportunity & Enter Quote →
+              </button>
+            </GlassPanel>
           )}
-        </aside>
+        </div>
       </div>
 
       {error && (
-        <div className="fixed bottom-4 right-4 card p-4 bg-reject/10 border-reject/40 text-reject text-sm max-w-sm">
+        <div className="fixed bottom-4 right-4 z-50 p-4 rounded-xl bg-[#ef4444]/20 border border-[#ef4444]/40 text-sm text-[#ef4444]">
           ⚠️ {error}
-          <button onClick={() => setError(null)} className="ml-3 text-text-muted">×</button>
         </div>
       )}
-    </div>
-  )
-}
-
-function VesselList({ vessels, sourceLabel, onSelect }: any) {
-  return (
-    <div className="p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <div className="label">Vessel Candidates ({vessels.length})</div>
-        {sourceLabel && (
-          <span className={`badge ${sourceLabel.includes('SIMULATED') ? 'badge-simulated' : 'badge-candidate'} text-xs`}>
-            {sourceLabel.includes('SIMULATED') ? 'SIMULATED' : 'AIS LIVE'}
-          </span>
-        )}
-      </div>
-      {vessels.length === 0 && (
-        <p className="text-sm text-text-muted">No candidates discovered yet.</p>
-      )}
-      {vessels.map((v: any, i: number) => (
-        <button key={v.id || i} className="card p-4 text-left hover:border-accent/60 transition-all" onClick={() => onSelect(v)}>
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <div className="font-medium text-sm text-text-primary">{v.name}</div>
-              <div className="text-xs text-text-muted">{v.vessel_type} · {v.flag}</div>
-            </div>
-            <span className="badge badge-candidate text-xs whitespace-nowrap">UNVERIFIED</span>
-          </div>
-          {v.current_destination && (
-            <div className="text-xs text-text-secondary">→ {v.current_destination}</div>
-          )}
-          {v.speed_knots && (
-            <div className="text-xs text-text-muted">{v.speed_knots} kn</div>
-          )}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function VesselDetail({ vessel, scenarioId, onClose, router }: any) {
-  return (
-    <div className="p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="label">Vessel Detail</div>
-        <button className="text-text-muted hover:text-text-primary text-lg" onClick={onClose}>×</button>
-      </div>
-
-      <div className="card p-4">
-        <div className="flex items-start justify-between mb-3">
-          <h2 className="font-medium text-text-primary">{vessel.name}</h2>
-          <span className="badge badge-candidate">CANDIDATE — UNVERIFIED</span>
-        </div>
-        <div className="space-y-2">
-          {[
-            ['Type', vessel.vessel_type],
-            ['Flag', vessel.flag],
-            ['DWT', vessel.dwt ? `${vessel.dwt.toLocaleString()} MT` : 'Unknown'],
-            ['Destination', vessel.current_destination || 'Unknown'],
-            ['Speed', vessel.speed_knots ? `${vessel.speed_knots} knots` : 'Unknown'],
-            ['Position', vessel.current_lat ? `${vessel.current_lat?.toFixed(2)}, ${vessel.current_lon?.toFixed(2)}` : 'Unknown'],
-            ['AIS Source', vessel.source],
-            ['Timestamp', vessel.ais_timestamp ? new Date(vessel.ais_timestamp).toLocaleString() : 'Unknown'],
-          ].map(([k, v]) => v && (
-            <div key={k} className="data-row">
-              <span className="data-label">{k}</span>
-              <span className="data-value text-xs">{v}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-btn text-xs text-amber-300">
-        ⚠️ AIS data shows vessel movement only. Available cargo capacity is UNKNOWN. Contact the vessel operator or broker to verify commercial availability before confirming.
-      </div>
-
-      <button
-        className="btn-primary w-full"
-        onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${vessel.id}&vessel_name=${encodeURIComponent(vessel.name)}`)}
-      >
-        ✅ Verify Commercial Opportunity
-      </button>
     </div>
   )
 }

@@ -1,5 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -7,82 +8,78 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // ── Exact tokens from the existing landing page (styles.css) ──
       colors: {
-        // Backgrounds
-        'bg-deep':    '#060b10',
-        'bg-base':    '#080e14',
-        'bg-panel':   '#0d1822',
-        'bg-surface': '#0f1d2b',
-        'bg-card':    '#111f2e',
-        'bg-hover':   '#152434',
-        // Borders
-        'border-dim':    'rgba(30,90,140,0.25)',
-        'border-mid':    'rgba(30,90,140,0.45)',
-        'border-bright': 'rgba(40,120,180,0.7)',
-        // Text
-        'text-primary':   '#e2eaf4',
-        'text-secondary': '#8aacca',
-        'text-muted':     '#4a6e8a',
-        // Accent blues (from landing page)
-        'accent':         '#1e6faa',
-        'accent-bright':  '#2a9aff',
-        'accent-glow':    '#0d4a7a',
-        // Verdict colours
-        'go':        '#10b981',
-        'negotiate': '#f59e0b',
-        'reject':    '#ef4444',
-        // Provenance badge colours
-        'prov-confirmed':  '#10b981',
-        'prov-reference':  '#3b82f6',
-        'prov-estimated':  '#f59e0b',
-        'prov-simulated':  '#6b7280',
-        'prov-candidate':  '#ef4444',
-        'prov-calculated': '#8b5cf6',
+        // Landing page exact color tokens
+        paper: '#fdf1e1',
+        ink: '#111411',
+        'bg-dark': '#0b1110',
+        'cc-bg': '#080e14',
+        'cc-surface': '#0f1a26',
+        'cc-surface-2': '#162030',
+        'cc-border': 'rgba(30, 80, 120, 0.35)',
+        'cc-border-bright': 'rgba(42, 154, 255, 0.5)',
+        
+        // Accents
+        accent: '#1e6faa',
+        'accent-bright': '#2a9aff',
+        'accent-glow': '#0d4a7a',
+        
+        // Verdict colors
+        go: '#10b981',
+        negotiate: '#f59e0b',
+        reject: '#ef4444',
+
+        // Provenance colors
+        'prov-confirmed': '#10b981',
+        'prov-reference': '#3b82f6',
+        'prov-estimated': '#f59e0b',
+        'prov-simulated': '#9ca3af',
+        'prov-candidate': '#f43f5e',
+        'prov-calculated': '#a855f7',
       },
       fontFamily: {
-        // Display: same Ogg font as landing page
         display: ['"Ogg Medium"', 'Georgia', 'serif'],
-        // Body: Inter to match landing page body text
-        body: ['Inter', 'system-ui', 'sans-serif'],
+        body: ['Inter', '"Space Grotesk"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
-      fontSize: {
-        'display-xl': ['3.5rem', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
-        'display-lg': ['2.5rem', { lineHeight: '1.08', letterSpacing: '-0.02em' }],
-        'display-md': ['1.75rem', { lineHeight: '1.15', letterSpacing: '-0.01em' }],
-      },
-      backgroundImage: {
-        'gradient-maritime': 'linear-gradient(135deg, #060b10 0%, #0a1628 40%, #061020 100%)',
-        'gradient-card': 'linear-gradient(145deg, #0f1d2b 0%, #091420 100%)',
-        'gradient-accent': 'linear-gradient(135deg, #1e6faa 0%, #0d4a7a 100%)',
+      borderRadius: {
+        '2xl': '20px',
+        '3xl': '24px',
+        '4xl': '28px',
+        pill: '999px',
       },
       boxShadow: {
-        'card': '0 4px 24px rgba(0,0,0,0.6), 0 1px 0 rgba(30,90,140,0.25)',
-        'card-hover': '0 8px 40px rgba(0,0,0,0.7), 0 1px 0 rgba(40,120,180,0.45)',
-        'glow-blue': '0 0 24px rgba(42,154,255,0.2)',
-        'glow-go': '0 0 20px rgba(16,185,129,0.25)',
-        'glow-reject': '0 0 20px rgba(239,68,68,0.25)',
+        glass: '0 20px 50px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.1) inset',
+        'glass-hover': '0 24px 60px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.2) inset',
+        paper: '0 16px 36px rgba(0, 0, 0, 0.25)',
+        glow: '0 0 30px rgba(42, 154, 255, 0.25)',
+        'glow-go': '0 0 24px rgba(16, 185, 129, 0.3)',
+        'glow-reject': '0 0 24px rgba(239, 68, 68, 0.3)',
       },
-      borderRadius: {
-        'card': '12px',
-        'btn': '8px',
+      backgroundImage: {
+        'cinematic-gradient': 'radial-gradient(ellipse at 50% 0%, #0d1e30 0%, #080e14 60%, #04080c 100%)',
+        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)',
+        'paper-gradient': 'linear-gradient(180deg, #fdf1e1 0%, #f7e6d0 100%)',
       },
       animation: {
-        'fade-in': 'fadeIn 0.4s ease forwards',
-        'slide-up': 'slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
-        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
-        'spin-slow': 'spin 3s linear infinite',
+        'fade-in': 'fadeIn 0.5s ease-out forwards',
+        'slide-up': 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         pulseGlow: {
-          '0%,100%': { boxShadow: '0 0 8px rgba(42,154,255,0.15)' },
-          '50%': { boxShadow: '0 0 24px rgba(42,154,255,0.4)' },
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.8' },
         },
       },
     },
   },
   plugins: [],
 }
+
+export default config

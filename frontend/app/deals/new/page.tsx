@@ -1,40 +1,44 @@
 'use client'
+
 import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Navbar } from '@/components/ui/Navbar'
+import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
+import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
 const DEAL_TYPES = [
-  { value: 'vessel',         label: '🚢 Vessel' },
-  { value: 'pipeline',       label: '🔧 Pipeline' },
-  { value: 'alternate_route',label: '🗺️ Alternate Route' },
-  { value: 'supplier',       label: '🏭 Alternate Supplier' },
+  { value: 'vessel', label: '🚢 Vessel Charter' },
+  { value: 'pipeline', label: '🔧 Pipeline Capacity' },
+  { value: 'alternate_route', label: '🗺️ Alternate Sea Route' },
+  { value: 'supplier', label: '🏭 Spot Supplier' },
 ]
 
 export default function NewDealPage() {
-  const params = useSearchParams()
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const scenarioId = params.get('scenario_id') || ''
-  const vesselId = params.get('vessel_id') || ''
-  const vesselName = params.get('vessel_name') || ''
+  const scenarioId = searchParams.get('scenario_id') || ''
+  const vesselId = searchParams.get('vessel_id') || ''
+  const vesselName = searchParams.get('vessel_name') || ''
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     deal_type: 'vessel',
-    counterparty: vesselName,
-    product: 'crude',
-    capacity_pct: '',
-    capacity_volume: '',
-    quoted_price: '',
+    counterparty: vesselName || '',
+    product: 'diesel',
+    capacity_pct: '20',
+    capacity_volume: '400000',
+    quoted_price: '3000000',
     quoted_price_currency: 'USD',
     quoted_price_unit: 'lumpsum',
     availability_date: '',
-    contact_reference: '',
-    notes: '',
+    contact_reference: 'Broker Ref: MAR-2026-88',
+    notes: 'Freight terms verified directly with shipowner broker.',
   })
 
-  const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }))
+  const set = (k: string, v: any) => setForm((f) => ({ ...f, [k]: v }))
 
   const handleSubmit = async () => {
     if (!form.quoted_price) return
@@ -58,7 +62,6 @@ export default function NewDealPage() {
       if (form.capacity_volume) payload.capacity_volume = parseFloat(form.capacity_volume)
 
       const deal = await api.createDeal(payload)
-      // Go to deal evaluator
       router.push(`/deals/${deal.id}?scenario_id=${scenarioId}`)
     } catch (e: any) {
       setError(e.message)
@@ -68,128 +71,203 @@ export default function NewDealPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-maritime">
-      {/* Topbar */}
-      <div className="bg-bg-panel border-b border-border-dim px-6 py-3 flex items-center gap-4">
-        <span className="font-display text-accent-bright">MARITIME</span>
-        <span className="text-text-muted text-sm">/ Confirm Commercial Deal</span>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navbar scenarioId={scenarioId} />
 
-      <div className="max-w-2xl mx-auto p-8">
-        <div className="mb-6">
-          <h1 className="section-title mb-1">Confirm Commercial Deal</h1>
-          <p className="text-sm text-text-secondary">
-            Enter the commercial terms verified with the vessel operator / broker / supplier.
-            This becomes a <span className="badge badge-confirmed mx-1">CONFIRMED</span> record.
+      <main className="flex-1 max-w-3xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 animate-fade-in">
+        <div className="text-center space-y-2">
+          <GlassBadge status="CONFIRMED" label="Commercial Verification" />
+          <h1 className="title-ogg text-3xl sm:text-4xl text-[#fdf1e1]">
+            Verify Commercial Opportunity
+          </h1>
+          <p className="text-sm text-[#8aacca]">
+            Confirm commercial terms with the vessel operator or supplier to create a verified record.
           </p>
         </div>
 
         {vesselName && (
-          <div className="card p-3 mb-5 flex items-center gap-3">
-            <span className="badge badge-candidate">CANDIDATE → CONFIRMING</span>
-            <span className="text-sm text-text-primary font-medium">{vesselName}</span>
+          <div className="p-4 rounded-2xl bg-[#1e6faa]/15 border border-[#2a9aff]/40 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">🚢</span>
+              <div>
+                <div className="font-semibold text-[#fdf1e1] text-sm">{vesselName}</div>
+                <div className="text-xs text-[#8aacca]">Converting AIS candidate to verified commercial deal</div>
+              </div>
+            </div>
+            <GlassBadge status="CONFIRMED" />
           </div>
         )}
 
-        <div className="card p-6 space-y-5">
-          {/* Deal type */}
-          <div>
-            <label className="label mb-2 block">Deal Type *</label>
-            <div className="grid grid-cols-2 gap-2">
-              {DEAL_TYPES.map(dt => (
-                <button key={dt.value} onClick={() => set('deal_type', dt.value)}
-                  className={`p-3 rounded-btn border text-sm text-left transition-all
-                    ${form.deal_type === dt.value ? 'border-accent bg-accent/10 text-text-primary' : 'border-border-dim text-text-secondary hover:border-border-mid'}`}>
-                  {dt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <GlassPanel>
+          <div className="space-y-5">
+            {/* Deal Type Selection */}
             <div>
-              <label className="label mb-2 block">Counterparty / Operator</label>
-              <input className="input" placeholder="e.g. Stena Line, Aramco"
-                value={form.counterparty} onChange={e => set('counterparty', e.target.value)} />
-            </div>
-            <div>
-              <label className="label mb-2 block">Product *</label>
-              <select className="select" value={form.product} onChange={e => set('product', e.target.value)}>
-                {['crude', 'diesel', 'gasoline', 'refined', 'lng'].map(p => (
-                  <option key={p} value={p}>{p}</option>
+              <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                Supply Deal Category *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {DEAL_TYPES.map((dt) => (
+                  <button
+                    key={dt.value}
+                    onClick={() => set('deal_type', dt.value)}
+                    className={`p-3 rounded-xl text-xs font-medium text-left border transition-all ${
+                      form.deal_type === dt.value
+                        ? 'bg-[#1e6faa] border-[#2a9aff] text-[#fdf1e1]'
+                        : 'bg-[#0a121c]/60 border-[rgba(30,80,120,0.3)] text-[#8aacca] hover:border-[#1e6faa]'
+                    }`}
+                  >
+                    {dt.label}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
-          </div>
 
-          {/* Capacity */}
-          <div>
-            <label className="label mb-2 block">Available Capacity <span className="badge badge-confirmed ml-2">CONFIRMED — HUMAN VERIFIED</span></label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <div className="text-xs text-text-muted mb-1">As percentage (%)</div>
-                <input className="input" type="number" min="0" max="100" placeholder="e.g. 20"
-                  value={form.capacity_pct} onChange={e => set('capacity_pct', e.target.value)} />
+                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                  Counterparty / Operator Name
+                </label>
+                <input
+                  className="glass-input"
+                  placeholder="e.g. Stena Bulk, Saudi Aramco"
+                  value={form.counterparty}
+                  onChange={(e) => set('counterparty', e.target.value)}
+                />
               </div>
+
               <div>
-                <div className="text-xs text-text-muted mb-1">OR as volume (bbls)</div>
-                <input className="input" type="number" placeholder="e.g. 400000"
-                  value={form.capacity_volume} onChange={e => set('capacity_volume', e.target.value)} />
+                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                  Commodity Product
+                </label>
+                <select
+                  className="glass-input bg-[#0a121c]"
+                  value={form.product}
+                  onChange={(e) => set('product', e.target.value)}
+                >
+                  {['crude', 'diesel', 'gasoline', 'refined', 'lng'].map((p) => (
+                    <option key={p} value={p}>{p.toUpperCase()}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          </div>
 
-          {/* Quote */}
-          <div>
-            <label className="label mb-2 block">Quoted Price * <span className="badge badge-confirmed ml-2">CONFIRMED — HUMAN VERIFIED</span></label>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="col-span-1">
-                <input className="input" type="number" step="0.01" placeholder="e.g. 2000000"
-                  value={form.quoted_price} onChange={e => set('quoted_price', e.target.value)} />
+            {/* Capacity Input */}
+            <div className="p-4 rounded-xl bg-[#0a121c]/60 border border-[rgba(30,80,120,0.3)] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
+                  Commercial Capacity
+                </span>
+                <GlassBadge status="CONFIRMED" label="Human Verified" />
               </div>
-              <select className="select" value={form.quoted_price_currency} onChange={e => set('quoted_price_currency', e.target.value)}>
-                <option value="USD">USD</option>
-                <option value="INR">INR (₹)</option>
-                <option value="EUR">EUR</option>
-              </select>
-              <select className="select" value={form.quoted_price_unit} onChange={e => set('quoted_price_unit', e.target.value)}>
-                <option value="lumpsum">Lump sum</option>
-                <option value="per_bbl">Per barrel</option>
-              </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <span className="text-xs text-[#6b8499] block mb-1">Capacity %</span>
+                  <input
+                    className="glass-input"
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="20"
+                    value={form.capacity_pct}
+                    onChange={(e) => set('capacity_pct', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <span className="text-xs text-[#6b8499] block mb-1">Capacity Volume (bbls)</span>
+                  <input
+                    className="glass-input"
+                    type="number"
+                    placeholder="400000"
+                    value={form.capacity_volume}
+                    onChange={(e) => set('capacity_volume', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Quoted Price */}
+            <div className="p-4 rounded-xl bg-[#0a121c]/60 border border-[rgba(30,80,120,0.3)] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
+                  Shipowner / Operator Quote *
+                </span>
+                <GlassBadge status="CONFIRMED" label="Human Verified" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  className="glass-input col-span-1"
+                  type="number"
+                  placeholder="3000000"
+                  value={form.quoted_price}
+                  onChange={(e) => set('quoted_price', e.target.value)}
+                />
+                <select
+                  className="glass-input bg-[#0a121c]"
+                  value={form.quoted_price_currency}
+                  onChange={(e) => set('quoted_price_currency', e.target.value)}
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="INR">INR (₹ Lakh)</option>
+                  <option value="EUR">EUR (€)</option>
+                </select>
+                <select
+                  className="glass-input bg-[#0a121c]"
+                  value={form.quoted_price_unit}
+                  onChange={(e) => set('quoted_price_unit', e.target.value)}
+                >
+                  <option value="lumpsum">Lump Sum Total</option>
+                  <option value="per_bbl">Per Barrel ($/bbl)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                  Contact Reference
+                </label>
+                <input
+                  className="glass-input"
+                  placeholder="e.g. Broker Email / Ref ID"
+                  value={form.contact_reference}
+                  onChange={(e) => set('contact_reference', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                  Availability Date
+                </label>
+                <input
+                  className="glass-input"
+                  type="date"
+                  value={form.availability_date}
+                  onChange={(e) => set('availability_date', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-4 rounded-xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-4 border-t border-[rgba(30,90,140,0.3)]">
+              <button className="btn-ghost-glass" onClick={() => router.back()}>
+                ← Cancel
+              </button>
+              <button
+                className="btn-paper px-8 text-base font-semibold"
+                onClick={handleSubmit}
+                disabled={loading || !form.quoted_price}
+              >
+                {loading ? 'Saving Deal...' : '✅ Save Deal & Evaluate Economics →'}
+              </button>
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label mb-2 block">Availability Date</label>
-              <input className="input" type="date"
-                value={form.availability_date} onChange={e => set('availability_date', e.target.value)} />
-            </div>
-            <div>
-              <label className="label mb-2 block">Contact Reference</label>
-              <input className="input" placeholder="e.g. email / broker ref"
-                value={form.contact_reference} onChange={e => set('contact_reference', e.target.value)} />
-            </div>
-          </div>
-
-          <div>
-            <label className="label mb-2 block">Notes</label>
-            <textarea className="input h-20 resize-none" placeholder="Additional terms, conditions, restrictions..."
-              value={form.notes} onChange={e => set('notes', e.target.value)} />
-          </div>
-
-          {error && (
-            <div className="p-3 bg-reject/10 border border-reject/30 rounded-btn text-sm text-reject">{error}</div>
-          )}
-
-          <div className="flex gap-3 pt-2">
-            <button className="btn-ghost" onClick={() => router.back()}>← Back</button>
-            <button className="btn-primary flex-1" onClick={handleSubmit} disabled={loading || !form.quoted_price}>
-              {loading ? 'Saving...' : '✅ Confirm Deal & Evaluate →'}
-            </button>
-          </div>
-        </div>
-      </div>
+        </GlassPanel>
+      </main>
     </div>
   )
 }

@@ -1,13 +1,17 @@
 'use client'
+
 import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Navbar } from '@/components/ui/Navbar'
+import { GlassPanel } from '@/components/ui/GlassPanel'
+import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
 export default function ReportPage() {
-  const params = useSearchParams()
+  const searchParams = useSearchParams()
   const router = useRouter()
-  const scenarioId = params.get('scenario_id') || ''
-  const runId = params.get('run_id') || ''
+  const scenarioId = searchParams.get('scenario_id') || ''
+  const runId = searchParams.get('run_id') || ''
 
   const [loading, setLoading] = useState(false)
   const [report, setReport] = useState<any>(null)
@@ -27,111 +31,145 @@ export default function ReportPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-maritime">
-      {/* Topbar */}
-      <div className="bg-bg-panel border-b border-border-dim px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <span className="font-display text-accent-bright">MARITIME</span>
-          <span className="text-text-muted text-sm">/ Decision Report</span>
-        </div>
-        <div className="flex gap-3">
-          <button className="btn-ghost" onClick={() => router.back()}>← Strategy</button>
-          {report && (
-            <a
-              href={api.downloadReport(report.id)}
-              download
-              className="btn-primary"
-            >
-              ⬇️ Download Report
-            </a>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <Navbar scenarioId={scenarioId} />
 
-      <div className="max-w-4xl mx-auto p-8">
-        {!report && !loading && (
-          <div className="card p-10 text-center">
-            <div className="text-5xl mb-4">📄</div>
-            <h1 className="section-title mb-3">Executive Decision Report</h1>
-            <p className="text-sm text-text-secondary mb-6 max-w-md mx-auto">
-              Gemini will generate a structured executive report based on the optimizer results.
-              All numbers come from the deterministic optimization engine — Gemini only provides narrative.
-            </p>
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <span className="badge badge-confirmed">CONFIRMED data only</span>
-              <span className="badge badge-calculated">CALCULATED results</span>
-              <span className="badge badge-simulated">SIMULATED where noted</span>
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
+                Executive Decision Briefing
+              </span>
+              <GlassBadge status="CONFIRMED" label="Provenanced" />
             </div>
-            <button className="btn-primary px-8 py-3 text-base" onClick={generate} disabled={!runId}>
-              🤖 Generate Report with Gemini
+            <h1 className="title-ogg text-3xl sm:text-4xl text-[#fdf1e1]">
+              Maritime Supply Decision Report
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button className="btn-ghost-glass" onClick={() => router.back()}>
+              ← Strategy
             </button>
-            {!runId && (
-              <p className="text-xs text-reject mt-3">Run the optimizer first to generate a report.</p>
+            {report && (
+              <a
+                href={api.downloadReport(report.id)}
+                download
+                className="btn-paper px-6 py-2.5 text-sm font-semibold inline-flex items-center gap-2"
+              >
+                ⬇️ Download Decision Report (.md)
+              </a>
             )}
           </div>
+        </div>
+
+        {error && (
+          <div className="p-4 rounded-xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {!report && !loading && (
+          <GlassPanel className="text-center py-12 space-y-6">
+            <div className="text-5xl">📄</div>
+            <div className="space-y-2 max-w-md mx-auto">
+              <h2 className="title-ogg text-2xl text-[#fdf1e1]">
+                Generate Executive Decision Report
+              </h2>
+              <p className="text-sm text-[#8aacca]">
+                Gemini will synthesize your scenario requirements, confirmed commercial deal terms, and OR-Tools optimization results into a structured decision document.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <GlassBadge status="CONFIRMED" label="Verified Deals" />
+              <GlassBadge status="CALCULATED" label="Math Solved" />
+              <GlassBadge status="SIMULATED" label="Market Prices" />
+            </div>
+
+            <button
+              onClick={generate}
+              disabled={!runId}
+              className="btn-paper text-base px-8 py-3.5 font-semibold"
+            >
+              🤖 Generate Report with Gemini →
+            </button>
+
+            {!runId && (
+              <div className="text-xs text-[#ef4444]">
+                Please run the OR-Tools optimizer first to generate a report.
+              </div>
+            )}
+          </GlassPanel>
         )}
 
         {loading && (
-          <div className="card p-10 text-center">
-            <div className="text-4xl mb-4 animate-spin-slow">⚙️</div>
-            <div className="text-text-secondary">Gemini is generating your report...</div>
-            <div className="text-xs text-text-muted mt-2">This may take 10–20 seconds</div>
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-4 p-3 bg-reject/10 border border-reject/30 rounded-btn text-sm text-reject">{error}</div>
+          <GlassPanel className="text-center py-16 space-y-4">
+            <div className="text-4xl animate-spin">⚙️</div>
+            <div className="text-[#fdf1e1] font-semibold text-lg">Synthesizing Decision Briefing...</div>
+            <div className="text-xs text-[#8aacca]">Gemini is assembling Markdown report with exact provenance tags.</div>
+          </GlassPanel>
         )}
 
         {report && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <GlassPanel className="p-8 sm:p-10 space-y-6">
+            <div className="flex items-center justify-between border-b border-[rgba(30,90,140,0.3)] pb-4">
               <div>
-                <div className="section-title">Decision Report</div>
-                <div className="text-xs text-text-muted mt-1">
-                  Generated by: {report.generated_by} · {report.model_used || 'template'} · {new Date(report.created_at).toLocaleString()}
-                </div>
+                <span className="text-xs text-[#6b8499] uppercase tracking-wider block">Document ID</span>
+                <span className="font-mono text-xs text-[#2a9aff]">{report.id}</span>
               </div>
-              <a href={api.downloadReport(report.id)} download className="btn-primary">
-                ⬇️ Download .md
-              </a>
+              <div className="text-right">
+                <span className="text-xs text-[#6b8499] uppercase tracking-wider block">Generated By</span>
+                <span className="text-xs text-[#fdf1e1] font-medium">{report.generated_by} · {report.model_used || 'Template'}</span>
+              </div>
             </div>
 
-            <div className="card p-8">
-              <div
-                className="prose prose-invert prose-sm max-w-none
-                  prose-headings:font-display prose-headings:text-text-primary
-                  prose-p:text-text-secondary prose-strong:text-text-primary
-                  prose-table:text-sm prose-td:border-border-dim prose-th:border-border-dim
-                  prose-code:text-accent-bright"
-                dangerouslySetInnerHTML={{
-                  __html: markdownToHtml(report.report_markdown || '')
-                }}
-              />
+            {/* Formatted Markdown Content */}
+            <div
+              className="prose prose-invert max-w-none space-y-4
+                prose-headings:title-ogg prose-headings:text-[#fdf1e1]
+                prose-h1:text-3xl prose-h2:text-xl prose-h2:border-b prose-h2:border-[rgba(30,90,140,0.3)] prose-h2:pb-2 prose-h2:mt-6
+                prose-p:text-[#e2eaf4] prose-p:text-sm prose-p:leading-relaxed
+                prose-strong:text-[#fdf1e1] prose-strong:font-semibold
+                prose-table:w-full prose-table:text-sm prose-td:py-2.5 prose-td:px-3 prose-td:border-b prose-td:border-[rgba(30,90,140,0.2)] prose-th:py-2 prose-th:px-3 prose-th:text-xs prose-th:uppercase prose-th:text-[#8aacca]
+                prose-code:text-[#2a9aff] prose-code:bg-[#0a121c] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded"
+              dangerouslySetInnerHTML={{
+                __html: markdownToHtml(report.report_markdown || ''),
+              }}
+            />
+
+            <div className="pt-6 border-t border-[rgba(30,90,140,0.3)] flex justify-end">
+              <a
+                href={api.downloadReport(report.id)}
+                download
+                className="btn-paper text-sm px-6 py-3 font-semibold"
+              >
+                ⬇️ Download Official Decision Report (.md)
+              </a>
             </div>
-          </div>
+          </GlassPanel>
         )}
-      </div>
+      </main>
     </div>
   )
 }
 
-// Minimal markdown renderer (avoids adding remark/rehype dependency)
 function markdownToHtml(md: string): string {
   return md
-    .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-display text-text-primary mb-4 mt-0">$1</h1>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-lg font-display text-text-primary mb-3 mt-6 pb-1 border-b border-border-dim">$2</h2>')
-    .replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold text-text-primary mb-2 mt-4">$1</h3>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-text-primary">$1</strong>')
-    .replace(/`(.+?)`/g, '<code class="text-accent-bright bg-bg-surface px-1 py-0.5 rounded text-xs">$1</code>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-normal text-[#fdf1e1] mb-4">$1</h1>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-normal text-[#fdf1e1] mt-6 mb-3 border-b border-[rgba(30,90,140,0.3)] pb-2">$2</h2>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold text-[#2a9aff] mt-4 mb-2">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-[#fdf1e1] font-semibold">$1</strong>')
+    .replace(/`(.+?)`/g, '<code class="text-[#2a9aff] bg-[#0a121c] px-1.5 py-0.5 rounded text-xs">$1</code>')
     .replace(/^\| (.+) \|$/gm, (line) => {
-      const cells = line.split('|').slice(1, -1).map(c => c.trim())
-      const isSep = cells.every(c => /^[-:]+$/.test(c))
+      const cells = line.split('|').slice(1, -1).map((c) => c.trim())
+      const isSep = cells.every((c) => /^[-:]+$/.test(c))
       if (isSep) return ''
-      return `<tr class="border-b border-border-dim">${cells.map(c => `<td class="px-3 py-2 text-sm text-text-secondary">${c}</td>`).join('')}</tr>`
+      return `<tr>${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`
     })
-    .replace(/(<tr.*<\/tr>)/gs, '<table class="w-full border-collapse mb-4">$1</table>')
-    .replace(/^(?!<[h|t|u|o])(.+)$/gm, '<p class="text-text-secondary text-sm mb-2 leading-relaxed">$1</p>')
-    .replace(/---/g, '<hr class="border-border-dim my-6" />')
-    .replace(/\n\n/g, '')
+    .replace(/(<tr.*<\/tr>)/gs, '<table class="w-full my-4"><tbody>$1</tbody></table>')
+    .replace(/^(?!<[h|t|u|o])(.+)$/gm, '<p class="text-sm text-[#e2eaf4] leading-relaxed mb-3">$1</p>')
+    .replace(/---/g, '<hr class="border-[rgba(30,90,140,0.3)] my-6" />')
 }
