@@ -36,26 +36,33 @@ function MapContent() {
   const router = useRouter()
   const scenarioId = searchParams.get('scenario_id') || 'scen-demo-001'
 
+  const [scenario, setScenario] = useState<any>(null)
   const [vessels, setVessels] = useState<any[]>([])
   const [selectedVessel, setSelectedVessel] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
 
   const loadNetworkData = useCallback(async () => {
     try {
-      const res = await api.discoverVessels(scenarioId).catch(() => ({
+      const scen = await api.getScenario(scenarioId).catch(() => ({
+        destination_port_name: 'Mumbai, India',
+        product: 'diesel'
+      }))
+      setScenario(scen)
+
+      const res = await api.listVessels(scenarioId).catch(() => ({
         vessels: [
           {
             id: 'vess-001',
-            vessel_name: 'Stena Bulk Charter',
+            vessel_name: 'Stena Bulk Charter (VLCC)',
             vessel_type: 'VLCC',
             lat: 11.588,
             lon: 43.145,
             destination_port: 'Mumbai, India',
-            capacity_bbls: 300000,
+            capacity_bbls: 400000,
             eta_days: 6,
             provenance_status: 'CANDIDATE_UNVERIFIED',
             source: 'AIS Stream API',
-            timestamp: '2026-08-15T12:00:00Z',
+            timestamp: new Date().toISOString(),
           },
           {
             id: 'pipe-001',
@@ -64,11 +71,11 @@ function MapContent() {
             lat: 24.09,
             lon: 38.06,
             destination_port: 'Red Sea Terminal',
-            capacity_bbls: 400000,
+            capacity_bbls: 800000,
             eta_days: 3,
             provenance_status: 'REAL_REFERENCE',
             source: 'IPSA Operator Feed',
-            timestamp: '2026-08-15T12:00:00Z',
+            timestamp: new Date().toISOString(),
           },
         ]
       }))
@@ -89,6 +96,24 @@ function MapContent() {
     loadNetworkData()
   }, [loadNetworkData])
 
+  const isJapan = scenario?.destination_port_name?.toLowerCase().includes('japan')
+  const mapCenter: [number, number] = isJapan ? [22.0, 125.0] : [15.0, 60.0]
+  const mapZoom = isJapan ? 4 : 4
+
+  const routePolyline: [number, number][] = isJapan
+    ? [
+        [26.64, 50.16], // Ras Tanura
+        [1.26, 103.82], // Singapore / Malacca
+        [22.0, 125.0],  // East China Sea
+        [35.44, 139.64], // Yokohama, Japan
+      ]
+    : [
+        [26.64, 50.16], // Ras Tanura
+        [11.588, 43.145], // Djibouti
+        [15.0, 60.0],    // Arabian Sea
+        [18.96, 72.82],   // Mumbai, India
+      ]
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans">
       <Navbar scenarioId={scenarioId} />
@@ -99,8 +124,8 @@ function MapContent() {
         <div className="absolute inset-0 z-0 bg-[#e5e5e0]">
           {!loading && typeof window !== 'undefined' && (
             <MapContainer
-              center={[15.0, 60.0]}
-              zoom={4}
+              center={mapCenter}
+              zoom={mapZoom}
               scrollWheelZoom={true}
               style={{ height: '100%', width: '100%' }}
             >
@@ -113,7 +138,7 @@ function MapContent() {
               {vessels.map((v) => (
                 <Marker
                   key={v.id}
-                  position={[v.lat || 15.0, v.lon || 65.0]}
+                  position={[v.lat || (isJapan ? 20.0 : 15.0), v.lon || (isJapan ? 120.0 : 65.0)]}
                   eventHandlers={{
                     click: () => setSelectedVessel(v),
                   }}
@@ -132,11 +157,7 @@ function MapContent() {
 
               {/* Transit Polyline */}
               <Polyline
-                positions={[
-                  [11.588, 43.145], // Djibouti
-                  [15.0, 60.0],    // Arabian Sea
-                  [18.96, 72.82],   // Mumbai
-                ]}
+                positions={routePolyline}
                 pathOptions={{ color: '#18181B', weight: 2.5, dashArray: '6, 6' }}
               />
             </MapContainer>
@@ -155,7 +176,7 @@ function MapContent() {
               Discovered Transport Options
             </h2>
             <p className="text-xs text-[#18181B]/70 font-light">
-              Candidate vessels require human commercial verification with shipowners or brokers.
+              AIS discovers candidates. Authoritative commercial terms require human verification.
             </p>
           </GlassPanel>
 
@@ -170,14 +191,17 @@ function MapContent() {
                   {selectedVessel.vessel_name}
                 </h3>
                 <div className="text-xs text-[#18181B]/60">
-                  {selectedVessel.vessel_type} &middot; Destination: {selectedVessel.destination_port}
+                  {selectedVessel.vessel_type} &middot; Destination: {selectedVessel.destination_port || scenario?.destination_port_name || 'Mumbai, India'}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-[#18181B]/10">
                 <div>
-                  <div className="text-[#18181B]/50 font-semibold">ESTIMATED CAPACITY</div>
-                  <div className="font-bold text-[#18181B]">{Number(selectedVessel.capacity_bbls).toLocaleString()} bbl</div>
+                  <div className="text-[#18181B]/50 font-semibold">INDICATIVE CAPACITY</div>
+                  <div className="font-bold text-[#18181B]">
+                    {Number(selectedVessel.capacity_bbls).toLocaleString()} bbl
+                    <span className="block text-[9px] text-[#18181B]/40 font-normal">UNVERIFIED AIS ESTIMATE</span>
+                  </div>
                 </div>
                 <div>
                   <div className="text-[#18181B]/50 font-semibold">TRANSIT ETA</div>
@@ -185,7 +209,7 @@ function MapContent() {
                 </div>
                 <div>
                   <div className="text-[#18181B]/50 font-semibold">DATA SOURCE</div>
-                  <div className="font-medium text-[#18181B]">{selectedVessel.source || 'AIS Live Stream'}</div>
+                  <div className="font-medium text-[#18181B]">{selectedVessel.source || 'AIS Stream Provider'}</div>
                 </div>
                 <div>
                   <div className="text-[#18181B]/50 font-semibold">TIMESTAMP</div>

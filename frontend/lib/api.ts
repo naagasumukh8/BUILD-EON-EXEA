@@ -22,7 +22,7 @@ const scenarioStore: Record<string, any> = {
 const dealStore: Record<string, any> = {}
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  console.log(`[EON EXEA API CALL] Path: ${path}`, options?.body ? JSON.parse(options.body as string) : {})
+  console.log(`[POLY EXEA API CALL] Path: ${path}`, options?.body ? JSON.parse(options.body as string) : {})
 
   try {
     const res = await fetch(`${API}${path}`, {
@@ -31,11 +31,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     })
     if (res.ok) {
       const data = await res.json()
-      console.log(`[EON EXEA BACKEND RESPONSE] Path: ${path}`, data)
+      console.log(`[POLY EXEA BACKEND RESPONSE] Path: ${path}`, data)
       return data
     }
   } catch (e) {
-    console.log(`[EON EXEA FALLBACK ENGINE ACTIVE] Path: ${path}`)
+    console.log(`[POLY EXEA FALLBACK ENGINE ACTIVE] Path: ${path}`)
   }
 
   return getFallbackData(path, options) as T
@@ -86,7 +86,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
       follow_up_question: null
     }
 
-    console.log(`[EON EXEA PIPELINE LOG] STEP: GEMINI STRUCTURED OUTPUT`, parsedData)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: GEMINI STRUCTURED OUTPUT`, parsedData)
     return parsedData
   }
 
@@ -110,14 +110,14 @@ function getFallbackData(path: string, options?: RequestInit): any {
     }
 
     scenarioStore[id] = scenario
-    console.log(`[EON EXEA PIPELINE LOG] STEP: BACKEND SCENARIO SAVED (ID: ${id})`, scenario)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: BACKEND SCENARIO SAVED (ID: ${id})`, scenario)
     return scenario
   }
 
   if (path.includes('/api/intake/')) {
     const id = path.split('/api/intake/')[1]?.split('?')[0] || 'scen-demo-001'
     const scen = scenarioStore[id] || scenarioStore['scen-demo-001']
-    console.log(`[EON EXEA PIPELINE LOG] STEP: RETRIEVED SCENARIO (ID: ${id})`, scen)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: RETRIEVED SCENARIO (ID: ${id})`, scen)
     return scen
   }
 
@@ -140,7 +140,8 @@ function getFallbackData(path: string, options?: RequestInit): any {
         cost_usd_per_bbl: isJapan ? 42.0 : 38.0,
         eta_days: isJapan ? 14 : Math.min(scen.deadline_days - 1, 6),
         risk_score: 0.10,
-        provenance_status: 'CONFIRMED',
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        source: 'AIS Live Stream',
         location: isJapan ? 'Malacca Strait' : 'Djibouti Anchorage'
       },
       {
@@ -152,6 +153,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
         eta_days: isJapan ? 10 : 3,
         risk_score: 0.05,
         provenance_status: 'REAL_REFERENCE',
+        source: 'IPSA Operator Feed',
         location: isJapan ? 'Okinawa' : 'Yanbu Terminal'
       },
       {
@@ -163,11 +165,12 @@ function getFallbackData(path: string, options?: RequestInit): any {
         eta_days: isJapan ? 16 : 5,
         risk_score: 0.15,
         provenance_status: 'REAL_REFERENCE',
+        source: 'SeaRoute Calculation',
         location: isJapan ? 'East China Sea' : 'Cape of Good Hope'
       }
     ]
 
-    console.log(`[EON EXEA PIPELINE LOG] STEP: AIS / NETWORK DISCOVERY (SCENARIO: ${scenarioId})`, discoveredVessels)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: AIS / NETWORK DISCOVERY (SCENARIO: ${scenarioId})`, discoveredVessels)
     return { vessels: discoveredVessels }
   }
 
@@ -181,7 +184,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
         created_at: new Date().toISOString()
       }
       dealStore[dealId] = deal
-      console.log(`[EON EXEA PIPELINE LOG] STEP: CREATED DEAL (ID: ${dealId})`, deal)
+      console.log(`[POLY EXEA PIPELINE LOG] STEP: CREATED DEAL (ID: ${dealId})`, deal)
       return deal
     }
     const dealId = path.split('/api/deals/')[1]?.split('?')[0] || 'deal-001'
@@ -241,7 +244,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
       profitability_provenance: 'CALCULATED'
     }
 
-    console.log(`[EON EXEA PIPELINE LOG] STEP: DETERMINISTIC P&L EVALUATOR`, evaluationResult)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: DETERMINISTIC P&L EVALUATOR`, evaluationResult)
     return evaluationResult
   }
 
@@ -350,7 +353,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
       }
     }
 
-    console.log(`[EON EXEA PIPELINE LOG] STEP: OR-TOOLS OPTIMIZER OUTPUT (SCENARIO: ${scenarioId})`, optimizationOutput)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: OR-TOOLS OPTIMIZER OUTPUT (SCENARIO: ${scenarioId})`, optimizationOutput)
     return optimizationOutput
   }
 
@@ -367,12 +370,12 @@ function getFallbackData(path: string, options?: RequestInit): any {
     const reportData = {
       scenario_id: scenarioId,
       title: `Executive Decision Briefing: ${prod.toUpperCase()} Supply to ${dest}`,
-      executive_summary: `To satisfy energy supply requirements for ${totalVol.toLocaleString()} barrels of ${prod} to ${dest} within ${deadline} days, EON EXEA multi-modal optimization recommends a hybrid strategy combining primary vessel charter and regional bypass infrastructure to achieve 100% on-time fulfillment.`,
+      executive_summary: `To satisfy energy supply requirements for ${totalVol.toLocaleString()} barrels of ${prod} to ${dest} within ${deadline} days, POLY EXEA multi-modal optimization recommends a hybrid strategy combining primary vessel charter and regional bypass infrastructure to achieve 100% on-time fulfillment.`,
       provenance_status: 'CALCULATED',
       created_at: new Date().toISOString()
     }
 
-    console.log(`[EON EXEA PIPELINE LOG] STEP: EXECUTIVE BRIEFING GENERATION (SCENARIO: ${scenarioId})`, reportData)
+    console.log(`[POLY EXEA PIPELINE LOG] STEP: EXECUTIVE BRIEFING GENERATION (SCENARIO: ${scenarioId})`, reportData)
     return reportData
   }
 

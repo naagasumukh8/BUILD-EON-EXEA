@@ -33,7 +33,7 @@ export function DecisionBrief({
       {/* Header Badge */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#18181B] text-white text-xs font-semibold uppercase tracking-widest shadow-2xs">
-          EON EXEA &middot; DECISION BRIEF
+          POLY EXEA &middot; DECISION BRIEF
         </div>
         <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#18181B]">
           Executive Supply Chain Decision Briefing
@@ -59,7 +59,7 @@ export function DecisionBrief({
         </h2>
 
         <p className="text-sm text-white/80 leading-relaxed font-light">
-          To satisfy energy supply requirements for <strong>{scenario?.volume_bbls?.toLocaleString() || '2,000,000'} barrels of {scenario?.product || 'diesel'}</strong> to <strong>{scenario?.destination_port || 'Mumbai, India'}</strong> within <strong>{scenario?.deadline_days || 7} days</strong>, EON EXEA recommends executing a hybrid allocation combining confirmed vessel capacity, regional pipeline throughput, and alternative sea lanes. This strategy delivers 100% volume fulfillment while reducing total landed cost compared to baseline single-route options.
+          To satisfy energy supply requirements for <strong>{scenario?.volume_bbls?.toLocaleString() || '2,000,000'} barrels of {scenario?.product || 'diesel'}</strong> to <strong>{scenario?.destination_port || 'Mumbai, India'}</strong> within <strong>{scenario?.deadline_days || 7} days</strong>, POLY EXEA recommends executing a hybrid allocation combining confirmed vessel capacity, regional pipeline throughput, and alternative sea lanes. This strategy delivers 100% volume fulfillment while reducing total landed cost compared to baseline single-route options.
         </p>
       </div>
 
@@ -240,7 +240,7 @@ export function DecisionBrief({
           </div>
 
           <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
-            <div className="text-xs font-semibold text-emerald-800 uppercase">EON EXEA Recommended Hybrid (Winner)</div>
+            <div className="text-xs font-semibold text-emerald-800 uppercase">POLY EXEA Recommended Hybrid (Winner)</div>
             <div className="text-2xl font-bold text-emerald-700">${(rec?.total_cost_usd / 1e6 || 184.6).toFixed(2)}M</div>
             <div className="text-xs text-emerald-800">Cost per bbl: ${rec?.cost_per_bbl?.toFixed(2) || '92.30'} &middot; ETA: {rec?.eta_days || 6} days</div>
           </div>
@@ -344,7 +344,7 @@ export function DecisionBrief({
           <li>Contact Stena Bulk shipowner broker and submit counter-offer at $1.65M lump sum.</li>
           <li>Confirm throughput capacity reservation with Yanbu IPSA Pipeline operators.</li>
           <li>Issue charter party agreement upon broker acceptance of target ceiling quote.</li>
-          <li>Re-run EON EXEA optimization upon receipt of finalized commercial terms.</li>
+          <li>Re-run POLY EXEA optimization upon receipt of finalized commercial terms.</li>
         </ol>
       </div>
 

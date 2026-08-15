@@ -137,11 +137,11 @@ function StrategyContent() {
               </div>
             </div>
 
-            {/* Current Plan vs EON EXEA Recommendation Comparison */}
+            {/* Current Plan vs POLY EXEA Recommendation Comparison */}
             {baseline && (
               <GlassPanel className="space-y-4">
                 <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">
-                  Current Plan vs EON EXEA Recommendation
+                  Current Plan vs POLY EXEA Recommendation
                 </h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -152,7 +152,7 @@ function StrategyContent() {
                   </div>
 
                   <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
-                    <div className="text-xs font-semibold text-emerald-800 uppercase">EON EXEA Recommended Hybrid</div>
+                    <div className="text-xs font-semibold text-emerald-800 uppercase">POLY EXEA Recommended Hybrid</div>
                     <div className="text-2xl font-bold text-emerald-700">
                       +${((baseline.total_cost_usd - recommended.total_cost_usd) / 1e6).toFixed(2)}M Economic Savings
                     </div>
