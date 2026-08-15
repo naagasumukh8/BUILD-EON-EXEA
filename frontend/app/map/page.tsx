@@ -8,7 +8,6 @@ import dynamicImport from 'next/dynamic'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
-import 'leaflet/dist/leaflet.css'
 
 // Dynamically import Leaflet Map components to avoid SSR window errors
 const MapContainer = dynamicImport(
@@ -195,9 +194,9 @@ function MapContent() {
     if (!L) return undefined
     return L.divIcon({
       className: 'custom-leaflet-marker',
-      html: `<div style="background-color: ${bgColor}; width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; items-center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">${label}</div>`,
-      iconSize: [22, 22],
-      iconAnchor: [11, 11]
+      html: `<div style="background-color: ${bgColor}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">${label}</div>`,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13]
     })
   }
 
@@ -205,7 +204,7 @@ function MapContent() {
     <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans">
       <Navbar scenarioId={scenarioId} />
 
-      <div className="flex-1 relative w-full h-[calc(100vh-80px)] overflow-hidden">
+      <div className="flex-1 relative w-full h-[calc(100vh-100px)] overflow-hidden">
         
         {/* Leaflet Map Canvas */}
         <div className="absolute inset-0 z-0 bg-[#e5e5e0]">
@@ -214,7 +213,7 @@ function MapContent() {
               center={mapCenter}
               zoom={mapZoom}
               scrollWheelZoom={true}
-              style={{ height: '100%', width: '100%' }}
+              className="w-full h-full"
             >
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
