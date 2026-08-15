@@ -2,210 +2,114 @@
 
 import { Suspense } from 'react'
 import Link from 'next/link'
-import { Navbar } from '@/components/ui/Navbar'
-import { GlassPanel } from '@/components/ui/GlassPanel'
 
 function LandingContent() {
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans selection:bg-[#18181B] selection:text-white relative">
+    <div className="relative h-screen w-full overflow-hidden flex flex-col justify-between font-sans text-[#1B133C] bg-[#FAFAF8] selection:bg-[#1B133C] selection:text-white">
       
-      {/* Background Video Layer */}
+      {/* 3. Background Video — absolutely positioned behind all content */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <video
           autoPlay
-          loop
           muted
+          loop
           playsInline
-          className="w-full h-[130%] object-cover object-top opacity-30"
+          className="w-full h-[130%] object-cover object-top opacity-40"
         >
           <source
             src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4"
             type="video/mp4"
           />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FAFAF8]/70 via-[#FAFAF8]/90 to-[#FAFAF8]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAFAF8]/30 via-[#FAFAF8]/60 to-[#FAFAF8]/95" />
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar />
-
-        <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 max-w-6xl w-full mx-auto py-12 sm:py-20 space-y-16 sm:space-y-24">
+      {/* 1. Navigation Bar — centered at top with pt-4 md:pt-6 */}
+      <header className="relative z-10 w-full pt-4 md:pt-6 flex justify-center px-4">
+        <div className="bg-white/70 backdrop-blur-md rounded-xl px-4 md:px-6 py-3 shadow-sm border border-[#1B133C]/10 flex items-center justify-between gap-6 max-w-4xl w-full">
           
-          {/* Hero Section */}
-          <div className="text-center space-y-6 max-w-4xl">
-            
-            {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-[#18181B]/10 text-xs font-medium text-[#18181B] shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              <span className="font-semibold uppercase tracking-wider text-[11px]">Wide Hormuz Platform &middot; Strait of Hormuz Energy Security</span>
-            </div>
+          {/* Logo + Title */}
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <svg width="24" height="24" viewBox="0 0 256 256" fill="none" className="text-[#1B133C] transition-transform group-hover:scale-105">
+              <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor"/>
+              <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
+            </svg>
+            <span className="font-['Instrument_Serif'] text-xl font-bold tracking-tight text-[#1B133C]">
+              Wide Hormuz
+            </span>
+          </Link>
 
-            {/* Title */}
-            <h1 className="font-['Instrument_Serif'] text-5xl sm:text-7xl lg:text-8xl tracking-tight leading-[1.05] text-[#18181B]">
-              When a supply route breaks, <br />
-              <span className="italic font-normal">find the fastest way forward.</span>
-            </h1>
+          {/* Navigation Links */}
+          <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-[#1B133C]/80">
+            <Link href="/" className="hover:text-[#1B133C] transition-opacity">
+              Overview
+            </Link>
+            <Link href="/intake" className="hover:text-[#1B133C] transition-opacity">
+              Capabilities
+            </Link>
+            <Link href="/map" className="hover:text-[#1B133C] transition-opacity">
+              Map Network
+            </Link>
+            <Link href="/report" className="hover:text-[#1B133C] transition-opacity">
+              AI Briefing
+            </Link>
+          </nav>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-xl text-[#18181B]/70 font-light max-w-2xl mx-auto leading-relaxed">
-              Eliminate uncertainty in maritime supply chain disruptions. Wide Hormuz evaluates vessel candidates, pipeline bypasses, and alternate sea lanes simultaneously and surfaces the optimal decision in minutes.
-            </p>
+          {/* Action Link */}
+          <Link
+            href="/intake"
+            className="rounded-lg bg-[#1B133C] px-4 py-2 text-xs font-semibold text-white hover:bg-black transition-all shrink-0"
+          >
+            Start Analysis &rarr;
+          </Link>
 
-            {/* Primary Action Button */}
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/intake"
-                className="w-full sm:w-auto rounded-full bg-[#18181B] px-8 py-4 text-sm font-semibold text-white shadow-md hover:bg-black transition-all duration-200"
-              >
-                Launch Decision Platform &rarr;
-              </Link>
-              
-              <Link
-                href="/map"
-                className="w-full sm:w-auto rounded-full bg-white/90 backdrop-blur-md border border-[#18181B]/10 px-8 py-4 text-sm font-semibold text-[#18181B] hover:bg-[#FAFAF8] transition-all"
-              >
-                Explore Disruption Map &rarr;
-              </Link>
-            </div>
+        </div>
+      </header>
 
-          </div>
+      {/* 2. Hero Content — centered below nav with mt-8 md:mt-16 */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 text-center my-auto max-w-5xl mx-auto">
+        
+        {/* Badge */}
+        <div className="mb-6 inline-flex items-center gap-2.5 rounded-xl border border-[#1B133C]/10 bg-white/70 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#1B133C] shadow-2xs">
+          <span className="bg-orange-500 rounded w-5 h-5 flex items-center justify-center text-white font-bold text-xs shrink-0">
+            Y
+          </span>
+          <span>Funded by Y Combinator &middot; Hormuz Disruption Platform</span>
+        </div>
 
-          {/* Four Core Capabilities Section */}
-          <div className="w-full space-y-8">
-            
-            <div className="text-center space-y-2">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#18181B]/50">
-                Platform Capabilities
-              </span>
-              <h2 className="font-['Instrument_Serif'] text-3xl sm:text-5xl text-[#18181B]">
-                How Wide Hormuz Solves Disruptions
-              </h2>
-              <p className="text-sm text-[#18181B]/60 max-w-lg mx-auto font-light">
-                Four core decision layers working together to minimize cost, delay, and operational risk.
-              </p>
-            </div>
+        {/* Heading */}
+        <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight text-[#1B133C] max-w-4xl">
+          Deploy digital workers <br />
+          <span className="italic font-normal">for energy supply disruptions</span>
+        </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Capability 01 */}
-              <GlassPanel className="p-8 space-y-4 hover:border-[#18181B]/30 transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#18181B]/40 font-bold">01</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#18181B]/5 text-[10px] font-bold uppercase tracking-wider text-[#18181B]/70">
-                    Intake
-                  </span>
-                </div>
-                
-                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">
-                  Natural Language Prompt Intake
-                </h3>
-                
-                <p className="text-xs text-[#18181B]/70 leading-relaxed font-light">
-                  State your operational demand in plain text (e.g. &quot;2M barrels of diesel to Mumbai within 7 days&quot;). Natural language intake extracts commodity volume, destination, and delivery deadline in seconds.
-                </p>
-              </GlassPanel>
+        {/* Subtitle */}
+        <p className="mt-5 sm:mt-6 max-w-3xl text-xs sm:text-sm md:text-base leading-relaxed text-[#1B133C]/70 font-light">
+          Eliminate your tedious browser work and 10x your team&apos;s capacity. Put intelligent agents on every routine process so you grow faster and deliver more for clients — effortlessly.
+        </p>
 
-              {/* Capability 02 */}
-              <GlassPanel className="p-8 space-y-4 hover:border-[#18181B]/30 transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#18181B]/40 font-bold">02</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#18181B]/5 text-[10px] font-bold uppercase tracking-wider text-[#18181B]/70">
-                    Discovery
-                  </span>
-                </div>
+        {/* CTA Button */}
+        <Link
+          href="/intake"
+          className="mt-7 sm:mt-8 rounded-xl bg-[#FEFEFE] px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold text-[#1B133C] shadow-[0px_4px_12px_rgba(0,0,0,0.15)] hover:shadow-[0px_6px_16px_rgba(0,0,0,0.2)] transition-all duration-300"
+        >
+          Get Early Access &rarr;
+        </Link>
 
-                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">
-                  AIS Vessel & Pipeline Tracking
-                </h3>
+      </main>
 
-                <p className="text-xs text-[#18181B]/70 leading-relaxed font-light">
-                  Tracks live AIS candidate vessels, Yanbu IPSA pipeline bypass throughput, and alternate sea lanes to construct real-time supply availability.
-                </p>
-              </GlassPanel>
+      {/* Footer minimal spacer for 100vh layout */}
+      <footer className="relative z-10 pb-4 text-center text-[11px] text-[#1B133C]/40">
+        Wide Hormuz &copy; 2026. AI Maritime Decision Platform.
+      </footer>
 
-              {/* Capability 03 */}
-              <GlassPanel className="p-8 space-y-4 hover:border-[#18181B]/30 transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#18181B]/40 font-bold">03</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#18181B]/5 text-[10px] font-bold uppercase tracking-wider text-[#18181B]/70">
-                    Evaluation
-                  </span>
-                </div>
-
-                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">
-                  Commercial Deal Evaluator
-                </h3>
-
-                <p className="text-xs text-[#18181B]/70 leading-relaxed font-light">
-                  Calculates landed cost per barrel, net margin, and ceiling price for charter proposals. Instantly outputs GO, NEGOTIATE, or REJECT recommendations.
-                </p>
-              </GlassPanel>
-
-              {/* Capability 04 */}
-              <GlassPanel className="p-8 space-y-4 hover:border-[#18181B]/30 transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-[#18181B]/40 font-bold">04</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#18181B]/5 text-[10px] font-bold uppercase tracking-wider text-[#18181B]/70">
-                    Optimization
-                  </span>
-                </div>
-
-                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">
-                  Multi-Modal Strategy Solver
-                </h3>
-
-                <p className="text-xs text-[#18181B]/70 leading-relaxed font-light">
-                  Google OR-Tools solver optimizes continuous linear volume allocations across pipelines, vessels, and alternate routes to maximize savings and speed.
-                </p>
-              </GlassPanel>
-
-            </div>
-
-            {/* Clean Impact Banner with Provenance Tags */}
-            <div className="p-8 rounded-3xl bg-white/90 backdrop-blur-md border border-[#18181B]/10 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-              <div>
-                <div className="font-['Instrument_Serif'] text-4xl text-[#18181B]">21%</div>
-                <div className="text-xs text-[#18181B]/60 mt-1">Global oil trade passing Hormuz</div>
-                <div className="text-[10px] text-[#18181B]/40 font-mono mt-1 uppercase font-bold">EIA REAL_REFERENCE</div>
-              </div>
-              <div className="border-y sm:border-y-0 sm:border-x border-[#18181B]/10 py-4 sm:py-0">
-                <div className="font-['Instrument_Serif'] text-4xl text-[#18181B]">2.5M bbl/day</div>
-                <div className="text-xs text-[#18181B]/60 mt-1">IPSA bypass pipeline capacity</div>
-                <div className="text-[10px] text-[#18181B]/40 font-mono mt-1 uppercase font-bold">ARAMCO REAL_REFERENCE</div>
-              </div>
-              <div>
-                <div className="font-['Instrument_Serif'] text-4xl text-[#18181B]">$170M</div>
-                <div className="text-xs text-[#18181B]/60 mt-1">Average baseline savings</div>
-                <div className="text-[10px] text-[#18181B]/40 font-mono mt-1 uppercase font-bold">MODEL CALCULATED ESTIMATE</div>
-              </div>
-            </div>
-
-            {/* Bottom Action */}
-            <div className="p-8 rounded-3xl bg-[#18181B] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
-              <div className="space-y-1 text-center sm:text-left">
-                <h3 className="font-['Instrument_Serif'] text-3xl text-white">Ready to run your disruption analysis?</h3>
-                <p className="text-xs text-white/70 font-light">Start your scenario intake and receive optimal decision recommendations.</p>
-              </div>
-
-              <Link
-                href="/intake"
-                className="rounded-full bg-white px-8 py-3.5 text-xs font-semibold text-[#18181B] hover:bg-[#FAFAF8] transition-all whitespace-nowrap"
-              >
-                Start Analysis &rarr;
-              </Link>
-            </div>
-
-          </div>
-
-        </main>
-      </div>
     </div>
   )
 }
 
 export default function LandingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">Loading Wide Hormuz Platform...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#1B133C]/70">Loading Wide Hormuz...</div>}>
       <LandingContent />
     </Suspense>
   )
