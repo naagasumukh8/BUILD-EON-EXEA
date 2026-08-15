@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST='{"app\\\\map\\\\page.tsx -> react-leaflet":{"id":143,"files":["static/chunks/d0deef33.afff9b3bf7059c8b.js","static/chunks/143.87e28499e533fc1e.js"]}}';
+self.__REACT_LOADABLE_MANIFEST='{"app\\\\map\\\\page.tsx -> leaflet":{"id":7691,"files":["static/chunks/d0deef33.afff9b3bf7059c8b.js"]},"app\\\\map\\\\page.tsx -> react-leaflet":{"id":143,"files":["static/chunks/d0deef33.afff9b3bf7059c8b.js","static/chunks/143.87e28499e533fc1e.js"]}}';

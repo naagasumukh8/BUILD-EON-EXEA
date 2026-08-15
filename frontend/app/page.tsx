@@ -30,7 +30,7 @@ export default function Home() {
 
         {/* Navigation Bar */}
         <nav className="relative z-10 w-full pt-4 md:pt-6 px-4 flex justify-center">
-          <div className="bg-white/70 backdrop-blur-md rounded-xl px-4 md:px-6 py-3 shadow-sm border border-[#1B133C]/10 flex items-center justify-between w-full max-w-4xl">
+          <div className="bg-white/80 backdrop-blur-md rounded-xl px-4 md:px-6 py-3 shadow-sm border border-[#1B133C]/10 flex items-center justify-between w-full max-w-4xl">
             
             {/* Custom SVG Chevron Logo */}
             <div className="flex items-center gap-3">
@@ -64,12 +64,10 @@ export default function Home() {
         {/* Hero Central Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center space-y-6 my-auto mt-8 md:mt-16" id="overview">
           
-          {/* Y Combinator Badge */}
-          <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#1B133C]/10 bg-white/70 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#1B133C] shadow-xs">
-            <span className="w-5 h-5 rounded bg-orange-500 text-white font-bold text-xs flex items-center justify-center">
-              Y
-            </span>
-            <span>Funded by Y Combinator &middot; Hormuz Disruption Platform</span>
+          {/* Status Pill Badge */}
+          <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#1B133C]/10 bg-white/80 backdrop-blur-sm px-4 py-2 text-xs sm:text-sm font-medium text-[#1B133C] shadow-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>STRAIT OF HORMUZ MARITIME DECISION PLATFORM</span>
           </div>
 
           {/* Headline */}
@@ -128,7 +126,7 @@ export default function Home() {
               <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">01 &middot; INTAKE & PARSING</div>
               <h3 className="font-['Instrument_Serif'] text-2xl text-[#1B133C]">Natural Language Prompt Intake</h3>
               <p className="text-sm text-[#1B133C]/70 leading-relaxed font-light">
-                State your operational demand in plain text (e.g. &quot;2M barrels of diesel to Mumbai within 7 days&quot;). Gemini AI extracts commodity volume, destination, and delivery deadline in seconds.
+                State your operational demand in plain text (e.g. &quot;0.2 billion barrels of diesel to India within 700 days&quot;). Gemini AI extracts commodity volume, destination, and delivery deadline in seconds.
               </p>
             </div>
 

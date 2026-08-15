@@ -8,8 +8,9 @@ import dynamicImport from 'next/dynamic'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
+import 'leaflet/dist/leaflet.css'
 
-// Dynamically import Leaflet Map to avoid SSR window errors
+// Dynamically import Leaflet Map components to avoid SSR window errors
 const MapContainer = dynamicImport(
   () => import('react-leaflet').then((m) => m.MapContainer),
   { ssr: false }
@@ -93,12 +94,21 @@ function MapContent() {
   const [vessels, setVessels] = useState<any[]>([])
   const [selectedVessel, setSelectedVessel] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
+  const [L, setL] = useState<any>(null)
 
   // Map Layer Toggle Filters
   const [showPipelines, setShowPipelines] = useState(true)
   const [showVessels, setShowVessels] = useState(true)
   const [showSeaLanes, setShowSeaLanes] = useState(true)
   const [showChokepoints, setShowChokepoints] = useState(true)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('leaflet').then((leafletModule) => {
+        setL(leafletModule.default || leafletModule)
+      })
+    }
+  }, [])
 
   const loadNetworkData = useCallback(async () => {
     try {
@@ -180,6 +190,17 @@ function MapContent() {
   const mapCenter: [number, number] = isJapan ? [22.0, 120.0] : [19.0, 58.0]
   const mapZoom = 4
 
+  // Create custom DivIcon for Leaflet markers to fix default broken icon bug
+  const createCustomIcon = (bgColor: string, label: string) => {
+    if (!L) return undefined
+    return L.divIcon({
+      className: 'custom-leaflet-marker',
+      html: `<div style="background-color: ${bgColor}; width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; items-center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">${label}</div>`,
+      iconSize: [22, 22],
+      iconAnchor: [11, 11]
+    })
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans">
       <Navbar scenarioId={scenarioId} />
@@ -235,7 +256,10 @@ function MapContent() {
 
               {/* 3. DISRUPTED STRAIT OF HORMUZ CHOKEPOINT MARKER */}
               {showChokepoints && (
-                <Marker position={[PORTS.hormuz.lat, PORTS.hormuz.lon]}>
+                <Marker
+                  position={[PORTS.hormuz.lat, PORTS.hormuz.lon]}
+                  icon={createCustomIcon('#DC2626', '⚠️')}
+                >
                   <Popup>
                     <div className="p-2 space-y-1 text-center font-sans">
                       <div className="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[10px] uppercase">
@@ -254,7 +278,11 @@ function MapContent() {
               {Object.entries(PORTS).map(([key, port]) => {
                 if (key === 'hormuz') return null
                 return (
-                  <Marker key={key} position={[port.lat, port.lon]}>
+                  <Marker
+                    key={key}
+                    position={[port.lat, port.lon]}
+                    icon={createCustomIcon('#475569', '⚓')}
+                  >
                     <Popup>
                       <div className="p-2 font-sans space-y-1">
                         <div className="font-bold text-xs uppercase tracking-wider text-[#18181B]/50">{port.type} Terminal</div>
@@ -270,6 +298,7 @@ function MapContent() {
                 <Marker
                   key={v.id}
                   position={[v.lat || 15.0, v.lon || 60.0]}
+                  icon={createCustomIcon('#2563EB', '🚢')}
                   eventHandlers={{
                     click: () => setSelectedVessel(v),
                   }}
