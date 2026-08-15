@@ -33,7 +33,7 @@ export function DecisionBrief({
       {/* Header Badge */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#18181B] text-white text-xs font-semibold uppercase tracking-widest shadow-2xs">
-          POLY OF HORMUZ &middot; DECISION BRIEF
+          WIDE HORMUZ &middot; DECISION BRIEF
         </div>
         <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#18181B]">
           Executive Supply Chain Decision Briefing

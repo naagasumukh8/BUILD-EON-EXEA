@@ -25,7 +25,7 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
       <div className="bg-[#18181B] text-white/90 text-xs py-2 px-4 border-b border-white/10 flex items-center justify-between font-sans">
         <div className="flex items-center gap-3 max-w-5xl mx-auto w-full">
           <span className="font-semibold uppercase tracking-widest text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 shrink-0">
-            POLY OF HORMUZ &middot; ACTIVE REQUIREMENT
+            WIDE HORMUZ &middot; ACTIVE REQUIREMENT
           </span>
           <span className="font-mono text-xs text-white/90 truncate">
             {currentScenarioId === 'scen-demo-001' ? '2,000,000 bbl Diesel → Mumbai, India (7d Deadline)' : `Scenario ID: ${currentScenarioId}`}
@@ -43,7 +43,7 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
             <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
           </svg>
           <span className="font-['Instrument_Serif'] text-2xl font-bold tracking-tight text-[#18181B]">
-            Poly of Hormuz
+            Wide Hormuz
           </span>
         </Link>
 

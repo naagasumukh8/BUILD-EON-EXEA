@@ -17,7 +17,7 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: 'Poly of Hormuz — AI Maritime Decision Platform for Hormuz Disruption',
+  title: 'Wide Hormuz — AI Maritime Decision Platform for Hormuz Disruption',
   description:
     'AI-powered maritime energy decision platform evaluating live vessels, IPSA pipeline bypasses, and alternate sea lanes when the Strait of Hormuz is unavailable.',
 }

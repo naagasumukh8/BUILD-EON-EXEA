@@ -39,7 +39,7 @@ export default function Home() {
                 <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
               </svg>
               <span className="font-['Instrument_Serif'] text-2xl font-bold tracking-tight text-[#1B133C]">
-                Poly of Hormuz
+                Wide Hormuz
               </span>
             </div>
 
@@ -67,7 +67,7 @@ export default function Home() {
           {/* Status Pill Badge */}
           <div className="inline-flex items-center gap-2.5 rounded-xl border border-[#1B133C]/10 bg-white/80 backdrop-blur-sm px-4 py-2 text-xs sm:text-sm font-medium text-[#1B133C] shadow-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>STRAIT OF HORMUZ MARITIME DECISION PLATFORM</span>
+            <span>WIDE HORMUZ MARITIME DECISION PLATFORM</span>
           </div>
 
           {/* Headline */}
@@ -78,7 +78,7 @@ export default function Home() {
 
           {/* Subtitle */}
           <p className="mt-5 sm:mt-6 max-w-3xl mx-auto text-xs sm:text-sm md:text-base leading-relaxed text-[#1B133C]/80 font-light">
-            Eliminate uncertainty when the Strait of Hormuz is unavailable. Poly of Hormuz evaluates live vessel candidates, Yanbu IPSA pipeline bypasses, and alternate sea lanes &mdash; simultaneously &mdash; and surfaces the optimal decision in minutes.
+            Eliminate uncertainty when the Strait of Hormuz is unavailable. Wide Hormuz evaluates live vessel candidates, Yanbu IPSA pipeline bypasses, and alternate sea lanes &mdash; simultaneously &mdash; and surfaces the optimal decision in minutes.
           </p>
 
           {/* Primary Action Button */}
@@ -111,7 +111,7 @@ export default function Home() {
               Platform Capabilities
             </div>
             <h2 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#1B133C] leading-tight">
-              How Poly of Hormuz Solves Disruptions
+              How Wide Hormuz Solves Disruptions
             </h2>
             <p className="text-base text-[#1B133C]/70 font-light leading-relaxed">
               Four core decision layers working together to minimize cost, delay, and operational risk when Hormuz is blocked.
@@ -195,7 +195,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="w-full bg-[#FAFAF8] py-8 px-6 text-center text-xs text-[#1B133C]/50 border-t border-[#1B133C]/10">
-        <div>Poly of Hormuz &copy; 2026. AI Maritime Supply Decision Platform. All rights reserved.</div>
+        <div>Wide Hormuz &copy; 2026. AI Maritime Supply Decision Platform. All rights reserved.</div>
       </footer>
 
     </div>
