@@ -59,7 +59,7 @@ export function DecisionBrief({
         </h2>
 
         <p className="text-sm text-white/80 leading-relaxed font-light">
-          To satisfy energy supply requirements for <strong>{scenario?.volume_bbls?.toLocaleString() || '2,000,000'} barrels of {scenario?.product || 'diesel'}</strong> to <strong>{scenario?.destination_port || 'Mumbai, India'}</strong> within <strong>{scenario?.deadline_days || 7} days</strong>, POLY EXEA recommends executing a hybrid allocation combining confirmed vessel capacity, regional pipeline throughput, and alternative sea lanes. This strategy delivers 100% volume fulfillment while reducing total landed cost compared to baseline single-route options.
+          To satisfy energy supply requirements for <strong>{scenario?.volume_bbls?.toLocaleString() || '2,000,000'} barrels of {scenario?.product || 'diesel'}</strong> to <strong>{scenario?.destination_port_name || scenario?.destination_port || 'Destination Port'}</strong> within <strong>{scenario?.deadline_days || 7} days</strong>, POLY EXEA recommends executing a hybrid allocation combining confirmed vessel capacity, regional pipeline throughput, and alternative sea lanes. This strategy delivers 100% volume fulfillment while reducing total landed cost compared to baseline single-route options.
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export function DecisionBrief({
           </div>
           <div className="p-4 rounded-2xl bg-white border border-[#18181B]/10">
             <div className="text-[10px] text-[#18181B]/60 uppercase font-semibold">Destination Port</div>
-            <div className="font-bold text-sm text-[#18181B] mt-1 truncate">{scenario?.destination_port || 'Mumbai, India'}</div>
+            <div className="font-bold text-sm text-[#18181B] mt-1 truncate">{scenario?.destination_port_name || scenario?.destination_port || 'Destination Port'}</div>
           </div>
           <div className="p-4 rounded-2xl bg-white border border-[#18181B]/10">
             <div className="text-[10px] text-[#18181B]/60 uppercase font-semibold">Deadline</div>
