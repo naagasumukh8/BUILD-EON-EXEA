@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
+import { useEffect, useState, useCallback, useRef, Suspense, Fragment } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamicImport from 'next/dynamic'
 import { Navbar } from '@/components/ui/Navbar'
@@ -286,7 +286,14 @@ function MapContent() {
               )}
 
               {/* Route polylines */}
-              {showRoutes && routes.map((route, idx) => {
+              {showRoutes && routes.filter((route) => {
+                // Validate route.path exists and has valid [lat, lon] pairs
+                if (!Array.isArray(route.path) || route.path.length < 2) return false
+                return route.path.every((pt: any) =>
+                  Array.isArray(pt) && pt.length === 2 &&
+                  isFinite(pt[0]) && isFinite(pt[1])
+                )
+              }).map((route, idx) => {
                 const isActive = idx === activeRouteIndex
                 const routeColor = route.type === 'Recommended' ? '#2563EB' : route.type === 'Alternative' ? '#059669' : '#D97706'
                 return (
@@ -441,7 +448,7 @@ function MapContent() {
                         <div className="px-1.5 py-0.5 rounded bg-teal-100 text-teal-900 font-bold text-[10px] uppercase">STS / LIGHTERING ZONE</div>
                         <div className="font-bold text-sm">Fujairah Offshore Anchorage — STS Transfer Hub</div>
                         <div className="text-gray-600">Post-pipeline STS to neutral-flag Aframax. Saves VLCC port congestion.</div>
-                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=sts_lightering&counterparty=${encodeURIComponent('Fujairah STS Operator')}&journey=${encodeURIComponent('Fujairah Anchorage STS → {destName}')}`)}
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=sts_lightering&counterparty=${encodeURIComponent('Fujairah STS Operator')}&journey=${encodeURIComponent(`Fujairah Anchorage STS → ${destName}`)}`)}
                           className="w-full mt-1.5 py-1 rounded bg-[#0d9488] text-white text-[11px] font-semibold hover:bg-teal-700">
                           ⚡ Initiate STS Lightering Deal →
                         </button>
@@ -529,16 +536,18 @@ function MapContent() {
               )}
 
               {/* Moving vessels with journey trace */}
-              {showVessels && vessels.map((v) => {
+              {showVessels && vessels.filter((v) => isFinite(v.lat) && isFinite(v.lon)).map((v) => {
                 const pos: [number, number] = [v.lat, v.lon]
-                const dest: [number, number] | null = v.dest_coords
+                const destCoords = v.dest_coords
+                const destValid = Array.isArray(destCoords) && destCoords.length === 2 && isFinite(destCoords[0]) && isFinite(destCoords[1])
+                const dest: [number, number] | null = destValid ? destCoords as [number, number] : null
                 return (
-                  <div key={v.id}>
+                  <Fragment key={v.id}>
                     {dest && (
                       <Polyline positions={[pos, dest]}
                         pathOptions={{ color: '#2563EB', weight: 1.5, dashArray: '4,6', opacity: 0.45 }} />
                     )}
-                    <Marker position={pos} icon={createIcon(L, '#2563EB', '??', 24)}
+                    <Marker position={pos} icon={createIcon(L, '#2563EB', '🚢', 24)}
                       eventHandlers={{ click: () => setSelectedVessel(v) }}>
                       <Popup>
                         <div className="p-2 font-sans text-xs space-y-1.5" style={{ minWidth: '200px' }}>
@@ -549,7 +558,7 @@ function MapContent() {
                             <span className="text-[10px] text-gray-400 font-mono">{v.imo || ''}</span>
                           </div>
                           <div className="font-bold">{v.vessel_name}</div>
-                          <div className="text-gray-500">Pos: [{v.lat?.toFixed(2)}, {v.lon?.toFixed(2)}] ? {v.current_destination}</div>
+                          <div className="text-gray-500">Pos: [{v.lat?.toFixed(2)}, {v.lon?.toFixed(2)}] → {v.current_destination}</div>
                           <div className="text-gray-400 italic text-[11px]">Origin: {v.origin_port || 'Unknown'} (AIS does not report origin)</div>
                           <div className="border-t pt-1 space-y-0.5">
                             <div><b>Distance to target:</b> <span className="text-blue-700 font-bold">{v.distance_nm || 'N/A'} nm</span></div>
@@ -564,7 +573,7 @@ function MapContent() {
                         </div>
                       </Popup>
                     </Marker>
-                  </div>
+                  </Fragment>
                 )
               })}
             </MapContainer>
