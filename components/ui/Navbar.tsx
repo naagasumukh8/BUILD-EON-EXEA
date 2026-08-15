@@ -25,7 +25,7 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
       <div className="bg-[#18181B] text-white/90 text-xs py-2 px-4 border-b border-white/10 flex items-center justify-between font-sans">
         <div className="flex items-center gap-3 max-w-5xl mx-auto w-full">
           <span className="font-semibold uppercase tracking-widest text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 shrink-0">
-            POLY EXEA &middot; ACTIVE REQUIREMENT
+            POLY OF HORMUZ &middot; ACTIVE REQUIREMENT
           </span>
           <span className="font-mono text-xs text-white/90 truncate">
             {currentScenarioId === 'scen-demo-001' ? '2,000,000 bbl Diesel → Mumbai, India (7d Deadline)' : `Scenario ID: ${currentScenarioId}`}
@@ -43,7 +43,7 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
             <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
           </svg>
           <span className="font-['Instrument_Serif'] text-2xl font-bold tracking-tight text-[#18181B]">
-            POLY EXEA
+            Poly of Hormuz
           </span>
         </Link>
 
@@ -61,23 +61,23 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
                   isActive
                     ? 'bg-[#18181B] text-white font-semibold shadow-xs'
                     : isPassed
-                    ? 'text-[#18181B] font-medium hover:bg-[#FAFAF8]'
-                    : 'text-[#18181B]/60 hover:text-[#18181B]'
+                    ? 'bg-[#18181B]/5 text-[#18181B] font-medium hover:bg-[#18181B]/10'
+                    : 'text-[#18181B]/50 hover:text-[#18181B]'
                 }`}
               >
-                <span className={`text-[10px] ${isActive ? 'text-white/70' : 'text-[#18181B]/40'}`}>{s.step}</span>
+                <span className="font-mono text-[10px] opacity-70">{s.step}</span>
                 <span>{s.label}</span>
               </Link>
             )
           })}
         </div>
 
-        {/* CTA */}
+        {/* New Analysis Action */}
         <Link
-          href={`/intake?scenario_id=${currentScenarioId}`}
-          className="hidden md:inline-flex rounded-full bg-[#18181B] px-5 py-2 text-xs font-semibold text-white hover:bg-black transition-all shadow-2xs shrink-0"
+          href="/intake"
+          className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
         >
-          New Analysis →
+          New Analysis &rarr;
         </Link>
       </div>
     </header>
