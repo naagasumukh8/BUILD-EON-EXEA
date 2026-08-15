@@ -39,9 +39,12 @@ function MapContent() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!scenarioId) return
-    api.getScenario(scenarioId)
+    const id = scenarioId || 'scen-demo-001'
+    api.getScenario(id)
       .then(setScenario)
+      .catch(() => {})
+    api.listVessels(id)
+      .then(setVessels)
       .catch(() => {})
   }, [scenarioId])
 
