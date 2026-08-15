@@ -271,28 +271,47 @@ sightPrev.addEventListener("click", () => moveSightSlider(-1));
 sightNext.addEventListener("click", () => moveSightSlider(1));
 
 // ═══════════════════════════════════════
-// 3. COMMAND CENTER → Now powered by the full Next.js application
+// 3. COMMAND CENTER CONTROLLER
 // ═══════════════════════════════════════
-// The inline command center has been replaced by the full-stack
-// AI Maritime Supply Decision Platform running at http://localhost:3001
-// The landing page scroll animations remain completely unchanged.
 
-const APP_URL = "http://localhost:3001";
+let mapInstance = null;
+let mapInitialized = false;
 
 const btnOpenCommand = document.getElementById("btn-open-command");
 const btnOpenCommand2 = document.getElementById("btn-open-command-2");
+const btnHeroStart = document.getElementById("btn-hero-start");
+const navCommandLink = document.getElementById("nav-command-link");
 const btnCloseCommand = document.getElementById("btn-close-command");
 
 function openCommandCenter() {
-  window.location.href = APP_URL + "/intake";
+  const cc = document.getElementById("command-center");
+  if (cc) {
+    cc.classList.remove("hidden");
+    if (!mapInitialized) {
+      setTimeout(() => {
+        initMap();
+        mapInitialized = true;
+      }, 50);
+    } else if (mapInstance) {
+      setTimeout(() => {
+        mapInstance.invalidateSize();
+      }, 100);
+    }
+    cc.scrollIntoView({ behavior: "smooth" });
+  }
 }
 
 function closeCommandCenter() {
-  // No-op: command center is now a separate app
+  const cinema = document.getElementById("cinema");
+  if (cinema) {
+    cinema.scrollIntoView({ behavior: "smooth" });
+  }
 }
 
 if (btnOpenCommand) btnOpenCommand.addEventListener("click", openCommandCenter);
 if (btnOpenCommand2) btnOpenCommand2.addEventListener("click", openCommandCenter);
+if (btnHeroStart) btnHeroStart.addEventListener("click", openCommandCenter);
+if (navCommandLink) navCommandLink.addEventListener("click", (e) => { e.preventDefault(); openCommandCenter(); });
 if (btnCloseCommand) btnCloseCommand.addEventListener("click", closeCommandCenter);
 
 // Also allow #command-center anchor
@@ -800,10 +819,33 @@ window.runWhatIf = runWhatIf;
 window.backToIntake = backToIntake;
 window.generateReport = generateReport;
 
+// API Status Checker
+async function checkApiStatus() {
+  const dot = document.getElementById("cc-status-dot");
+  const text = document.getElementById("cc-status-text");
+  if (!dot || !text) return;
+
+  try {
+    const res = await fetch("/api/health");
+    if (res.ok) {
+      const data = await res.json();
+      dot.classList.add("online");
+      text.textContent = "API: Online · Decision Engine Ready";
+    } else {
+      dot.classList.remove("online");
+      text.textContent = "API: Standalone Simulated Mode";
+    }
+  } catch (err) {
+    dot.classList.remove("online");
+    text.textContent = "API: Standalone Mode (Simulated)";
+  }
+}
+
 // ═══════════════════════════════════════
 // 4. INIT
 // ═══════════════════════════════════════
 document.addEventListener("DOMContentLoaded", () => {
   setupSightSlider();
+  checkApiStatus();
   requestTick();
 });
