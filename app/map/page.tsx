@@ -56,29 +56,126 @@ type DestConfig = {
   destLabel: string
   showIpsaPipeline: boolean
   showHormuz: boolean
+  westHubCoords: [number, number]
+  westHubLabel: string
+  eastHubCoords: [number, number]
+  eastHubLabel: string
+  bicoastalLine: [number, number][]
+  triangulationLine: [number, number][]
 }
 
 function getDestConfig(destName: string): DestConfig {
   const lower = (destName || '').toLowerCase()
   if (lower.includes('japan') || lower.includes('tokyo')) {
-    return { center: [25.0, 120.0], zoom: 4, destCoords: [35.44, 139.64], destLabel: 'Tokyo Bay Terminal, Japan', showIpsaPipeline: false, showHormuz: true }
+    return {
+      center: [25.0, 120.0],
+      zoom: 4,
+      destCoords: [35.44, 139.64],
+      destLabel: 'Tokyo Bay Terminal, Japan',
+      showIpsaPipeline: false,
+      showHormuz: true,
+      westHubCoords: [35.44, 139.64],
+      westHubLabel: 'Jio Energy Japan — Tokyo Refinery Hub',
+      eastHubCoords: [26.21, 127.68],
+      eastHubLabel: 'Okinawa Strategic Storage Terminal',
+      bicoastalLine: [[35.44, 139.64], [30.0, 133.0], [26.21, 127.68]],
+      triangulationLine: [[35.44, 139.64], [1.35, 103.80], [26.64, 50.16], [35.44, 139.64]]
+    }
   }
   if (lower.includes('china') || lower.includes('shanghai') || lower.includes('ningbo') || lower.includes('qingdao')) {
-    return { center: [18.0, 110.0], zoom: 4, destCoords: [31.23, 121.47], destLabel: 'Shanghai Port, China', showIpsaPipeline: false, showHormuz: true }
+    return {
+      center: [18.0, 110.0],
+      zoom: 4,
+      destCoords: [31.23, 121.47],
+      destLabel: 'Shanghai Port, China',
+      showIpsaPipeline: false,
+      showHormuz: true,
+      westHubCoords: [31.23, 121.47],
+      westHubLabel: 'Sinopec — Shanghai Refinery Terminal',
+      eastHubCoords: [22.28, 114.15],
+      eastHubLabel: 'Hong Kong Auxiliary Storage Hub',
+      bicoastalLine: [[31.23, 121.47], [26.0, 119.0], [22.28, 114.15]],
+      triangulationLine: [[31.23, 121.47], [1.35, 103.80], [26.64, 50.16], [31.23, 121.47]]
+    }
   }
   if (lower.includes('singapore')) {
-    return { center: [6.0, 96.0], zoom: 5, destCoords: [1.35, 103.8], destLabel: 'Singapore Terminal', showIpsaPipeline: false, showHormuz: true }
+    return {
+      center: [6.0, 96.0],
+      zoom: 5,
+      destCoords: [1.35, 103.8],
+      destLabel: 'Singapore Terminal',
+      showIpsaPipeline: false,
+      showHormuz: true,
+      westHubCoords: [1.35, 103.8],
+      westHubLabel: 'Jio / Reliance Singapore Distribution Hub',
+      eastHubCoords: [1.36, 104.16],
+      eastHubLabel: 'Pengerang Johor Deepwater Terminal',
+      bicoastalLine: [[1.35, 103.8], [1.36, 104.16]],
+      triangulationLine: [[1.35, 103.80], [35.44, 139.64], [26.64, 50.16], [1.35, 103.80]]
+    }
   }
   if (lower.includes('rotterdam') || lower.includes('europe') || lower.includes('netherlands')) {
-    return { center: [38.0, 10.0], zoom: 3, destCoords: [51.92, 4.48], destLabel: 'Rotterdam Hub, Netherlands', showIpsaPipeline: true, showHormuz: true }
+    return {
+      center: [38.0, 10.0],
+      zoom: 3,
+      destCoords: [51.92, 4.48],
+      destLabel: 'Rotterdam Hub, Netherlands',
+      showIpsaPipeline: true,
+      showHormuz: true,
+      westHubCoords: [51.92, 4.48],
+      westHubLabel: 'Jio / Shell — Rotterdam refinery Terminal',
+      eastHubCoords: [53.53, 8.13],
+      eastHubLabel: 'Wilhelmshaven deepwater Tank Terminal',
+      bicoastalLine: [[51.92, 4.48], [53.53, 8.13]],
+      triangulationLine: [[51.92, 4.48], [1.35, 103.80], [4.43, 7.16], [51.92, 4.48]]
+    }
   }
   if (lower.includes('colombo') || lower.includes('sri lanka')) {
-    return { center: [10.0, 72.0], zoom: 5, destCoords: [6.92, 79.86], destLabel: 'Colombo Terminal, Sri Lanka', showIpsaPipeline: true, showHormuz: true }
+    return {
+      center: [10.0, 72.0],
+      zoom: 5,
+      destCoords: [6.92, 79.86],
+      destLabel: 'Colombo Terminal, Sri Lanka',
+      showIpsaPipeline: true,
+      showHormuz: true,
+      westHubCoords: [6.92, 79.86],
+      westHubLabel: 'CPC Sri Lanka Terminal',
+      eastHubCoords: [8.57, 81.23],
+      eastHubLabel: 'Trincomalee Oil Tank Farm',
+      bicoastalLine: [[6.92, 79.86], [8.57, 81.23]],
+      triangulationLine: [[6.92, 79.86], [1.35, 103.80], [26.64, 50.16], [6.92, 79.86]]
+    }
   }
   if (lower.includes('houston') || lower.includes('usa')) {
-    return { center: [28.0, -50.0], zoom: 3, destCoords: [29.76, -95.36], destLabel: 'Houston Hub, USA', showIpsaPipeline: true, showHormuz: false }
+    return {
+      center: [28.0, -50.0],
+      zoom: 3,
+      destCoords: [29.76, -95.36],
+      destLabel: 'Houston Hub, USA',
+      showIpsaPipeline: true,
+      showHormuz: false,
+      westHubCoords: [29.76, -95.36],
+      westHubLabel: 'Houston Exxon Refining Terminal',
+      eastHubCoords: [29.95, -90.07],
+      eastHubLabel: 'Louisiana Offshore Oil Port (LOOP)',
+      bicoastalLine: [[29.76, -95.36], [29.95, -90.07]],
+      triangulationLine: [[29.76, -95.36], [51.92, 4.48], [4.43, 7.16], [29.76, -95.36]]
+    }
   }
-  return { center: [18.0, 68.0], zoom: 5, destCoords: [18.96, 72.82], destLabel: 'Mumbai Port, India', showIpsaPipeline: true, showHormuz: true }
+  return {
+    center: [18.0, 68.0],
+    zoom: 5,
+    destCoords: [18.96, 72.82],
+    destLabel: 'Mumbai Port, India',
+    showIpsaPipeline: true,
+    showHormuz: true,
+    westHubCoords: [18.96, 72.82],
+    westHubLabel: '{destCfg.westHubLabel}',
+    eastHubCoords: [17.68, 83.21],
+    eastHubLabel: '{destCfg.eastHubLabel}',
+    bicoastalLine: [[18.96, 72.82], [15.0, 76.0], [17.68, 83.21]],
+    triangulationLine: [[18.96, 72.82], [1.35, 103.80], [4.43, 7.16], [18.96, 72.82]]
+  }
 }
 
 const IPSA_PIPELINE_COORDS: [number, number][] = [[26.64, 50.16], [25.00, 45.00], [24.09, 38.06]]
@@ -239,7 +336,7 @@ function MapContent() {
               {showOilCompanies && (
                 <>
                   {/* Bi-Coastal Swap Connection Line */}
-                  <Polyline positions={[[18.96, 72.82], [15.0, 76.0], [17.68, 83.21]]}
+                  <Polyline positions={destCfg.bicoastalLine}
                     pathOptions={{ color: '#8B5CF6', weight: 3.5, dashArray: '6,6' }}>
                     <Popup>
                       <div className="p-2 space-y-1 font-sans text-xs max-w-xs">
@@ -256,30 +353,30 @@ function MapContent() {
                   </Polyline>
 
                   {/* West Coast Hub Marker (Mumbai / Jamnagar) */}
-                  <Marker position={[18.96, 72.82]} icon={createIcon(L, '#8B5CF6', '🏢', 30)}>
+                  <Marker position={destCfg.westHubCoords} icon={createIcon(L, '#8B5CF6', '🏢', 30)}>
                     <Popup>
                       <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
-                        <div className="font-bold text-sm">Reliance / Jio Energy — West Coast Refinery Hub (Mumbai)</div>
+                        <div className="font-bold text-sm">{destCfg.westHubLabel}</div>
                         <div className="text-gray-600">Refinery / Storage Capacity: 12,500,000 bbls</div>
                         <div className="text-purple-700 font-semibold">Dual-Coast Connected to East Hub (Vizag)</div>
                         <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=bicoastal_swap&counterparty=${encodeURIComponent('Reliance / Jio Energy Grid')}&journey=${encodeURIComponent('West Coast Unload (Mumbai) ⇄ East Coast Release (Vizag)')}`)}
                           className="w-full mt-1 py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
-                          Propose Unload at Mumbai →
+                          Propose Unload at West Hub →
                         </button>
                       </div>
                     </Popup>
                   </Marker>
 
                   {/* East Coast Hub Marker (Vizag / Paradip) */}
-                  <Marker position={[17.68, 83.21]} icon={createIcon(L, '#8B5CF6', '🏢', 30)}>
+                  <Marker position={destCfg.eastHubCoords} icon={createIcon(L, '#8B5CF6', '🏢', 30)}>
                     <Popup>
                       <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
-                        <div className="font-bold text-sm">Reliance / Jio Energy — East Coast Terminal (Vizag)</div>
+                        <div className="font-bold text-sm">{destCfg.eastHubLabel}</div>
                         <div className="text-gray-600">Inventory Capacity: 8,200,000 bbls</div>
                         <div className="text-emerald-700 font-semibold">Instant Local Release Available (Zero Transit)</div>
                         <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=bicoastal_swap&counterparty=${encodeURIComponent('Reliance / Jio Energy Grid')}&journey=${encodeURIComponent('West Coast Unload (Mumbai) ⇄ East Coast Release (Vizag)')}`)}
                           className="w-full mt-1 py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
-                          Propose Release at Vizag →
+                          Propose Release at East Hub →
                         </button>
                       </div>
                     </Popup>
@@ -290,7 +387,7 @@ function MapContent() {
               {/* 3-Party Triangulation & Backhaul Loop Network */}
               {showTriangulation && (
                 <>
-                  <Polyline positions={[[18.96, 72.82], [1.35, 103.80], [4.43, 7.16], [18.96, 72.82]]}
+                  <Polyline positions={destCfg.triangulationLine}
                     pathOptions={{ color: '#EC4899', weight: 3, dashArray: '8,4' }}>
                     <Popup>
                       <div className="p-2 space-y-1 font-sans text-xs max-w-xs">
@@ -344,7 +441,7 @@ function MapContent() {
                         <div className="px-1.5 py-0.5 rounded bg-teal-100 text-teal-900 font-bold text-[10px] uppercase">STS / LIGHTERING ZONE</div>
                         <div className="font-bold text-sm">Fujairah Offshore Anchorage — STS Transfer Hub</div>
                         <div className="text-gray-600">Post-pipeline STS to neutral-flag Aframax. Saves VLCC port congestion.</div>
-                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=sts_lightering&counterparty=${encodeURIComponent('Fujairah STS Operator')}&journey=${encodeURIComponent('Fujairah Anchorage STS → Mumbai')}`)}
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=sts_lightering&counterparty=${encodeURIComponent('Fujairah STS Operator')}&journey=${encodeURIComponent('Fujairah Anchorage STS → {destName}')}`)}
                           className="w-full mt-1.5 py-1 rounded bg-[#0d9488] text-white text-[11px] font-semibold hover:bg-teal-700">
                           ⚡ Initiate STS Lightering Deal →
                         </button>
