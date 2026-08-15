@@ -5,3 +5,12 @@ node_modules/
 __pycache__/
 *.pyc
 .vercel
+frontend/.next/
+frontend/node_modules/
+backend/__pycache__/
+backend/services/__pycache__/
+backend/services/ai/__pycache__/
+backend/routers/__pycache__/
+*.egg-info/
+.venv/
+venv/

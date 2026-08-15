@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'Ogg Medium';
+  src: url('https://dcym8fthxf5uu.cloudfront.net/fonts/247a073c-29f5-4a89-aa3a-741020f346fc/OggText-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html, body {
+    @apply bg-bg-base text-text-primary;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    @apply border-border-dim;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-bg-panel; }
+  ::-webkit-scrollbar-thumb { @apply bg-accent rounded-full; }
+}
+
+@layer components {
+  /* ── Cards ─────────────────────────────────────────────────── */
+  .card {
+    @apply bg-bg-card border border-border-dim rounded-card shadow-card
+           transition-all duration-200;
+  }
+  .card:hover {
+    @apply border-border-mid shadow-card-hover;
+  }
+  .card-glass {
+    @apply bg-bg-panel/80 backdrop-blur-md border border-border-mid rounded-card;
+  }
+
+  /* ── Buttons ───────────────────────────────────────────────── */
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-bright text-white font-medium
+           px-5 py-2.5 rounded-btn transition-all duration-200
+           shadow-glow-blue hover:shadow-glow-blue text-sm;
+  }
+  .btn-ghost {
+    @apply text-text-secondary hover:text-text-primary border border-border-dim
+           hover:border-border-mid px-4 py-2 rounded-btn transition-all duration-200 text-sm;
+  }
+  .btn-danger {
+    @apply bg-reject/20 hover:bg-reject/30 text-reject border border-reject/40
+           px-4 py-2 rounded-btn transition-all duration-200 text-sm;
+  }
+
+  /* ── Labels ────────────────────────────────────────────────── */
+  .label {
+    @apply text-xs font-medium uppercase tracking-widest text-text-muted;
+  }
+
+  /* ── Inputs ────────────────────────────────────────────────── */
+  .input {
+    @apply bg-bg-surface border border-border-dim rounded-btn px-3 py-2.5
+           text-text-primary text-sm placeholder:text-text-muted
+           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30
+           transition-all duration-150 w-full;
+  }
+  .select {
+    @apply input cursor-pointer;
+  }
+
+  /* ── Section header ────────────────────────────────────────── */
+  .section-title {
+    @apply font-display text-display-md text-text-primary tracking-tight;
+  }
+
+  /* ── Provenance badges ─────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold
+           uppercase tracking-wide;
+  }
+  .badge-confirmed    { @apply bg-prov-confirmed/15 text-prov-confirmed border border-prov-confirmed/30; }
+  .badge-reference    { @apply bg-prov-reference/15 text-prov-reference border border-prov-reference/30; }
+  .badge-estimated    { @apply bg-prov-estimated/15 text-prov-estimated border border-prov-estimated/30; }
+  .badge-simulated    { @apply bg-prov-simulated/15 text-prov-simulated border border-prov-simulated/30; }
+  .badge-candidate    { @apply bg-prov-candidate/15 text-prov-candidate border border-prov-candidate/30 animate-pulse-glow; }
+  .badge-calculated   { @apply bg-prov-calculated/15 text-prov-calculated border border-prov-calculated/30; }
+
+  /* ── Verdict badges ────────────────────────────────────────── */
+  .verdict-go         { @apply bg-go/15 text-go border border-go/30 shadow-glow-go; }
+  .verdict-negotiate  { @apply bg-negotiate/15 text-negotiate border border-negotiate/30; }
+  .verdict-reject     { @apply bg-reject/15 text-reject border border-reject/30 shadow-glow-reject; }
+
+  /* ── Progress bar ──────────────────────────────────────────── */
+  .progress-bar {
+    @apply h-2 rounded-full bg-bg-surface overflow-hidden;
+  }
+  .progress-fill {
+    @apply h-full rounded-full bg-gradient-accent transition-all duration-700;
+  }
+
+  /* ── Sidebar nav ───────────────────────────────────────────── */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-btn text-sm text-text-secondary
+           hover:text-text-primary hover:bg-bg-hover transition-all duration-150 cursor-pointer;
+  }
+  .nav-item.active {
+    @apply bg-bg-hover text-text-primary border-l-2 border-accent-bright;
+  }
+
+  /* ── Data row ──────────────────────────────────────────────── */
+  .data-row {
+    @apply flex items-center justify-between py-3 border-b border-border-dim last:border-0;
+  }
+  .data-label { @apply text-sm text-text-secondary; }
+  .data-value { @apply text-sm font-medium text-text-primary; }
+}

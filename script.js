@@ -271,36 +271,29 @@ sightPrev.addEventListener("click", () => moveSightSlider(-1));
 sightNext.addEventListener("click", () => moveSightSlider(1));
 
 // ═══════════════════════════════════════
-// 3. COMMAND CENTER
+// 3. COMMAND CENTER → Now powered by the full Next.js application
 // ═══════════════════════════════════════
+// The inline command center has been replaced by the full-stack
+// AI Maritime Supply Decision Platform running at http://localhost:3001
+// The landing page scroll animations remain completely unchanged.
 
-const commandCenter = document.getElementById("command-center");
+const APP_URL = "http://localhost:3001";
+
 const btnOpenCommand = document.getElementById("btn-open-command");
 const btnOpenCommand2 = document.getElementById("btn-open-command-2");
 const btnCloseCommand = document.getElementById("btn-close-command");
 
-let mapInstance = null;
-let lastOptResult = null;
-let lastScenario = null;
-let lastExplanation = null;
-
 function openCommandCenter() {
-  commandCenter.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-  commandCenter.scrollIntoView({ behavior: "smooth" });
-  if (!mapInstance) initMap();
-  checkApiHealth();
-  loadVesselOpportunities();
+  window.location.href = APP_URL + "/intake";
 }
 
 function closeCommandCenter() {
-  commandCenter.classList.add("hidden");
-  document.body.style.overflow = "";
+  // No-op: command center is now a separate app
 }
 
-btnOpenCommand.addEventListener("click", openCommandCenter);
+if (btnOpenCommand) btnOpenCommand.addEventListener("click", openCommandCenter);
 if (btnOpenCommand2) btnOpenCommand2.addEventListener("click", openCommandCenter);
-btnCloseCommand.addEventListener("click", closeCommandCenter);
+if (btnCloseCommand) btnCloseCommand.addEventListener("click", closeCommandCenter);
 
 // Also allow #command-center anchor
 if (window.location.hash === "#command-center") openCommandCenter();
