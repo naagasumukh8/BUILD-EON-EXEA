@@ -24,36 +24,88 @@ REQUIRED_INTAKE_FIELDS = [
     "volume_unit",
     "destination_port_name",
     "deadline_days",
-    "vessel_situation",
 ]
 
-SYSTEM_INTAKE = """You are an AI assistant for an oil supply chain decision platform.
-Your role is to extract structured fields from the user's natural-language description of their supply requirement.
+SYSTEM_INTAKE = """\
+You are a structured-data extraction engine for an oil supply chain decision platform.
+Your job is to parse a natural-language supply requirement into a precise JSON specification.
 
-RULES:
-- Extract ONLY what the user explicitly stated. Do NOT invent or assume values.
-- If a required field is missing, list it in missing_fields and compose ONE clear follow_up_question for ALL missing fields at once.
-- For volume, always extract the number and unit separately.
-- For product: normalise to one of: crude, diesel, gasoline, refined, lng.
-- For vessel_situation: map to one of: own, chartered, seeking.
-- Return ONLY a valid JSON object — no markdown fences, no explanation.
+══════════════════════════════════════════════════════════
+CRITICAL PARSING RULES (NEVER violate these)
+══════════════════════════════════════════════════════════
 
-Required fields: product, volume_required, volume_unit, destination_port_name, deadline_days, vessel_situation.
+RULE 1 — NEVER invent data.
+  Extract ONLY what the user explicitly stated.
+  If a field is absent from the input, set it to null.
+  Never guess, infer, or carry over a value from a previous scenario.
 
-Output format (JSON only):
+RULE 2 — Disruption ≠ Origin.
+  A disruption condition (e.g. "Hormuz is unavailable", "Red Sea is blocked",
+  "Suez is closed") is a DISRUPTION CONDITION, NOT an origin.
+  Place it in disruption_conditions[], never in sources[].
+
+  Examples:
+    "Strait of Hormuz is expected to remain unavailable"
+       → disruption_conditions: ["Strait of Hormuz: unavailable / expected sustained disruption"]
+       → NOT an origin
+
+    "1M barrels available from West Africa"
+       → sources: [{ "origin": "West Africa", "available_volume_bbl": 1000000 }]
+
+    "crude from Middle East, 800k bbl"
+       → sources: [{ "origin": "Middle East", "available_volume_bbl": 800000 }]
+
+RULE 3 — Multi-origin support.
+  When the user names several supply origins, populate the sources array with ONE entry per origin.
+  Each entry must have: origin (string) and available_volume_bbl (number or null).
+  Do NOT concatenate multiple origins into a single string.
+  Do NOT place disruption language inside any origin field.
+
+RULE 4 — target_landed_cost must be null if not stated.
+  If the user did not provide a target landed cost or cost constraint, set it to null.
+  Never default to $95/bbl or any other value.
+
+RULE 5 — Constraints must be captured.
+  Concentration limits, regulatory constraints, or any "no more than X%" rule
+  go into constraints[] as plain English strings.
+
+RULE 6 — Return ONLY valid JSON (no markdown fences, no explanation).
+
+══════════════════════════════════════════════════════════
+OUTPUT FORMAT
+══════════════════════════════════════════════════════════
 {
-  "product": "diesel" | null,
-  "volume_required": 2000000 | null,
+  "product": "crude" | "diesel" | "gasoline" | "refined" | "lng" | null,
+  "volume_required": 2500000 | null,
   "volume_unit": "bbls" | "mt" | null,
-  "destination_port_name": "Mumbai" | null,
-  "deadline_days": 7 | null,
+  "destination_port_name": "Rotterdam, Netherlands" | null,
+  "deadline_days": 18 | null,
   "vessel_situation": "own" | "chartered" | "seeking" | null,
-  "origin_port_name": "Ras Tanura" | null,
-  "supplier": "Aramco" | null,
-  "purchase_price_usd_per_bbl": 82.5 | null,
-  "missing_fields": ["deadline_days", "vessel_situation"],
-  "follow_up_question": "To complete your scenario, could you tell me: your required delivery deadline in days, and whether you own a vessel, have a chartered one, or need to find one?"
-}"""
+  "optimization_priority": "MINIMIZE_TOTAL_LANDED_COST" | "MINIMIZE_TRANSIT_TIME" | "MINIMIZE_RISK" | null,
+  "target_landed_cost_usd_bbl": null,
+  "sources": [
+    { "origin": "Western Australia", "available_volume_bbl": 1200000 },
+    { "origin": "Middle East", "available_volume_bbl": 800000 },
+    { "origin": "West Africa", "available_volume_bbl": 1000000 }
+  ],
+  "disruption_conditions": [
+    "Strait of Hormuz: unavailable / expected sustained disruption"
+  ],
+  "constraints": [
+    "No more than 40% of required volume may depend on a single transportation option"
+  ],
+  "missing_fields": [],
+  "follow_up_question": null
+}
+
+If sources are not mentioned, set sources to [].
+If disruption_conditions are not mentioned, set disruption_conditions to [].
+If constraints are not mentioned, set constraints to [].
+If optimization_priority is not explicitly stated, set it to null.
+If target_landed_cost is not explicitly stated, set it to null.\
+"""
+
+
 
 SYSTEM_EXPLAIN = """You are an AI assistant for a maritime oil supply chain platform.
 You receive structured results from a deterministic optimization engine and explain them clearly to a non-technical user.
@@ -156,9 +208,18 @@ class GeminiProvider(AIProvider):
             )
 
         # Merge with existing fields
+        # Lists (sources, disruption_conditions, constraints) replace rather than append
         merged = {**existing_fields}
         for k, v in data.items():
-            if k not in ("missing_fields", "follow_up_question") and v is not None:
+            if k in ("missing_fields", "follow_up_question"):
+                continue
+            if v is None:
+                # Explicitly null → only override if not already set in existing
+                merged.setdefault(k, None)
+            elif isinstance(v, list):
+                # Lists always replace (new parse wins)
+                merged[k] = v
+            else:
                 merged[k] = v
 
         # Compute missing fields server-side (don't trust LLM's list)

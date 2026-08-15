@@ -47,15 +47,29 @@ class IntakeParseRequest(BaseModel):
     existing_fields: dict[str, Any] = Field(default_factory=dict)
 
 
+class SupplySource(BaseModel):
+    """A single supply origin with its available volume."""
+    origin: str
+    available_volume_bbl: Optional[float] = None
+
+
 class IntakeParsedFields(BaseModel):
     """Structured output from Gemini after parsing free text. Validated before use."""
-    product: Optional[str] = None               # crude, diesel, gasoline, refined
+    product: Optional[str] = None               # crude, diesel, gasoline, refined, lng
     volume_required: Optional[float] = None
     volume_unit: Optional[str] = None           # bbls, mt
     destination_port_name: Optional[str] = None
     deadline_days: Optional[int] = None
     vessel_situation: Optional[VesselSituation] = None
-    origin_port_name: Optional[str] = None
+    optimization_priority: Optional[str] = None  # MINIMIZE_TOTAL_LANDED_COST | MINIMIZE_TRANSIT_TIME | MINIMIZE_RISK
+    target_landed_cost_usd_bbl: Optional[float] = None  # null if not stated by user — NEVER default
+    # Multi-origin supply sources (replaces single origin_port_name for complex scenarios)
+    sources: list[SupplySource] = Field(default_factory=list)
+    origin_port_name: Optional[str] = None      # kept for simple single-origin scenarios
+    # Disruption and constraint context
+    disruption_conditions: list[str] = Field(default_factory=list)
+    constraints: list[str] = Field(default_factory=list)
+    # Legacy fields
     supplier: Optional[str] = None
     purchase_price_usd_per_bbl: Optional[float] = None
     missing_fields: list[str] = Field(default_factory=list)
