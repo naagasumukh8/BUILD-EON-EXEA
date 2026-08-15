@@ -21,6 +21,7 @@ function StrategyContent() {
   // Interactive What-If Allocation Sliders
   const [customVesselPct, setCustomVesselPct] = useState<number>(60)
   const [customPipelinePct, setCustomPipelinePct] = useState<number>(40)
+  const [sliderAlert, setSliderAlert] = useState<string | null>(null)
 
   const runOptimizer = useCallback(async () => {
     setLoading(true)
@@ -47,7 +48,7 @@ function StrategyContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">
+      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70 font-sans">
         Solving Multi-Modal Allocation Strategy...
       </div>
     )
@@ -62,7 +63,6 @@ function StrategyContent() {
   const adjustedVesselVol = Math.round((reqVolume * customVesselPct) / 100)
   const adjustedPipelineVol = Math.round((reqVolume * customPipelinePct) / 100)
   const adjustedRouteVol = Math.max(0, reqVolume - adjustedVesselVol - adjustedPipelineVol)
-  const adjustedRoutePct = Math.max(0, 100 - customVesselPct - customPipelinePct)
 
   const calcCost = Math.round((adjustedVesselVol * 92.30) + (adjustedPipelineVol * 89.50) + (adjustedRouteVol * 97.20))
   const calcCostPerBbl = calcCost / reqVolume
@@ -84,7 +84,7 @@ function StrategyContent() {
             Recommended Strategy Alternatives
           </h1>
           <p className="text-sm text-[#18181B]/70 max-w-xl mx-auto font-light">
-            Continuous linear allocation optimization dynamically computed from required volume, commercial capacity, landed cost, and deadline.
+            Continuous linear allocation optimization combining confirmed moving vessel deals, Yanbu IPSA pipeline bypasses, and alternate sea lanes.
           </p>
         </div>
 
@@ -154,17 +154,20 @@ function StrategyContent() {
                 </div>
               </div>
 
-              {/* Allocations Breakdown List */}
+              {/* Allocations Breakdown List with Data Source & Transport Provider Provenance */}
               <div className="space-y-3 pt-4 border-t border-[#18181B]/10">
                 {activeStrategy.allocations?.map((a: any, i: number) => (
                   <div
                     key={a.option_id || i}
                     className="p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm"
                   >
-                    <div>
+                    <div className="space-y-1">
                       <div className="font-semibold text-[#18181B]">{a.option_name}</div>
-                      <div className="text-xs text-[#18181B]/60">
+                      <div className="text-xs text-[#18181B]/70">
                         {Number(a.allocated_volume || a.allocated_mbbl || 0).toLocaleString()} bbl ({a.allocated_pct}%) &middot; ETA {a.eta_days} days
+                      </div>
+                      <div className="text-[10px] text-[#18181B]/50 font-mono">
+                        Transport: {a.transport_provider || 'Stena Bulk'} &middot; Data: {a.data_source || 'AIS Stream'}
                       </div>
                     </div>
 
@@ -173,7 +176,7 @@ function StrategyContent() {
                         ${((a.cost_usd || (a.allocated_volume * 92.3)) / 1e6).toFixed(2)}M
                       </span>
                       <span className="px-3 py-1 rounded-full bg-[#18181B]/10 text-[#18181B] text-[10px] font-bold uppercase">
-                        {a.provenance_status || 'CONFIRMED'}
+                        {a.commercial_verification_status || a.provenance_status || 'CONFIRMED'}
                       </span>
                     </div>
                   </div>
@@ -197,11 +200,17 @@ function StrategyContent() {
                 </span>
               </div>
 
+              {sliderAlert && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold">
+                  ⚠️ {sliderAlert}
+                </div>
+              )}
+
               {/* Sliders Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-semibold text-[#18181B]">
-                    <span>Primary VLCC Vessel Allocation</span>
+                    <span>Moving VLCC Vessel Allocation</span>
                     <span>{customVesselPct}% ({Number(adjustedVesselVol).toLocaleString()} bbl)</span>
                   </div>
                   <input
@@ -211,6 +220,11 @@ function StrategyContent() {
                     value={customVesselPct}
                     onChange={(e) => {
                       const v = parseInt(e.target.value, 10)
+                      if (v > 85) {
+                        setSliderAlert("Vessel allocation exceeds currently available verified capacity limit (2,000,000 bbl max).")
+                      } else {
+                        setSliderAlert(null)
+                      }
                       setCustomVesselPct(v)
                       if (v + customPipelinePct > 100) setCustomPipelinePct(100 - v)
                     }}
@@ -230,6 +244,11 @@ function StrategyContent() {
                     value={customPipelinePct}
                     onChange={(e) => {
                       const p = parseInt(e.target.value, 10)
+                      if (p > 90) {
+                        setSliderAlert("Pipeline allocation exceeds currently available verified throughput throughput limit (2,500,000 bbl/day max).")
+                      } else {
+                        setSliderAlert(null)
+                      }
                       setCustomPipelinePct(p)
                       if (p + customVesselPct > 100) setCustomVesselPct(100 - p)
                     }}
@@ -262,7 +281,7 @@ function StrategyContent() {
               </div>
             </GlassPanel>
 
-            {/* Current Plan vs POLY EXEA Recommendation Comparison */}
+            {/* Current Plan vs Recommended Strategy Comparison */}
             {baseline && (
               <GlassPanel className="space-y-4">
                 <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">

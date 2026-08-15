@@ -31,7 +31,7 @@ const Polyline = dynamicImport(
   { ssr: false }
 )
 
-// Ports & Infrastructure Coordinates
+// Infrastructure Coordinates
 const PORTS: Record<string, { lat: number; lon: number; name: string; type: string }> = {
   ras_tanura: { lat: 26.64, lon: 50.16, name: 'Ras Tanura Terminal (Persian Gulf)', type: 'export' },
   yanbu: { lat: 24.09, lon: 38.06, name: 'Yanbu Terminal (Red Sea Bypass)', type: 'pipeline' },
@@ -112,66 +112,16 @@ function MapContent() {
   const loadNetworkData = useCallback(async () => {
     try {
       const scen = await api.getScenario(scenarioId).catch(() => ({
-        destination_port_name: 'Mumbai, India',
+        destination_port_name: 'India',
         product: 'diesel',
         volume_required: 2000000,
         deadline_days: 7
       }))
       setScenario(scen)
 
-      const res = await api.listVessels(scenarioId).catch(() => ({
-        vessels: [
-          {
-            id: 'vess-001',
-            vessel_name: 'Stena Bulk Charter (VLCC)',
-            vessel_type: 'VLCC Tanker',
-            lat: 13.50,
-            lon: 58.20,
-            destination_port: scen.destination_port_name || 'Mumbai, India',
-            capacity_bbls: 2000000,
-            dwt: 300000,
-            eta_days: 6,
-            speed_knots: 14.2,
-            provenance_status: 'CONFIRMED',
-            source: 'AIS Live Stream',
-            timestamp: new Date().toISOString(),
-          },
-          {
-            id: 'vess-002',
-            vessel_name: 'Yanbu IPSA Pipeline Bypass',
-            vessel_type: 'Overland Pipeline',
-            lat: 24.09,
-            lon: 38.06,
-            destination_port: 'Red Sea Terminal',
-            capacity_bbls: 2500000,
-            dwt: 0,
-            eta_days: 3,
-            speed_knots: 0,
-            provenance_status: 'REAL_REFERENCE',
-            source: 'Saudi Aramco Feed',
-            timestamp: new Date().toISOString(),
-          },
-          {
-            id: 'vess-003',
-            vessel_name: 'MV Atlantic Pioneer (Aframax)',
-            vessel_type: 'Aframax Tanker',
-            lat: 11.588,
-            lon: 43.145,
-            destination_port: 'Djibouti Staging Area',
-            capacity_bbls: 750000,
-            dwt: 115000,
-            eta_days: 4,
-            speed_knots: 13.5,
-            provenance_status: 'CANDIDATE_UNVERIFIED',
-            source: 'AIS Stream Provider',
-            timestamp: new Date().toISOString(),
-          }
-        ]
-      }))
-
-      const list = res.vessels || []
-      setVessels(list)
-      if (list.length > 0) {
+      const list = await api.listVessels(scenarioId).catch(() => [])
+      setVessels(list || [])
+      if (list && list.length > 0) {
         setSelectedVessel(list[0])
       }
     } catch (e) {
@@ -190,30 +140,24 @@ function MapContent() {
   let mapZoom = 4
 
   if (destLower.includes('japan') || destLower.includes('tokyo')) {
-    mapCenter = [32.0, 135.0]
-    mapZoom = 5
+    mapCenter = [28.0, 130.0]
+    mapZoom = 4
   } else if (destLower.includes('rotterdam') || destLower.includes('europe') || destLower.includes('netherlands')) {
-    mapCenter = [50.0, 10.0]
+    mapCenter = [48.0, 10.0]
     mapZoom = 4
   } else if (destLower.includes('singapore')) {
     mapCenter = [1.35, 103.8]
     mapZoom = 6
-  } else if (destLower.includes('usa') || destLower.includes('houston')) {
-    mapCenter = [29.7, -95.3]
-    mapZoom = 5
-  } else if (destLower.includes('china') || destLower.includes('shanghai')) {
-    mapCenter = [31.2, 121.5]
-    mapZoom = 5
   }
 
-  // Create custom DivIcon for Leaflet markers to fix default broken icon bug
+  // Create custom DivIcon for Leaflet markers
   const createCustomIcon = (bgColor: string, label: string) => {
     if (!L) return undefined
     return L.divIcon({
       className: 'custom-leaflet-marker',
-      html: `<div style="background-color: ${bgColor}; width: 26px; height: 26px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">${label}</div>`,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13]
+      html: `<div style="background-color: ${bgColor}; width: 28px; height: 28px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: bold;">${label}</div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
     })
   }
 
@@ -309,30 +253,76 @@ function MapContent() {
                 )
               })}
 
-              {/* 5. LIVE SHIPS & VESSELS */}
-              {showVessels && vessels.map((v) => (
-                <Marker
-                  key={v.id}
-                  position={[v.lat || 15.0, v.lon || 60.0]}
-                  icon={createCustomIcon('#2563EB', '🚢')}
-                  eventHandlers={{
-                    click: () => setSelectedVessel(v),
-                  }}
-                >
-                  <Popup>
-                    <div className="p-2 space-y-1 font-sans">
-                      <div className="font-bold text-sm text-[#18181B]">{v.vessel_name}</div>
-                      <div className="text-xs text-[#18181B]/70">{v.vessel_type} &middot; ETA {v.eta_days} Days</div>
-                      <div className="text-[10px] font-bold uppercase text-emerald-700">{v.provenance_status}</div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
+              {/* 5. MOVING VESSELS & JOURNEY TRACES */}
+              {showVessels && vessels.map((v) => {
+                const originCoords: [number, number] = v.origin_coords || [13.50, 58.20]
+                const currentPos: [number, number] = [v.lat || 13.50, v.lon || 58.20]
+                const destCoords: [number, number] = v.dest_coords || [35.44, 139.64]
+                const deliveryCoords: [number, number] = [18.96, 72.82] // Mumbai India
+
+                return (
+                  <div key={v.id}>
+                    {/* Vessel Active Journey Route: Origin -> Current Pos -> Current Dest */}
+                    {v.origin_coords && (
+                      <Polyline
+                        positions={[originCoords, currentPos, destCoords]}
+                        pathOptions={{ color: '#2563EB', weight: 3, opacity: 0.7 }}
+                      />
+                    )}
+
+                    {/* Potential Opportunity Diversion Line to Delivery Point */}
+                    {v.potential_delivery && (
+                      <Polyline
+                        positions={[currentPos, deliveryCoords]}
+                        pathOptions={{ color: '#059669', weight: 2.5, dashArray: '4, 4' }}
+                      />
+                    )}
+
+                    <Marker
+                      position={currentPos}
+                      icon={createCustomIcon('#2563EB', '🚢')}
+                      eventHandlers={{
+                        click: () => setSelectedVessel(v),
+                      }}
+                    >
+                      <Popup>
+                        <div className="p-3 space-y-2 font-sans max-w-xs">
+                          <div className="px-2 py-0.5 rounded bg-blue-100 text-blue-900 font-bold text-[10px] uppercase">
+                            MOVING VESSEL OPPORTUNITY
+                          </div>
+
+                          <div>
+                            <div className="font-bold text-base text-[#18181B]">{v.vessel_name}</div>
+                            <div className="text-xs text-[#18181B]/70 font-medium">
+                              Journey: {v.origin_port || 'Australia'} &rarr; {v.current_destination || 'Japan'}
+                            </div>
+                          </div>
+
+                          <div className="text-xs bg-[#FAFAF8] p-2 rounded-lg border border-[#18181B]/10 space-y-1">
+                            <div><span className="font-semibold text-[#18181B]/60">Potential Delivery:</span> <strong className="text-emerald-700">{v.potential_delivery || 'India'}</strong></div>
+                            <div><span className="font-semibold text-[#18181B]/60">Transit ETA:</span> {v.eta_days} Days</div>
+                            <div><span className="font-semibold text-[#18181B]/60">Transport Source:</span> {v.transport_provider}</div>
+                            <div><span className="font-semibold text-[#18181B]/60">Data Source:</span> {v.data_source}</div>
+                            <div><span className="font-semibold text-[#18181B]/60">Commercial Status:</span> <span className="font-bold text-amber-700">{v.commercial_verification_status || 'CANDIDATE — UNVERIFIED'}</span></div>
+                          </div>
+
+                          <button
+                            onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${v.id}&vessel_name=${encodeURIComponent(v.vessel_name)}&journey=${encodeURIComponent(`${v.origin_port || 'Australia'} → ${v.current_destination || 'Japan'} via ${v.potential_delivery || 'India'}`)}`)}
+                            className="w-full py-2 rounded-xl bg-[#18181B] text-white text-xs font-semibold hover:bg-black transition-all"
+                          >
+                            Verify Commercial Opportunity &rarr;
+                          </button>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  </div>
+                )
+              })}
             </MapContainer>
           )}
         </div>
 
-        {/* Floating Map Controls & Layer Selector */}
+        {/* Floating Map Layer Selector */}
         <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center gap-2 bg-white/90 backdrop-blur-md p-2 rounded-2xl border border-[#18181B]/10 shadow-md text-xs">
           <button
             onClick={() => setShowPipelines(!showPipelines)}
@@ -387,9 +377,9 @@ function MapContent() {
               </div>
 
               <div>
-                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Discovered Transport Options</h3>
+                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Transport Opportunities</h3>
                 <p className="text-xs text-[#18181B]/70 font-light mt-0.5">
-                  Candidate vessels & IPSA pipeline bypasses active for {scenario?.destination_port_name || 'Mumbai, India'}.
+                  Moving vessels, Yanbu IPSA pipelines & sea lanes for {scenario?.destination_port_name || 'India'}.
                 </p>
               </div>
 
@@ -414,11 +404,14 @@ function MapContent() {
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#18181B]/50 block mb-1">
-                      SELECTED TRANSPORT OPTION &middot; {selectedVessel.provenance_status}
+                      VESSEL OPPORTUNITY &middot; {selectedVessel.commercial_verification_status || 'CANDIDATE — UNVERIFIED'}
                     </span>
                     <h3 className="font-['Instrument_Serif'] text-3xl text-[#18181B]">
                       {selectedVessel.vessel_name}
                     </h3>
+                    <p className="text-xs text-[#18181B]/70 font-light mt-1">
+                      {selectedVessel.relevance_reason || `Travelling ${selectedVessel.origin_port || 'Australia'} → ${selectedVessel.current_destination || 'Japan'} passing near ${selectedVessel.potential_delivery || 'India'}.`}
+                    </p>
                   </div>
 
                   <button
@@ -431,29 +424,29 @@ function MapContent() {
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div className="p-3 rounded-2xl bg-white border border-[#18181B]/10">
-                    <div className="text-[10px] text-[#18181B]/50 uppercase">Capacity</div>
-                    <div className="font-bold text-sm text-[#18181B]">{Number(selectedVessel.capacity_bbls).toLocaleString()} bbl</div>
+                    <div className="text-[10px] text-[#18181B]/50 uppercase">Active Journey</div>
+                    <div className="font-bold text-xs text-[#18181B]">{selectedVessel.origin_port || 'Australia'} &rarr; {selectedVessel.current_destination || 'Japan'}</div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
-                    <div className="text-[10px] text-[#18181B]/50 uppercase">Transit ETA</div>
+                    <div className="text-[10px] text-[#18181B]/50 uppercase">Delivery ETA</div>
                     <div className="font-bold text-sm text-[#18181B]">{selectedVessel.eta_days} Days</div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
-                    <div className="text-[10px] text-[#18181B]/50 uppercase">Option Type</div>
-                    <div className="font-bold text-sm text-[#18181B] uppercase">{selectedVessel.vessel_type}</div>
+                    <div className="text-[10px] text-[#18181B]/50 uppercase">Transport Provider</div>
+                    <div className="font-bold text-xs text-[#18181B]">{selectedVessel.transport_provider || 'Stena Bulk'}</div>
                   </div>
 
                   <div className="p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
                     <div className="text-[10px] text-[#18181B]/50 uppercase">Data Source</div>
-                    <div className="font-bold text-sm text-[#18181B]">{selectedVessel.source}</div>
+                    <div className="font-bold text-xs text-[#18181B]">{selectedVessel.data_source || 'AIS Stream'}</div>
                   </div>
                 </div>
 
                 <div className="pt-2 flex justify-end">
                   <button
-                    onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selectedVessel.id}&vessel_name=${encodeURIComponent(selectedVessel.vessel_name)}`)}
+                    onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selectedVessel.id}&vessel_name=${encodeURIComponent(selectedVessel.vessel_name)}&journey=${encodeURIComponent(`${selectedVessel.origin_port || 'Australia'} → ${selectedVessel.current_destination || 'Japan'} via ${selectedVessel.potential_delivery || 'India'}`)}`)}
                     className="rounded-full bg-[#18181B] px-8 py-3.5 text-xs font-semibold text-white hover:bg-black transition-all shadow-md"
                   >
                     Verify Commercial Opportunity & Enter Quote &rarr;
