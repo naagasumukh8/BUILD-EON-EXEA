@@ -1,6 +1,6 @@
 {
-  "name": "eon-exea-maritime-decision-network",
-  "version": "2.0.0",
+  "name": "maritime-decision-platform",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",

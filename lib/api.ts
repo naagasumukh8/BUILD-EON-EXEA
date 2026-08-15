@@ -195,6 +195,40 @@ function getVesselsForDestination(destName: string, originCountry?: string) {
     ]
   }
 
+  if (lower.includes('rotterdam') || lower.includes('europe') || lower.includes('netherlands')) {
+    const p1 = computeVesselProximity(36.0, -9.0, 51.92, 4.48)
+    return [
+      {
+        id: 'vess-rot-001',
+        imo: 'IMO 9812408',
+        mmsi: 'MMSI 244009876',
+        vessel_name: 'North Sea Pioneer (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        origin_port: 'West Africa / Atlantic',
+        origin_coords: [4.43, 7.16],
+        current_destination: destName || 'Rotterdam, Netherlands',
+        dest_coords: [51.92, 4.48],
+        potential_delivery: destName || 'Rotterdam',
+        lat: 36.0,
+        lon: -9.0,
+        speed_knots: 14.8,
+        eta_days: 4,
+        eta_source: 'CALCULATED',
+        distance_nm: p1.distNm,
+        route_relevance: 'HIGH',
+        total_dwt: 158000,
+        capacity_bbls: 1000000,
+        transport_provider: 'Euronav NV',
+        data_source: 'AIS Stream Feed',
+        status_label: 'LIVE AIS TRACK',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Distance to Rotterdam: ${p1.distNm} nm. Off Coast of Portugal heading North-East to English Channel & Rotterdam.`,
+      }
+    ]
+  }
+
   if (lower.includes('china') || lower.includes('shanghai')) {
     const p = computeVesselProximity(10.0, 110.0, 31.23, 121.47)
     return [
@@ -296,6 +330,40 @@ function getVesselsForDestination(destName: string, originCountry?: string) {
 function getNetworkRoutes(destName: string) {
   const lower = (destName || '').toLowerCase()
   const nowStr = new Date().toISOString()
+  if (lower.includes('rotterdam') || lower.includes('europe') || lower.includes('netherlands')) {
+    const p1 = computeVesselProximity(36.0, -9.0, 51.92, 4.48)
+    return [
+      {
+        id: 'vess-rot-001',
+        imo: 'IMO 9812408',
+        mmsi: 'MMSI 244009876',
+        vessel_name: 'North Sea Pioneer (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        origin_port: 'West Africa / Atlantic',
+        origin_coords: [4.43, 7.16],
+        current_destination: destName || 'Rotterdam, Netherlands',
+        dest_coords: [51.92, 4.48],
+        potential_delivery: destName || 'Rotterdam',
+        lat: 36.0,
+        lon: -9.0,
+        speed_knots: 14.8,
+        eta_days: 4,
+        eta_source: 'CALCULATED',
+        distance_nm: p1.distNm,
+        route_relevance: 'HIGH',
+        total_dwt: 158000,
+        capacity_bbls: 1000000,
+        transport_provider: 'Euronav NV',
+        data_source: 'AIS Stream Feed',
+        status_label: 'LIVE AIS TRACK',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Distance to Rotterdam: ${p1.distNm} nm. Off Coast of Portugal heading North-East to English Channel & Rotterdam.`,
+      }
+    ]
+  }
+
   if (lower.includes('china') || lower.includes('shanghai')) {
     return [
       {
@@ -352,24 +420,119 @@ function getNetworkRoutes(destName: string) {
     ]
   }
 
-  // Default India / Mumbai
+  if (lower.includes('rotterdam') || lower.includes('europe') || lower.includes('netherlands')) {
+    return [
+      {
+        id: 'route-rot-1',
+        name: 'Primary: Cape of Good Hope Long-Haul Bypass to Rotterdam',
+        type: 'Recommended',
+        origin: 'West Africa / Cape Corridor',
+        origin_coords: [4.43, 7.16],
+        destination: 'Rotterdam Hub, Netherlands',
+        dest_coords: [51.92, 4.48],
+        distance_nm: 11200,
+        eta_days: 28,
+        cost_per_bbl: 94.50,
+        risk: 'LOW',
+        data_source: 'Atlantic Shipping Radar',
+        updated_at: nowStr,
+        provenance: 'REAL REFERENCE',
+        description: 'Bypasses Strait of Hormuz via Cape of Good Hope long-haul shipping corridor to North-West Europe.',
+        path: [[26.64, 50.16], [-34.8, 20.0], [14.9, -23.5], [51.92, 4.48]]
+      },
+      {
+        id: 'route-rot-2',
+        name: 'Alternative: SUMED Pipeline Bypass (Ain Sukhna → Sidi Kerir → Rotterdam)',
+        type: 'Alternative',
+        origin: 'Yanbu / SUMED Pipeline',
+        origin_coords: [24.09, 38.06],
+        destination: 'Rotterdam Hub, Netherlands',
+        dest_coords: [51.92, 4.48],
+        distance_nm: 4800,
+        eta_days: 14,
+        cost_per_bbl: 91.20,
+        risk: 'MEDIUM',
+        data_source: 'SUMED Pipeline Authority',
+        updated_at: nowStr,
+        provenance: 'REAL REFERENCE',
+        description: 'Transfers crude via SUMED overland pipeline to Mediterranean, re-shipping from Sidi Kerir to Rotterdam.',
+        path: [[24.09, 38.06], [29.9, 32.5], [31.2, 29.9], [36.0, 15.0], [51.92, 4.48]]
+      },
+      {
+        id: 'route-rot-3',
+        name: 'Replacement Sourcing: West Africa Spot Cargo (Bonny → Rotterdam)',
+        type: 'Alternative',
+        origin: 'Bonny Terminal (Nigeria)',
+        origin_coords: [4.43, 7.16],
+        destination: 'Rotterdam Hub, Netherlands',
+        dest_coords: [51.92, 4.48],
+        distance_nm: 4100,
+        eta_days: 12,
+        cost_per_bbl: 89.80,
+        risk: 'LOW',
+        data_source: 'WAF Spot Index',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        description: 'Procures replacement crude from West Africa, avoiding Hormuz chokepoint completely.',
+        path: [[4.43, 7.16], [14.9, -23.5], [36.0, -9.0], [51.92, 4.48]]
+      }
+    ]
+  }
+
+  // Default India / Mumbai Network Routes (Hormuz Disruption Bypass Priority)
   return [
     {
-      id: 'route-in-1',
-      name: 'Primary: Direct Arabian Sea Passage to Mumbai',
+      id: 'route-in-swap',
+      name: 'Commercial Opportunity: Bi-Coastal Domestic Swap (Mumbai Unload ⇄ Vizag Release)',
       type: 'Recommended',
-      origin: 'Persian Gulf (Ras Tanura)',
-      origin_coords: [26.64, 50.16],
+      origin: 'Mumbai Hub (West Coast)',
+      origin_coords: [18.96, 72.82],
+      destination: 'Vizag Hub (East Coast)',
+      dest_coords: [17.68, 83.21],
+      distance_nm: 0,
+      eta_days: 2,
+      cost_per_bbl: 88.50,
+      risk: 'LOW',
+      data_source: 'Reliance / Jio Energy Grid & IOCL Bi-Coastal Network',
+      updated_at: nowStr,
+      provenance: 'REAL REFERENCE',
+      description: 'Saves 2,450 nm & 8.5 transit days by unloading at Mumbai (West) and concurrently releasing equivalent inventory at Vizag (East).',
+      path: [[18.96, 72.82], [15.0, 76.0], [17.68, 83.21]]
+    },
+    {
+      id: 'route-in-triangulation',
+      name: 'Network Opportunity: 3-Party Triangulation Swap (Arabian Sea ➔ Singapore ➔ WAF)',
+      type: 'Alternative',
+      origin: 'Arabian Sea / Singapore / WAF Loop',
+      origin_coords: [18.96, 72.82],
+      destination: 'Singapore / Rotterdam',
+      dest_coords: [1.35, 103.80],
+      distance_nm: 3800,
+      eta_days: 8,
+      cost_per_bbl: 87.20,
+      risk: 'LOW',
+      data_source: 'Global Triangulation Arbitrage Matrix',
+      updated_at: nowStr,
+      provenance: 'REAL REFERENCE',
+      description: 'Closed 3-way triangular exchange eliminating 4,800 nm empty ballast voyages across 3 market participants.',
+      path: [[18.96, 72.82], [1.35, 103.80], [4.43, 7.16], [51.92, 4.48]]
+    },
+    {
+      id: 'route-in-1',
+      name: 'Primary: ADNOC ADCOP Pipeline Bypass (Fujairah → Mumbai)',
+      type: 'Alternative',
+      origin: 'Habshan / Fujairah Terminal',
+      origin_coords: [25.12, 56.33],
       destination: 'Mumbai Port, India',
       dest_coords: [18.96, 72.82],
-      distance_nm: 1250,
-      eta_days: 5,
-      cost_per_bbl: 92.30,
-      risk: 'MEDIUM',
-      data_source: 'Indian Ocean AIS Feed',
+      distance_nm: 1050,
+      eta_days: 4,
+      cost_per_bbl: 91.50,
+      risk: 'LOW',
+      data_source: 'ADNOC & Fujairah Terminal Feed',
       updated_at: nowStr,
-      provenance: 'LIVE',
-      path: [[26.64, 50.16], [26.56, 56.25], [20.0, 62.0], [18.96, 72.82]]
+      provenance: 'REAL REFERENCE',
+      path: [[23.67, 53.70], [25.12, 56.33], [22.0, 62.0], [18.96, 72.82]]
     },
     {
       id: 'route-in-2',
@@ -383,27 +546,27 @@ function getNetworkRoutes(destName: string) {
       eta_days: 7,
       cost_per_bbl: 89.50,
       risk: 'LOW',
-      data_source: 'Aramco & AIS Feed',
+      data_source: 'Saudi Aramco & AIS Feed',
       updated_at: nowStr,
       provenance: 'REAL REFERENCE',
       path: [[26.64, 50.16], [24.09, 38.06], [12.0, 43.5], [12.0, 60.0], [18.96, 72.82]]
     },
     {
       id: 'route-in-3',
-      name: 'Fallback: Cape of Good Hope Deepwater Bypass',
-      type: 'Fallback',
-      origin: 'Cape Route / West Africa',
-      origin_coords: [-34.83, 20.00],
+      name: 'Direct Transit via Hormuz (HIGH RISK / DISRUPTED)',
+      type: 'High Risk',
+      origin: 'Persian Gulf (Ras Tanura)',
+      origin_coords: [26.64, 50.16],
       destination: 'Mumbai Port, India',
       dest_coords: [18.96, 72.82],
-      distance_nm: 6800,
-      eta_days: 18,
-      cost_per_bbl: 97.20,
-      risk: 'LOW',
-      data_source: 'Global Maritime Engine',
+      distance_nm: 1250,
+      eta_days: 5,
+      cost_per_bbl: 118.50,
+      risk: 'HIGH',
+      data_source: 'Chokepoint Risk Radar',
       updated_at: nowStr,
       provenance: 'CALCULATED',
-      path: [[-34.83, 20.00], [-20.0, 53.0], [5.0, 68.0], [18.96, 72.82]]
+      path: [[26.64, 50.16], [26.56, 56.25], [20.0, 62.0], [18.96, 72.82]]
     }
   ]
 }
@@ -828,6 +991,37 @@ function getFallbackData(path: string, options?: RequestInit): any {
     }
 
     return scenObj
+  }
+
+  // 2b. Scenario Fetch / Get
+  if (path.includes('/api/intake/')) {
+    let scen: any = null
+    if (typeof window !== 'undefined') {
+      const match = path.match(/\/api\/intake\/([^?&]+)/)
+      const scenId = match ? match[1] : 'scen-demo-001'
+      const saved = localStorage.getItem(`scen_${scenId}`) || localStorage.getItem(`scen_scen-demo-001`)
+      if (saved) {
+        try { scen = JSON.parse(saved) } catch (e) {}
+      }
+    }
+    return scen || {
+      scenario_id: 'scen-demo-001',
+      id: 'scen-demo-001',
+      natural_language_prompt: '2,000,000 bbl Crude Oil to West Coast India (Mumbai / Vadinar) within 25 days during Strait of Hormuz disruption',
+      product: 'crude',
+      product_type: 'crude',
+      volume_required: 2000000,
+      volume_bbls: 2000000,
+      destination_port_name: 'Mumbai Port, India',
+      destination_port: 'Mumbai Port, India',
+      origin_port_name: 'Ras Tanura, Persian Gulf',
+      deadline_days: 25,
+      priority_cost_weight: 0.40,
+      priority_speed_weight: 0.35,
+      priority_risk_weight: 0.25,
+      status: 'ACTIVE',
+      created_at: new Date().toISOString()
+    }
   }
 
   // 3. Vessel Discovery / List

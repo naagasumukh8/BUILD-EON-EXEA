@@ -19,7 +19,7 @@ const DEFAULT_SCENARIO: ScenarioState = {
   id: 'scen-demo-001',
   product: 'diesel',
   volume_bbls: 2000000,
-  destination_port: 'Mumbai, India',
+  destination_port: 'Destination Port',
   deadline_days: 7,
   max_acceptable_landed_cost_usd_bbl: 95.0,
   priority: 'cost',

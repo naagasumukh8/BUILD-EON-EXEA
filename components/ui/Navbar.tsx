@@ -20,7 +20,7 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
             <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
           </svg>
           <span className="font-['Instrument_Serif'] text-2xl font-bold tracking-tight text-[#18181B]">
-            Wide Hormuz
+            POLY EXEA
           </span>
         </Link>
 
