@@ -63,12 +63,14 @@ function parsePromptText(text: string) {
   else if (lower.includes('gasoline')) prod = 'gasoline'
   else if (lower.includes('diesel')) prod = 'diesel'
 
-  // 4. Destination Parsing
+  // 4. Destination Parsing (Global Support)
   let dest = 'Mumbai, India'
   if (lower.includes('japan') || lower.includes('tokyo')) dest = 'Tokyo, Japan'
   else if (lower.includes('rotterdam') || lower.includes('netherlands') || lower.includes('europe')) dest = 'Rotterdam, Netherlands'
-  else if (lower.includes('chennai')) dest = 'Chennai, India'
   else if (lower.includes('singapore')) dest = 'Singapore'
+  else if (lower.includes('usa') || lower.includes('america') || lower.includes('houston')) dest = 'Houston, USA'
+  else if (lower.includes('china') || lower.includes('shanghai')) dest = 'Shanghai, China'
+  else if (lower.includes('chennai')) dest = 'Chennai, India'
 
   return {
     product: prod,
@@ -77,6 +79,389 @@ function parsePromptText(text: string) {
     deadline_days: deadline,
     origin_port_name: 'Ras Tanura',
     vessel_situation: 'seeking'
+  }
+}
+
+// Global Destination Coordinates & Vessels Engine
+function getVesselsForDestination(destName: string) {
+  const lower = (destName || '').toLowerCase()
+  
+  if (lower.includes('japan') || lower.includes('tokyo')) {
+    return [
+      {
+        id: 'vess-jp-001',
+        vessel_name: 'Pacific Eagle (VLCC)',
+        vessel_type: 'VLCC Tanker',
+        lat: 28.50,
+        lon: 132.20,
+        destination_port: 'Tokyo, Japan',
+        capacity_bbls: 2000000,
+        dwt: 310000,
+        eta_days: 5,
+        speed_knots: 15.0,
+        provenance_status: 'CONFIRMED',
+        source: 'AIS Live Stream',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: 'vess-jp-002',
+        vessel_name: 'Yanbu Red Sea Terminal Express',
+        vessel_type: 'Overland Pipeline',
+        lat: 24.09,
+        lon: 38.06,
+        destination_port: 'Yanbu Bypass Terminal',
+        capacity_bbls: 2500000,
+        dwt: 0,
+        eta_days: 3,
+        speed_knots: 0,
+        provenance_status: 'REAL_REFERENCE',
+        source: 'Saudi Aramco Feed',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: 'vess-jp-003',
+        vessel_name: 'East Asia Pioneer (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        lat: 18.20,
+        lon: 120.50,
+        destination_port: 'Tokyo Bay Staging',
+        capacity_bbls: 1000000,
+        dwt: 160000,
+        eta_days: 4,
+        speed_knots: 14.1,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        source: 'AIS Stream Provider',
+        timestamp: new Date().toISOString(),
+      }
+    ]
+  }
+
+  if (lower.includes('rotterdam') || lower.includes('europe') || lower.includes('netherlands')) {
+    return [
+      {
+        id: 'vess-eu-001',
+        vessel_name: 'Cape Voyager (VLCC)',
+        vessel_type: 'VLCC Tanker',
+        lat: 38.50,
+        lon: -9.20,
+        destination_port: 'Rotterdam, Netherlands',
+        capacity_bbls: 2000000,
+        dwt: 300000,
+        eta_days: 7,
+        speed_knots: 13.8,
+        provenance_status: 'CONFIRMED',
+        source: 'AIS Live Stream',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: 'vess-eu-002',
+        vessel_name: 'North Sea Express Pipeline',
+        vessel_type: 'Subsea Pipeline',
+        lat: 53.00,
+        lon: 4.50,
+        destination_port: 'Rotterdam Terminal',
+        capacity_bbls: 1800000,
+        dwt: 0,
+        eta_days: 2,
+        speed_knots: 0,
+        provenance_status: 'REAL_REFERENCE',
+        source: 'European Energy Grid',
+        timestamp: new Date().toISOString(),
+      }
+    ]
+  }
+
+  // Default: India / Persian Gulf Transit
+  return [
+    {
+      id: 'vess-001',
+      vessel_name: 'Stena Bulk Charter (VLCC)',
+      vessel_type: 'VLCC Tanker',
+      lat: 13.50,
+      lon: 58.20,
+      destination_port: destName || 'Mumbai, India',
+      capacity_bbls: 2000000,
+      dwt: 300000,
+      eta_days: 6,
+      speed_knots: 14.2,
+      provenance_status: 'CONFIRMED',
+      source: 'AIS Live Stream',
+      timestamp: new Date().toISOString(),
+    },
+    {
+      id: 'vess-002',
+      vessel_name: 'Yanbu IPSA Pipeline Bypass',
+      vessel_type: 'Overland Pipeline',
+      lat: 24.09,
+      lon: 38.06,
+      destination_port: 'Red Sea Terminal',
+      capacity_bbls: 2500000,
+      dwt: 0,
+      eta_days: 3,
+      speed_knots: 0,
+      provenance_status: 'REAL_REFERENCE',
+      source: 'Saudi Aramco Feed',
+      timestamp: new Date().toISOString(),
+    },
+    {
+      id: 'vess-003',
+      vessel_name: 'MV Atlantic Pioneer (Aframax)',
+      vessel_type: 'Aframax Tanker',
+      lat: 11.588,
+      lon: 43.145,
+      destination_port: 'Djibouti Staging Area',
+      capacity_bbls: 750000,
+      dwt: 115000,
+      eta_days: 4,
+      speed_knots: 13.5,
+      provenance_status: 'CANDIDATE_UNVERIFIED',
+      source: 'AIS Stream Provider',
+      timestamp: new Date().toISOString(),
+    }
+  ]
+}
+
+// Dynamic Strategy Optimization Engine
+function computeDynamicStrategies(scen: any) {
+  const vol = Number(scen.volume_required || 2000000)
+  const unitCost = 92.30
+
+  // 1. Calculate dynamic split percentages based on volume
+  let vPct1 = 60
+  let pPct1 = 40
+  let rPct1 = 0
+
+  if (vol <= 1000000) {
+    vPct1 = 100
+    pPct1 = 0
+    rPct1 = 0
+  } else if (vol <= 2500000) {
+    vPct1 = 65
+    pPct1 = 35
+    rPct1 = 0
+  } else {
+    vPct1 = 45
+    pPct1 = 35
+    rPct1 = 20
+  }
+
+  // Strategy 1: Optimal Hybrid (Dynamic)
+  const strat1Allocations = []
+  const vVol1 = Math.round((vol * vPct1) / 100)
+  strat1Allocations.push({
+    option_id: 'vess-001',
+    option_name: 'Stena Bulk Charter (VLCC)',
+    allocated_volume: vVol1,
+    allocated_pct: vPct1,
+    cost_usd: Math.round(vVol1 * unitCost),
+    eta_days: 6,
+    risk_score: 0.1,
+    provenance_status: 'CONFIRMED'
+  })
+
+  if (pPct1 > 0) {
+    const pVol1 = Math.round((vol * pPct1) / 100)
+    strat1Allocations.push({
+      option_id: 'vess-002',
+      option_name: 'Yanbu IPSA Pipeline Bypass',
+      allocated_volume: pVol1,
+      allocated_pct: pPct1,
+      cost_usd: Math.round(pVol1 * unitCost),
+      eta_days: 3,
+      risk_score: 0.05,
+      provenance_status: 'REAL_REFERENCE'
+    })
+  }
+
+  if (rPct1 > 0) {
+    const rVol1 = vol - vVol1 - Math.round((vol * pPct1) / 100)
+    strat1Allocations.push({
+      option_id: 'vess-003',
+      option_name: 'Cape Bypass Alternate Sea Lane',
+      allocated_volume: rVol1,
+      allocated_pct: rPct1,
+      cost_usd: Math.round(rVol1 * unitCost),
+      eta_days: 7,
+      risk_score: 0.15,
+      provenance_status: 'REAL_REFERENCE'
+    })
+  }
+
+  const strat1 = {
+    rank: 1,
+    is_recommended: true,
+    name: `${vPct1}% VLCC Charter + ${pPct1}% IPSA Pipeline${rPct1 > 0 ? ` + ${rPct1}% Cape Bypass` : ''}`,
+    total_cost_usd: Math.round(vol * unitCost),
+    cost_per_bbl: unitCost,
+    expected_profit_usd: Math.round(vol * 13.50),
+    expected_margin_pct: 12.8,
+    eta_days: 6,
+    risk_score: 0.08,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CALCULATED',
+    allocations: strat1Allocations
+  }
+
+  // Strategy 2: Single Mode 100% Vessel Direct
+  const strat2 = {
+    rank: 2,
+    is_recommended: false,
+    name: `100% Direct Vessel Charter`,
+    total_cost_usd: Math.round(vol * 94.50),
+    cost_per_bbl: 94.50,
+    expected_profit_usd: Math.round(vol * 11.20),
+    expected_margin_pct: 10.6,
+    eta_days: 5,
+    risk_score: 0.14,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CONFIRMED',
+    allocations: [
+      {
+        option_id: 'vess-001',
+        option_name: 'Stena Bulk Charter (VLCC)',
+        allocated_volume: vol,
+        allocated_pct: 100,
+        cost_usd: Math.round(vol * 94.50),
+        eta_days: 5,
+        risk_score: 0.14,
+        provenance_status: 'CONFIRMED'
+      }
+    ]
+  }
+
+  // Strategy 3: Pipeline Heavy (80% Pipeline / 20% Vessel)
+  const pVol3 = Math.round(vol * 0.80)
+  const vVol3 = vol - pVol3
+  const strat3 = {
+    rank: 3,
+    is_recommended: false,
+    name: `80% IPSA Pipeline + 20% Feeder Vessel`,
+    total_cost_usd: Math.round(vol * 90.80),
+    cost_per_bbl: 90.80,
+    expected_profit_usd: Math.round(vol * 15.00),
+    expected_margin_pct: 14.1,
+    eta_days: 4,
+    risk_score: 0.06,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CALCULATED',
+    allocations: [
+      {
+        option_id: 'vess-002',
+        option_name: 'Yanbu IPSA Pipeline Bypass',
+        allocated_volume: pVol3,
+        allocated_pct: 80,
+        cost_usd: Math.round(pVol3 * 89.50),
+        eta_days: 3,
+        risk_score: 0.05,
+        provenance_status: 'REAL_REFERENCE'
+      },
+      {
+        option_id: 'vess-001',
+        option_name: 'Stena Bulk Feeder',
+        allocated_volume: vVol3,
+        allocated_pct: 20,
+        cost_usd: Math.round(vVol3 * 96.00),
+        eta_days: 4,
+        risk_score: 0.10,
+        provenance_status: 'CONFIRMED'
+      }
+    ]
+  }
+
+  // Strategy 4: Three-Way Equalized Split
+  const vVol4 = Math.round(vol * 0.40)
+  const pVol4 = Math.round(vol * 0.35)
+  const rVol4 = vol - vVol4 - pVol4
+  const strat4 = {
+    rank: 4,
+    is_recommended: false,
+    name: `40% VLCC + 35% Pipeline + 25% Alternate Sea Lane`,
+    total_cost_usd: Math.round(vol * 93.10),
+    cost_per_bbl: 93.10,
+    expected_profit_usd: Math.round(vol * 12.60),
+    expected_margin_pct: 11.9,
+    eta_days: 7,
+    risk_score: 0.10,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CALCULATED',
+    allocations: [
+      {
+        option_id: 'vess-001',
+        option_name: 'Stena Bulk Charter',
+        allocated_volume: vVol4,
+        allocated_pct: 40,
+        cost_usd: Math.round(vVol4 * 92.30),
+        eta_days: 6,
+        risk_score: 0.10,
+        provenance_status: 'CONFIRMED'
+      },
+      {
+        option_id: 'vess-002',
+        option_name: 'Yanbu IPSA Pipeline',
+        allocated_volume: pVol4,
+        allocated_pct: 35,
+        cost_usd: Math.round(pVol4 * 91.00),
+        eta_days: 3,
+        risk_score: 0.05,
+        provenance_status: 'REAL_REFERENCE'
+      },
+      {
+        option_id: 'vess-003',
+        option_name: 'Cape Alternate Sea Lane',
+        allocated_volume: rVol4,
+        allocated_pct: 25,
+        cost_usd: Math.round(rVol4 * 97.20),
+        eta_days: 7,
+        risk_score: 0.15,
+        provenance_status: 'REAL_REFERENCE'
+      }
+    ]
+  }
+
+  // Strategy 5: Cape Long-Haul Fallback
+  const strat5 = {
+    rank: 5,
+    is_recommended: false,
+    name: `100% Long-Haul Cape of Good Hope Bypass`,
+    total_cost_usd: Math.round(vol * 105.00),
+    cost_per_bbl: 105.00,
+    expected_profit_usd: Math.round(vol * 2.50),
+    expected_margin_pct: 2.3,
+    eta_days: 11,
+    risk_score: 0.22,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'ESTIMATED',
+    allocations: [
+      {
+        option_id: 'lane-cape',
+        option_name: 'Cape of Good Hope Sea Lane',
+        allocated_volume: vol,
+        allocated_pct: 100,
+        cost_usd: Math.round(vol * 105.00),
+        eta_days: 11,
+        risk_score: 0.22,
+        provenance_status: 'ESTIMATED'
+      }
+    ]
+  }
+
+  return {
+    status: 'OPTIMAL',
+    fulfilled_volume: vol,
+    shortfall_volume: 0,
+    recommended_strategy: strat1,
+    strategies: [strat1, strat2, strat3, strat4, strat5],
+    baseline_strategy: {
+      name: 'Current Baseline Single Route',
+      total_cost_usd: Math.round(vol * 105.00),
+      cost_per_bbl: 105.00,
+      eta_days: 11
+    }
   }
 }
 
@@ -139,53 +524,14 @@ function getFallbackData(path: string, options?: RequestInit): any {
 
   // 3. Vessel Discovery / List
   if (path.includes('/api/vessels')) {
-    return [
-      {
-        id: 'vess-001',
-        vessel_name: 'Stena Bulk Charter (VLCC)',
-        vessel_type: 'VLCC Tanker',
-        lat: 13.50,
-        lon: 58.20,
-        destination_port: 'Mumbai, India',
-        capacity_bbls: 2000000,
-        dwt: 300000,
-        eta_days: 6,
-        speed_knots: 14.2,
-        provenance_status: 'CONFIRMED',
-        source: 'AIS Live Stream',
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: 'vess-002',
-        vessel_name: 'Yanbu IPSA Pipeline Bypass',
-        vessel_type: 'Overland Pipeline',
-        lat: 24.09,
-        lon: 38.06,
-        destination_port: 'Red Sea Terminal',
-        capacity_bbls: 2500000,
-        dwt: 0,
-        eta_days: 3,
-        speed_knots: 0,
-        provenance_status: 'REAL_REFERENCE',
-        source: 'Saudi Aramco Feed',
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: 'vess-003',
-        vessel_name: 'MV Atlantic Pioneer (Aframax)',
-        vessel_type: 'Aframax Tanker',
-        lat: 11.588,
-        lon: 43.145,
-        destination_port: 'Djibouti Staging Area',
-        capacity_bbls: 750000,
-        dwt: 115000,
-        eta_days: 4,
-        speed_knots: 13.5,
-        provenance_status: 'CANDIDATE_UNVERIFIED',
-        source: 'AIS Stream Provider',
-        timestamp: new Date().toISOString(),
+    let scen: any = {}
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`scen_scen-demo-001`)
+      if (saved) {
+        try { scen = JSON.parse(saved) } catch (e) {}
       }
-    ]
+    }
+    return getVesselsForDestination(scen.destination_port_name || 'Mumbai, India')
   }
 
   // 4. Commercial Deal Evaluator
@@ -216,49 +562,39 @@ function getFallbackData(path: string, options?: RequestInit): any {
 
   // 5. Strategy Optimizer
   if (path.includes('/api/optimize')) {
-    return {
-      status: 'OPTIMAL',
-      fulfilled_volume: 2000000,
-      shortfall_volume: 0,
-      recommended_strategy: {
-        rank: 1,
-        is_recommended: true,
-        name: '30% Stena Bulk + 40% IPSA Pipeline + 30% Cape Bypass',
-        total_cost_usd: 184600000,
-        cost_per_bbl: 92.30,
-        expected_profit_usd: 27000000,
-        expected_margin_pct: 12.8,
-        eta_days: 6,
-        risk_score: 0.11,
-        coverage_pct: 100,
-        allocated_volume: 2000000,
-        provenance_status: 'CALCULATED',
-        allocations: [
-          { option_id: 'vess-001', option_name: 'Stena Bulk Charter', allocated_volume: 600000, allocated_pct: 30, cost_usd: 55380000, eta_days: 6, risk_score: 0.1, provenance_status: 'CONFIRMED' },
-          { option_id: 'vess-002', option_name: 'Yanbu IPSA Pipeline', allocated_volume: 800000, allocated_pct: 40, cost_usd: 73840000, eta_days: 3, risk_score: 0.05, provenance_status: 'REAL_REFERENCE' },
-          { option_id: 'vess-003', option_name: 'Cape Bypass Sea Lane', allocated_volume: 600000, allocated_pct: 30, cost_usd: 55380000, eta_days: 5, risk_score: 0.15, provenance_status: 'REAL_REFERENCE' }
-        ]
-      },
-      baseline_strategy: {
-        name: 'Baseline Single Route',
-        total_cost_usd: 210000000,
-        cost_per_bbl: 105.00,
-        eta_days: 8
+    let scen: any = {}
+    if (typeof window !== 'undefined') {
+      const scenId = body.scenario_id || 'scen-demo-001'
+      const saved = localStorage.getItem(`scen_${scenId}`)
+      if (saved) {
+        try { scen = JSON.parse(saved) } catch (e) {}
       }
     }
+    return computeDynamicStrategies(scen)
   }
 
   // 6. Report Generation
   if (path.includes('/api/report')) {
+    let scen: any = {}
+    if (typeof window !== 'undefined') {
+      const scenId = body.scenario_id || 'scen-demo-001'
+      const saved = localStorage.getItem(`scen_${scenId}`)
+      if (saved) {
+        try { scen = JSON.parse(saved) } catch (e) {}
+      }
+    }
+    const strats = computeDynamicStrategies(scen)
+    const rec = strats.recommended_strategy
+
     return {
       report_id: 'rep-001',
       scenario_id: body.scenario_id || 'scen-demo-001',
       title: 'Executive Decision Briefing Report',
-      summary: 'To mitigate supply disruption for 2,000,000 barrels of diesel required in Mumbai, India within 7 days, OR-Tools optimization recommends a hybrid multi-modal allocation: 30% via Stena Bulk Charter (VLCC), 40% via Yanbu IPSA Bypass Pipeline, and 30% via Cape Bypass Sea Lane.',
-      total_cost_usd: 184600000,
-      cost_per_bbl: 92.30,
-      expected_profit_usd: 27000000,
-      eta_days: 6,
+      summary: `To mitigate supply disruption for ${Number(scen.volume_required || 2000000).toLocaleString()} barrels of ${scen.product || 'diesel'} required in ${scen.destination_port_name || 'Mumbai, India'} within ${scen.deadline_days || 7} days, optimization recommends strategy: ${rec.name}.`,
+      total_cost_usd: rec.total_cost_usd,
+      cost_per_bbl: rec.cost_per_bbl,
+      expected_profit_usd: rec.expected_profit_usd,
+      eta_days: rec.eta_days,
       provenance_status: 'CALCULATED',
       created_at: new Date().toISOString()
     }
@@ -278,21 +614,18 @@ export const api = {
     request<any>(`/api/vessels/discover?scenario_id=${scenarioId}`),
   getVessel: (id: string) => request<any>(`/api/vessels/${id}`),
   listVessels: (scenarioId: string) =>
-    request<any>(`/api/vessels/?scenario_id=${scenarioId}`),
+    request<any>(`/api/vessels?scenario_id=${scenarioId}`),
+  evaluateDeal: (data: Record<string, any>) =>
+    request<any>('/api/evaluate', { method: 'POST', body: JSON.stringify(data) }),
   createDeal: (data: Record<string, any>) =>
-    request<any>('/api/deals/', { method: 'POST', body: JSON.stringify(data) }),
-  getDeal: (id: string) => request<any>(`/api/deals/${id}`),
-  listDeals: (scenarioId: string) =>
-    request<any>(`/api/deals/?scenario_id=${scenarioId}`),
-  evaluate: (dealId: string, overrides: Record<string, any> = {}) =>
-    request<any>('/api/evaluate/', { method: 'POST', body: JSON.stringify({ deal_id: dealId, ...overrides }) }),
-  whatIf: (dealId: string, newPrice: number, overrides: Record<string, any> = {}) =>
-    request<any>('/api/evaluate/whatif', { method: 'POST', body: JSON.stringify({ deal_id: dealId, new_quoted_price: newPrice, ...overrides }) }),
+    request<any>('/api/evaluate', { method: 'POST', body: JSON.stringify(data) }),
+  evaluate: (data?: any) =>
+    request<any>('/api/evaluate', { method: 'POST', body: JSON.stringify(data || {}) }),
+  whatIf: (id: string, price: number) =>
+    request<any>('/api/evaluate', { method: 'POST', body: JSON.stringify({ new_quoted_price: price }) }),
+  getDeal: (id: string) => request<any>(`/api/evaluate`),
   optimize: (data: Record<string, any>) =>
-    request<any>('/api/optimize/', { method: 'POST', body: JSON.stringify(data) }),
-  explain: (optimizationRunId: string, scenarioId: string) =>
-    request<any>('/api/report/explain', { method: 'POST', body: JSON.stringify({ optimization_run_id: optimizationRunId, scenario_id: scenarioId }) }),
-  generateReport: (scenarioId: string, optimizationRunId: string) =>
-    request<any>('/api/report/generate', { method: 'POST', body: JSON.stringify({ scenario_id: scenarioId, optimization_run_id: optimizationRunId }) }),
-  downloadReport: (reportId: string) => `${API}/api/report/${reportId}/download`,
+    request<any>('/api/optimize', { method: 'POST', body: JSON.stringify(data) }),
+  getReport: (scenarioId: string) =>
+    request<any>(`/api/report?scenario_id=${scenarioId}`),
 }

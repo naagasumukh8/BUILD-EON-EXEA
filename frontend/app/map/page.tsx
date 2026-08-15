@@ -185,9 +185,26 @@ function MapContent() {
     loadNetworkData()
   }, [loadNetworkData])
 
-  const isJapan = scenario?.destination_port_name?.toLowerCase().includes('japan')
-  const mapCenter: [number, number] = isJapan ? [22.0, 120.0] : [19.0, 58.0]
-  const mapZoom = 4
+  const destLower = (scenario?.destination_port_name || '').toLowerCase()
+  let mapCenter: [number, number] = [19.0, 58.0]
+  let mapZoom = 4
+
+  if (destLower.includes('japan') || destLower.includes('tokyo')) {
+    mapCenter = [32.0, 135.0]
+    mapZoom = 5
+  } else if (destLower.includes('rotterdam') || destLower.includes('europe') || destLower.includes('netherlands')) {
+    mapCenter = [50.0, 10.0]
+    mapZoom = 4
+  } else if (destLower.includes('singapore')) {
+    mapCenter = [1.35, 103.8]
+    mapZoom = 6
+  } else if (destLower.includes('usa') || destLower.includes('houston')) {
+    mapCenter = [29.7, -95.3]
+    mapZoom = 5
+  } else if (destLower.includes('china') || destLower.includes('shanghai')) {
+    mapCenter = [31.2, 121.5]
+    mapZoom = 5
+  }
 
   // Create custom DivIcon for Leaflet markers to fix default broken icon bug
   const createCustomIcon = (bgColor: string, label: string) => {
