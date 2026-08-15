@@ -272,27 +272,154 @@ function getVesselsForDestination(destName: string) {
     ]
   }
 
-  // Default: India
-  const pDef = computeVesselProximity(13.50, 58.20, 18.96, 72.82)
+  if (lower.includes('singapore')) {
+    const p1 = computeVesselProximity(3.5, 95.0, 1.35, 103.8)
+    const p2 = computeVesselProximity(8.0, 80.0, 1.35, 103.8)
+    return [
+      {
+        id: 'vess-sg-001',
+        imo: 'IMO 9745120',
+        mmsi: 'MMSI 565012345',
+        vessel_name: 'Andaman Pacific (Aframax)',
+        vessel_type: 'Aframax Tanker',
+        origin_port: 'Unknown',
+        origin_coords: null,
+        current_destination: 'Singapore',
+        dest_coords: [1.35, 103.8],
+        potential_delivery: 'Singapore',
+        lat: 3.5,
+        lon: 95.0,
+        speed_knots: 14.0,
+        eta_days: 2,
+        eta_source: 'CALCULATED',
+        distance_nm: p1.distNm,
+        route_relevance: p1.relevance,
+        total_dwt: 110000,
+        capacity_bbls: 750000,
+        transport_provider: 'Pacific Carriers Ltd',
+        data_source: 'DEMO DATA (AIS API Offline)',
+        status_label: 'DEMO DATA',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Distance from Singapore terminal: ${p1.distNm} nm. Route relevance: ${p1.relevance}. Currently transiting Andaman Sea inbound to Malacca Strait.`,
+      },
+      {
+        id: 'vess-sg-002',
+        imo: 'IMO 9621890',
+        mmsi: 'MMSI 563012567',
+        vessel_name: 'Malacca Star (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        origin_port: 'Unknown',
+        origin_coords: null,
+        current_destination: 'Singapore',
+        dest_coords: [1.35, 103.8],
+        potential_delivery: 'Singapore',
+        lat: 8.0,
+        lon: 80.0,
+        speed_knots: 13.5,
+        eta_days: 4,
+        eta_source: 'CALCULATED',
+        distance_nm: p2.distNm,
+        route_relevance: p2.relevance,
+        total_dwt: 160000,
+        capacity_bbls: 1050000,
+        transport_provider: 'BW Group',
+        data_source: 'DEMO DATA (AIS API Offline)',
+        status_label: 'DEMO DATA',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Distance from Singapore terminal: ${p2.distNm} nm. Route relevance: ${p2.relevance}. Transiting Bay of Bengal southbound toward Malacca.`,
+      }
+    ]
+  }
+
+  if (lower.includes('houston') || lower.includes('usa')) {
+    const p1 = computeVesselProximity(36.0, -5.0, 29.76, -95.36)
+    const p2 = computeVesselProximity(25.0, -60.0, 29.76, -95.36)
+    return [
+      {
+        id: 'vess-us-001',
+        imo: 'IMO 9812404',
+        mmsi: 'MMSI 248112233',
+        vessel_name: 'Atlantic Condor (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        origin_port: 'Unknown',
+        origin_coords: null,
+        current_destination: 'Houston, USA',
+        dest_coords: [29.76, -95.36],
+        potential_delivery: 'Houston',
+        lat: 36.0,
+        lon: -5.0,
+        speed_knots: 14.5,
+        eta_days: 9,
+        eta_source: 'CALCULATED',
+        distance_nm: p1.distNm,
+        route_relevance: p1.relevance,
+        total_dwt: 160000,
+        capacity_bbls: 1050000,
+        transport_provider: 'Tsakos Energy Navigation',
+        data_source: 'DEMO DATA (AIS API Offline)',
+        status_label: 'DEMO DATA',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Distance from Houston: ${p1.distNm} nm. Route relevance: ${p1.relevance}. Currently exiting Mediterranean via Gibraltar, transiting Atlantic.`,
+      },
+      {
+        id: 'vess-us-002',
+        imo: 'IMO 9890120',
+        mmsi: 'MMSI 311045678',
+        vessel_name: 'Gulf Star (Aframax)',
+        vessel_type: 'Aframax Tanker',
+        origin_port: 'Unknown',
+        origin_coords: null,
+        current_destination: 'Houston, USA',
+        dest_coords: [29.76, -95.36],
+        potential_delivery: 'Houston',
+        lat: 25.0,
+        lon: -60.0,
+        speed_knots: 14.0,
+        eta_days: 3,
+        eta_source: 'CALCULATED',
+        distance_nm: p2.distNm,
+        route_relevance: p2.relevance,
+        total_dwt: 110000,
+        capacity_bbls: 750000,
+        transport_provider: 'Overseas Shipholding Group',
+        data_source: 'DEMO DATA (AIS API Offline)',
+        status_label: 'DEMO DATA',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Distance from Houston: ${p2.distNm} nm. Route relevance: ${p2.relevance}. Currently in Caribbean, approaching Gulf of Mexico.`,
+      }
+    ]
+  }
+
+  // Default: India / Mumbai — vessels in Arabian Sea
+  const p1 = computeVesselProximity(18.96, 58.20, 18.96, 72.82)
+  const p2 = computeVesselProximity(15.0, 64.0, 18.96, 72.82)
   return [
     {
-      id: 'vess-001',
+      id: 'vess-in-001',
       imo: 'IMO 9812401',
       mmsi: 'MMSI 538009123',
       vessel_name: 'Stena Bulk Charter (VLCC)',
       vessel_type: 'VLCC Tanker',
       origin_port: 'Unknown',
       origin_coords: null,
-      current_destination: destName || 'India',
+      current_destination: destName || 'Mumbai, India',
       dest_coords: [18.96, 72.82],
-      potential_delivery: destName || 'India',
-      lat: 13.50,
+      potential_delivery: destName || 'Mumbai',
+      lat: 18.96,
       lon: 58.20,
       speed_knots: 14.2,
-      eta_days: 6,
+      eta_days: 5,
       eta_source: 'CALCULATED',
-      distance_nm: pDef.distNm,
-      route_relevance: pDef.relevance,
+      distance_nm: p1.distNm,
+      route_relevance: p1.relevance,
       total_dwt: 300000,
       capacity_bbls: 400000,
       transport_provider: 'Stena Bulk (Shipowner)',
@@ -301,38 +428,39 @@ function getVesselsForDestination(destName: string) {
       data_updated_at: nowStr,
       provenance_status: 'CANDIDATE_UNVERIFIED',
       commercial_verification_status: 'NOT YET VERIFIED',
-      relevance_reason: `Distance from destination: ${pDef.distNm} nm. Route relevance: ${pDef.relevance}. Potential proximity based on current position and destination.`,
+      relevance_reason: `Distance from Mumbai: ${p1.distNm} nm. Route relevance: ${p1.relevance}. Currently in Arabian Sea on direct approach to Mumbai.`,
     },
     {
-      id: 'vess-002',
-      imo: 'N/A (Pipeline)',
-      mmsi: 'N/A',
-      vessel_name: 'Yanbu IPSA Pipeline Bypass',
-      vessel_type: 'Overland Pipeline',
-      origin_port: 'Ras Tanura Terminal',
-      origin_coords: [26.64, 50.16],
-      current_destination: 'Yanbu Red Sea Terminal',
-      dest_coords: [24.09, 38.06],
-      potential_delivery: 'Red Sea Bypass',
-      lat: 24.09,
-      lon: 38.06,
-      speed_knots: 0,
-      eta_days: 3,
+      id: 'vess-in-002',
+      imo: 'IMO 9745220',
+      mmsi: 'MMSI 419001234',
+      vessel_name: 'Arabian Ocean Carrier (Aframax)',
+      vessel_type: 'Aframax Tanker',
+      origin_port: 'Unknown',
+      origin_coords: null,
+      current_destination: destName || 'Mumbai, India',
+      dest_coords: [18.96, 72.82],
+      potential_delivery: destName || 'Mumbai',
+      lat: 15.0,
+      lon: 64.0,
+      speed_knots: 13.8,
+      eta_days: 7,
       eta_source: 'CALCULATED',
-      distance_nm: 1800,
-      route_relevance: 'HIGH',
-      total_dwt: 0,
-      capacity_bbls: 2500000,
-      transport_provider: 'Saudi Aramco Pipeline Operator',
-      data_source: 'Saudi Aramco Feed',
-      status_label: 'REAL REFERENCE',
+      distance_nm: p2.distNm,
+      route_relevance: p2.relevance,
+      total_dwt: 110000,
+      capacity_bbls: 700000,
+      transport_provider: 'Great Eastern Shipping',
+      data_source: 'DEMO DATA (AIS API Offline)',
+      status_label: 'DEMO DATA',
       data_updated_at: nowStr,
-      provenance_status: 'REAL_REFERENCE',
-      commercial_verification_status: 'OPERATOR CONFIRMED',
-      relevance_reason: '2.5M bbl/day East-West pipeline bypass routing oil overland away from blocked Strait of Hormuz to Red Sea loading ports.',
+      provenance_status: 'CANDIDATE_UNVERIFIED',
+      commercial_verification_status: 'NOT YET VERIFIED',
+      relevance_reason: `Distance from Mumbai: ${p2.distNm} nm. Route relevance: ${p2.relevance}. Transiting Arabian Sea southeast bound, approaching Mumbai via Laccadive Sea.`,
     }
   ]
 }
+
 
 // Dynamic Route Generator Based on Scenario Destination
 function getNetworkRoutes(destName: string) {
@@ -483,70 +611,86 @@ function getNetworkRoutes(destName: string) {
     return [
       {
         id: 'route-jp-1',
-        name: 'Primary: Direct Pacific Transit',
+        name: 'Primary: Persian Gulf → Malacca Strait → Tokyo',
         type: 'Recommended',
-        origin: 'Australia',
-        origin_coords: [-25.0, 115.0],
-        destination: 'Japan',
+        origin: 'Ras Tanura, Persian Gulf',
+        origin_coords: [26.64, 50.16],
+        destination: 'Tokyo, Japan',
         dest_coords: [35.44, 139.64],
-        distance_nm: 3600,
-        eta_days: 10,
+        distance_nm: 7200,
+        eta_days: 21,
         cost_per_bbl: 91.50,
-        risk: 'LOW',
-        data_source: 'MarineTraffic Routing',
+        risk: 'MEDIUM',
+        description: 'Standard VLCC route from Persian Gulf. Transits Strait of Hormuz (disruption risk), Indian Ocean, Strait of Malacca, South China Sea, then north to Tokyo Bay.',
+        data_source: 'MarineTraffic Routing (CALCULATED)',
         updated_at: nowStr,
-        provenance: 'LIVE',
+        provenance: 'CALCULATED',
         path: [
-          [-25.0, 115.0],
-          [-10.0, 125.0],
-          [10.0, 130.0],
-          [35.44, 139.64]
+          [26.64, 50.16], // Ras Tanura
+          [26.56, 56.25], // Strait of Hormuz
+          [13.0, 70.0],   // North Arabian Sea
+          [5.0, 80.0],    // Bay of Bengal approach
+          [1.35, 103.8],  // Strait of Malacca
+          [10.0, 115.0],  // South China Sea
+          [22.0, 125.0],  // Philippines Sea
+          [35.44, 139.64] // Tokyo Bay
         ]
       },
       {
         id: 'route-jp-2',
-        name: 'Alternative: Yanbu to Japan via Red Sea',
+        name: 'Alternative: Yanbu (Red Sea) → Malacca → Tokyo (Hormuz Bypass)',
         type: 'Alternative',
-        origin: 'Yanbu (Red Sea)',
+        origin: 'Yanbu Terminal, Red Sea',
         origin_coords: [24.09, 38.06],
-        destination: 'Japan',
+        destination: 'Tokyo, Japan',
         dest_coords: [35.44, 139.64],
-        distance_nm: 6500,
-        eta_days: 18,
+        distance_nm: 8100,
+        eta_days: 24,
         cost_per_bbl: 94.20,
-        risk: 'MEDIUM',
-        data_source: 'Baltic Exchange',
+        description: 'Avoids Strait of Hormuz entirely. Crude pumped via IPSA East-West pipeline from Ras Tanura to Yanbu, then loaded at Red Sea terminal. Longer but safer.',
+        risk: 'LOW',
+        data_source: 'Baltic Exchange (CALCULATED)',
         updated_at: nowStr,
         provenance: 'CALCULATED',
         path: [
-          [24.09, 38.06],
-          [11.588, 43.145], // Djibouti
-          [5.0, 80.0],
-          [1.35, 103.8], // Singapore
-          [35.44, 139.64]
+          [24.09, 38.06],  // Yanbu Red Sea
+          [12.5, 44.0],    // Bab-el-Mandeb Strait
+          [11.588, 43.145],// Djibouti
+          [8.0, 72.0],     // Indian Ocean
+          [3.0, 90.0],     // Bay of Bengal
+          [1.35, 103.8],   // Singapore / Malacca
+          [15.0, 118.0],   // South China Sea
+          [28.0, 130.0],   // East China Sea
+          [35.44, 139.64]  // Tokyo Bay
         ]
       },
       {
         id: 'route-jp-3',
-        name: 'Fallback: Cape of Good Hope Bypass',
+        name: 'Fallback: Persian Gulf → Cape of Good Hope → Tokyo',
         type: 'Fallback',
-        origin: 'West Africa',
-        origin_coords: [4.0, 6.0],
-        destination: 'Japan',
+        origin: 'Ras Tanura, Persian Gulf',
+        origin_coords: [26.64, 50.16],
+        destination: 'Tokyo, Japan',
         dest_coords: [35.44, 139.64],
-        distance_nm: 10200,
-        eta_days: 28,
-        cost_per_bbl: 105.00,
-        risk: 'HIGH',
-        data_source: 'Vortexa Routing Model',
+        distance_nm: 13500,
+        eta_days: 38,
+        cost_per_bbl: 108.00,
+        description: 'Full chokepoint avoidance bypass. Circumnavigates both Hormuz and Malacca. Extreme distance but zero chokepoint risk. Used only when all straits are blocked.',
+        risk: 'LOW',
+        data_source: 'Vortexa Routing Model (CALCULATED)',
         updated_at: nowStr,
-        provenance: 'ESTIMATED',
+        provenance: 'CALCULATED',
         path: [
-          [4.0, 6.0],
-          [-34.83, 20.00], // Cape
-          [-10.0, 85.0],
-          [1.35, 103.8],
-          [35.44, 139.64]
+          [26.64, 50.16],  // Ras Tanura
+          [12.0, 55.0],    // Gulf of Aden
+          [0.0, 50.0],     // East Africa Coast
+          [-20.0, 42.0],   // Madagascar Approach
+          [-34.83, 20.00], // Cape of Good Hope
+          [-25.0, 45.0],   // South Indian Ocean
+          [-10.0, 80.0],   // Southern Indian Ocean
+          [0.0, 110.0],    // Sunda Strait area
+          [10.0, 128.0],   // Philippine Sea
+          [35.44, 139.64]  // Tokyo Bay
         ]
       }
     ]
@@ -624,73 +768,245 @@ function getNetworkRoutes(destName: string) {
     ]
   }
 
-  // Default: India / Custom Destination
+  if (lower.includes('singapore')) {
+    return [
+      {
+        id: 'route-sg-1',
+        name: 'Primary: Persian Gulf → Malacca Strait → Singapore',
+        type: 'Recommended',
+        origin: 'Ras Tanura, Persian Gulf',
+        origin_coords: [26.64, 50.16],
+        destination: 'Singapore',
+        dest_coords: [1.35, 103.8],
+        distance_nm: 5600,
+        eta_days: 16,
+        cost_per_bbl: 88.00,
+        description: 'Direct VLCC route from Persian Gulf through Hormuz, across Indian Ocean, through Malacca Strait to Singapore terminal.',
+        risk: 'MEDIUM',
+        data_source: 'MPA Singapore / MarineTraffic (CALCULATED)',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        path: [
+          [26.64, 50.16], // Ras Tanura
+          [26.56, 56.25], // Strait of Hormuz
+          [18.0, 65.0],   // Arabian Sea
+          [8.0, 78.0],    // Bay of Bengal entry
+          [3.5, 95.0],    // Andaman Sea
+          [1.35, 103.8]   // Singapore
+        ]
+      },
+      {
+        id: 'route-sg-2',
+        name: 'Alternative: Yanbu (Red Sea) → Indian Ocean → Singapore',
+        type: 'Alternative',
+        origin: 'Yanbu Terminal, Red Sea',
+        origin_coords: [24.09, 38.06],
+        destination: 'Singapore',
+        dest_coords: [1.35, 103.8],
+        distance_nm: 6800,
+        eta_days: 20,
+        cost_per_bbl: 91.00,
+        description: 'Hormuz bypass via IPSA pipeline to Yanbu, Red Sea, then around Indian subcontinent to Singapore. Eliminates Hormuz risk.',
+        risk: 'LOW',
+        data_source: 'Baltic Exchange (CALCULATED)',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        path: [
+          [24.09, 38.06],  // Yanbu
+          [12.5, 44.0],    // Bab-el-Mandeb
+          [8.0, 60.0],     // Gulf of Aden
+          [3.0, 78.0],     // Indian Ocean
+          [1.35, 103.8]    // Singapore
+        ]
+      },
+      {
+        id: 'route-sg-3',
+        name: 'Fallback: Sunda Strait Bypass to Singapore',
+        type: 'Fallback',
+        origin: 'Ras Tanura, Persian Gulf',
+        origin_coords: [26.64, 50.16],
+        destination: 'Singapore',
+        dest_coords: [1.35, 103.8],
+        distance_nm: 6200,
+        eta_days: 18,
+        cost_per_bbl: 93.50,
+        description: 'Avoids Malacca congestion. Routes via Sunda Strait (Java) for secondary access to Singapore region.',
+        risk: 'LOW',
+        data_source: 'Vortexa Estimate (CALCULATED)',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        path: [
+          [26.64, 50.16],  // Ras Tanura
+          [26.56, 56.25],  // Hormuz
+          [12.0, 70.0],    // Arabian Sea
+          [0.0, 90.0],     // Bay of Bengal
+          [-6.0, 105.5],   // Sunda Strait
+          [1.35, 103.8]    // Singapore
+        ]
+      }
+    ]
+  }
+
+  if (lower.includes('houston') || lower.includes('usa')) {
+    return [
+      {
+        id: 'route-us-1',
+        name: 'Primary: Yanbu → Suez → Atlantic → Houston',
+        type: 'Recommended',
+        origin: 'Yanbu Terminal, Red Sea',
+        origin_coords: [24.09, 38.06],
+        destination: 'Houston, USA',
+        dest_coords: [29.76, -95.36],
+        distance_nm: 9200,
+        eta_days: 27,
+        cost_per_bbl: 94.00,
+        description: 'Hormuz-free route via IPSA pipeline to Yanbu, Red Sea, Suez Canal, Mediterranean, Atlantic to Houston.',
+        risk: 'LOW',
+        data_source: 'Platts Freight (CALCULATED)',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        path: [
+          [24.09, 38.06],  // Yanbu
+          [29.9, 32.5],    // Suez Canal
+          [35.0, 20.0],    // Mediterranean
+          [36.0, -5.0],    // Gibraltar Strait
+          [40.0, -30.0],   // Mid-Atlantic
+          [30.0, -70.0],   // Caribbean approach
+          [29.76, -95.36]  // Houston
+        ]
+      },
+      {
+        id: 'route-us-2',
+        name: 'Alternative: Persian Gulf → Cape Horn → Gulf of Mexico → Houston',
+        type: 'Alternative',
+        origin: 'Ras Tanura, Persian Gulf',
+        origin_coords: [26.64, 50.16],
+        destination: 'Houston, USA',
+        dest_coords: [29.76, -95.36],
+        distance_nm: 14000,
+        eta_days: 40,
+        cost_per_bbl: 102.00,
+        description: 'Full bypass: avoids all Middle East chokepoints AND Suez. Very long but zero geopolitical risk at any strait.',
+        risk: 'LOW',
+        data_source: 'Vortexa Routing Model (CALCULATED)',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        path: [
+          [26.64, 50.16],  // Ras Tanura
+          [10.0, 52.0],    // Gulf of Aden
+          [-10.0, 43.0],   // East Africa
+          [-34.83, 20.00], // Cape of Good Hope
+          [-40.0, -20.0],  // South Atlantic
+          [-55.0, -68.0],  // Cape Horn
+          [-30.0, -65.0],  // South Atlantic
+          [10.0, -70.0],   // Caribbean
+          [29.76, -95.36]  // Houston
+        ]
+      },
+      {
+        id: 'route-us-3',
+        name: 'Fallback: Persian Gulf → Suez → Atlantic → Houston',
+        type: 'Fallback',
+        origin: 'Ras Tanura, Persian Gulf',
+        origin_coords: [26.64, 50.16],
+        destination: 'Houston, USA',
+        dest_coords: [29.76, -95.36],
+        distance_nm: 10500,
+        eta_days: 31,
+        cost_per_bbl: 98.00,
+        description: 'Direct from Persian Gulf through Hormuz, Suez Canal, Atlantic to Houston. Higher Hormuz risk.',
+        risk: 'HIGH',
+        data_source: 'Baltic Exchange (CALCULATED)',
+        updated_at: nowStr,
+        provenance: 'CALCULATED',
+        path: [
+          [26.64, 50.16],  // Ras Tanura
+          [26.56, 56.25],  // Hormuz
+          [15.0, 55.0],    // Gulf of Aden
+          [11.588, 43.145],// Djibouti
+          [29.9, 32.5],    // Suez Canal
+          [36.0, -5.0],    // Gibraltar
+          [40.0, -30.0],   // Mid-Atlantic
+          [29.76, -95.36]  // Houston
+        ]
+      }
+    ]
+  }
+
+  // Default: India / Mumbai
   const formattedDest = destName || 'India'
   return [
     {
       id: 'route-gen-1',
-      name: `Primary: Direct Sea Lane to ${formattedDest}`,
+      name: `Primary: Persian Gulf → Hormuz → ${formattedDest} (Direct)`,
       type: 'Recommended',
-      origin: 'Persian Gulf',
+      origin: 'Ras Tanura, Persian Gulf',
       origin_coords: [26.64, 50.16],
       destination: formattedDest,
       dest_coords: [18.96, 72.82],
       distance_nm: 1400,
-      eta_days: 5,
+      eta_days: 4,
       cost_per_bbl: 86.50,
-      risk: 'HIGH', // High risk due to Hormuz
-      data_source: 'AIS Live Feed',
+      description: 'Shortest route: direct from Ras Tanura terminal through Strait of Hormuz to Mumbai. HIGH risk due to Hormuz disruption.',
+      risk: 'HIGH',
+      data_source: 'AIS CALCULATED',
       updated_at: nowStr,
-      provenance: 'LIVE',
+      provenance: 'CALCULATED',
       path: [
         [26.64, 50.16], // Ras Tanura
         [26.56, 56.25], // Hormuz
-        [20.0, 65.0],
-        [18.96, 72.82] // Target
+        [22.0, 62.0],
+        [18.96, 72.82]  // Mumbai
       ]
     },
     {
       id: 'route-gen-2',
-      name: `Alternative: Yanbu Pipeline & Red Sea to ${formattedDest}`,
+      name: `Alternative: Yanbu (IPSA Bypass) → Red Sea → ${formattedDest}`,
       type: 'Alternative',
-      origin: 'Yanbu (Red Sea)',
+      origin: 'Yanbu Terminal, Red Sea',
       origin_coords: [24.09, 38.06],
       destination: formattedDest,
       dest_coords: [18.96, 72.82],
-      distance_nm: 2500,
-      eta_days: 9,
+      distance_nm: 2800,
+      eta_days: 8,
       cost_per_bbl: 89.50,
+      description: 'Bypasses Hormuz via Saudi IPSA overland pipeline to Yanbu Red Sea terminal. Routes around Indian subcontinent to Mumbai.',
       risk: 'LOW',
-      data_source: 'Aramco & Baltic Data',
+      data_source: 'Aramco & Baltic Data (CALCULATED)',
       updated_at: nowStr,
-      provenance: 'REAL REFERENCE',
+      provenance: 'CALCULATED',
       path: [
         [24.09, 38.06],
-        [11.588, 43.145], // Djibouti
-        [15.0, 60.0],
-        [18.96, 72.82]
+        [12.5, 44.0],    // Bab-el-Mandeb
+        [11.588, 43.145],// Djibouti
+        [12.0, 58.0],    // Arabian Sea
+        [18.96, 72.82]   // Mumbai
       ]
     },
     {
       id: 'route-gen-3',
-      name: `Fallback: Australia to ${formattedDest}`,
+      name: `Fallback: Persian Gulf → Cape of Good Hope → ${formattedDest}`,
       type: 'Fallback',
-      origin: 'Australia',
-      origin_coords: [-25.0, 115.0],
+      origin: 'Ras Tanura, Persian Gulf',
+      origin_coords: [26.64, 50.16],
       destination: formattedDest,
       dest_coords: [18.96, 72.82],
-      distance_nm: 4600,
-      eta_days: 14,
-      cost_per_bbl: 93.00,
+      distance_nm: 7800,
+      eta_days: 22,
+      cost_per_bbl: 98.00,
+      description: 'Emergency full bypass route: avoids both Hormuz and Bab-el-Mandeb. Circumnavigates Africa via Cape of Good Hope. Only used when all northern chokepoints are blocked.',
       risk: 'MEDIUM',
-      data_source: 'Vortexa Estimate',
+      data_source: 'Vortexa Estimate (CALCULATED)',
       updated_at: nowStr,
       provenance: 'CALCULATED',
       path: [
-        [-25.0, 115.0],
-        [-10.0, 100.0],
-        [5.0, 85.0],
-        [18.96, 72.82]
+        [26.64, 50.16],   // Ras Tanura
+        [10.0, 52.0],     // Gulf of Aden
+        [-5.0, 42.0],     // East Africa
+        [-34.83, 20.00],  // Cape of Good Hope
+        [-20.0, 53.0],    // Madagascar
+        [5.0, 68.0],      // Indian Ocean
+        [18.96, 72.82]    // Mumbai
       ]
     }
   ]
