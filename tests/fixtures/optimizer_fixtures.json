@@ -1,0 +1,99 @@
+{
+  "test_4_hybrid_allocation": {
+    "inputs": {
+      "required_volume": 1000000,
+      "deadline_days": 7,
+      "priority": "cost",
+      "options": [
+        {
+          "id": "option_A",
+          "name": "IPSA Pipeline",
+          "option_type": "pipeline",
+          "capacity": 400000,
+          "cost": 4700,
+          "days": 3,
+          "provenance_status": "REAL_REFERENCE"
+        },
+        {
+          "id": "option_B",
+          "name": "Stena Bulk Charter",
+          "option_type": "confirmed_deal",
+          "capacity": 300000,
+          "cost": 4600,
+          "days": 6,
+          "provenance_status": "CONFIRMED"
+        },
+        {
+          "id": "option_C",
+          "name": "Cape Bypass Sea Lane",
+          "option_type": "alternate_route",
+          "capacity": 1000000,
+          "cost": 4900,
+          "days": 5,
+          "provenance_status": "REAL_REFERENCE"
+        },
+        {
+          "id": "option_D",
+          "name": "MV Atlantic Pioneer Candidate",
+          "option_type": "candidate_vessel",
+          "capacity": 500000,
+          "cost": 4000,
+          "days": 4,
+          "provenance_status": "CANDIDATE_UNVERIFIED"
+        }
+      ]
+    },
+    "expected": {
+      "strategy_allocations": {
+        "option_B": 300000,
+        "option_A": 400000,
+        "option_C": 300000
+      },
+      "sum_allocated": 1000000,
+      "weighted_avg_cost": 4730.0,
+      "total_cost": 4730000000.0,
+      "baseline_cost": 4900000000.0,
+      "savings": 170000000.0,
+      "max_time_used": 6,
+      "excluded_option": "option_D"
+    }
+  },
+  "test_5_deadline_infeasibility": {
+    "inputs": {
+      "required_volume": 2000000,
+      "deadline_days": 3,
+      "options": [
+        {
+          "id": "option_X",
+          "name": "Express Pipe",
+          "capacity": 500000,
+          "cost": 4800,
+          "days": 2,
+          "provenance_status": "REAL_REFERENCE"
+        },
+        {
+          "id": "option_Y",
+          "name": "Fast Feeder",
+          "capacity": 400000,
+          "cost": 4750,
+          "days": 3,
+          "provenance_status": "CONFIRMED"
+        },
+        {
+          "id": "option_Z",
+          "name": "Slow Cape Route",
+          "capacity": 1500000,
+          "cost": 4500,
+          "days": 8,
+          "provenance_status": "REAL_REFERENCE"
+        }
+      ]
+    },
+    "expected": {
+      "status": "PARTIAL",
+      "fulfilled": 900000,
+      "shortfall": 1100000,
+      "message_contains": ["1,100,000", "shortfall"]
+    }
+  }
+}

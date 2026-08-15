@@ -1,0 +1,56 @@
+{
+  "test_1_go": {
+    "inputs": {
+      "volume": 40000,
+      "deal_price": 2000000,
+      "origin_price": 4500,
+      "insurance": 50,
+      "market_price": 5000,
+      "target_margin": 250
+    },
+    "expected": {
+      "freight_per_bbl": 50.0,
+      "landed_cost": 4600.0,
+      "margin": 400.0,
+      "profit": 16000000.0,
+      "ceiling": 8000000.0,
+      "verdict": "GO"
+    }
+  },
+  "test_2_negotiate": {
+    "inputs": {
+      "volume": 50000,
+      "deal_price": 2000000,
+      "origin_price": 4450,
+      "insurance": 25,
+      "market_price": 5000,
+      "target_margin": 500
+    },
+    "expected": {
+      "freight_per_bbl": 40.0,
+      "landed_cost": 4515.0,
+      "margin": 485.0,
+      "profit": 24250000.0,
+      "ceiling": 1250000.0,
+      "verdict": "NEGOTIATE",
+      "reason_contains": ["15", "1,250,000"]
+    }
+  },
+  "test_3_reject": {
+    "inputs": {
+      "volume": 50000,
+      "deal_price": 1500000,
+      "origin_price": 4980,
+      "insurance": 25,
+      "market_price": 5000
+    },
+    "expected": {
+      "freight_per_bbl": 30.0,
+      "landed_cost": 5035.0,
+      "margin": -35.0,
+      "profit": -1750000.0,
+      "ceiling": null,
+      "verdict": "REJECT"
+    }
+  }
+}
