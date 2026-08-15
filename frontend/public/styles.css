@@ -1349,3 +1349,19 @@ img, video { display: block; max-width: 100%; }
   .disruption-banner-inner { flex-direction: column; align-items: flex-start; }
   .facts-grid { grid-template-columns: 1fr; }
 }
+
+/* Y Combinator Badge Icon */
+.yc-square {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #f97316;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 4px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
