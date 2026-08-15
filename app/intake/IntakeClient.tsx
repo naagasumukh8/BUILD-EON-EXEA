@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
@@ -24,6 +22,7 @@ function IntakeContent() {
     product_type: 'diesel',
     volume_bbls: 2000000,
     destination_port: 'Mumbai, India',
+    origin_country: 'Saudi Arabia (Ras Tanura)',
     deadline_days: 7,
     max_acceptable_landed_cost_usd_bbl: 95.0,
     priority: 'cost',
@@ -42,6 +41,7 @@ function IntakeContent() {
         product_type: fields.product || fields.product_type || 'diesel',
         volume_bbls: fields.volume_required || fields.volume_bbls || 2000000,
         destination_port: fields.destination_port_name || fields.destination_port || 'Mumbai, India',
+        origin_country: fields.origin_country || fields.origin_port_name || 'Saudi Arabia (Ras Tanura)',
         deadline_days: fields.deadline_days || 7,
         max_acceptable_landed_cost_usd_bbl: fields.max_acceptable_landed_cost_usd_bbl || 95.0,
         priority: fields.priority || 'cost',
@@ -59,6 +59,8 @@ function IntakeContent() {
     setError(null)
     try {
       const destValue = parsed.destination_port || 'Mumbai, India'
+      const originValue = parsed.origin_country || 'Saudi Arabia (Ras Tanura)'
+
       const scenObj = {
         id: existingScenarioId || 'scen-demo-001',
         natural_language_prompt: prompt,
@@ -68,6 +70,8 @@ function IntakeContent() {
         volume_bbls: parseFloat(parsed.volume_bbls) || 2000000,
         destination_port_name: destValue,
         destination_port: destValue,
+        origin_country: originValue,
+        origin_port_name: originValue,
         deadline_days: parseInt(parsed.deadline_days) || 7,
         max_acceptable_landed_cost_usd_bbl: parseFloat(parsed.max_acceptable_landed_cost_usd_bbl) || 95.0,
         priority: parsed.priority || 'cost',
@@ -105,7 +109,7 @@ function IntakeContent() {
             Specify Energy Requirement
           </h1>
           <p className="text-sm text-[#18181B]/70 max-w-xl mx-auto font-light">
-            State your operational commodity target, volume, destination, and delivery deadline.
+            State your operational commodity target, volume, destination, optional source country, and delivery deadline.
           </p>
         </div>
 
@@ -126,7 +130,7 @@ function IntakeContent() {
               rows={3}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. I need 25 million barrels of diesel delivered to India within 70 days."
+              placeholder="e.g. I need 2 million barrels of diesel from Saudi Arabia delivered to India within 7 days."
               className="w-full p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:ring-2 focus:ring-[#18181B] resize-none"
             />
 
@@ -178,7 +182,20 @@ function IntakeContent() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Destination Port</label>
+                <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">
+                  Origin / Source Country <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={parsed.origin_country}
+                  onChange={(e) => setParsed({ ...parsed, origin_country: e.target.value })}
+                  placeholder="Default: Saudi Arabia (Ras Tanura)"
+                  className="w-full p-3.5 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Destination Port / Country</label>
                 <input
                   type="text"
                   value={parsed.destination_port}

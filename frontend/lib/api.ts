@@ -80,12 +80,21 @@ function parsePromptText(text: string) {
     }
   }
 
+  // 5. Optional Origin / Source Country Parsing
+  let origin = 'Saudi Arabia (Ras Tanura)'
+  const originMatch = lower.match(/(?:from|originating in|sourced from)\s+([a-z\s]+?)(?:\s+to|\s+for|\s+within|\.|\,|$)/)
+  if (originMatch && originMatch[1].trim().length > 2) {
+    const rawOrigin = originMatch[1].trim()
+    origin = rawOrigin.charAt(0).toUpperCase() + rawOrigin.slice(1)
+  }
+
   return {
     product: prod,
     volume_required: vol,
     destination_port_name: dest,
     deadline_days: deadline,
-    origin_port_name: 'Ras Tanura',
+    origin_country: origin,
+    origin_port_name: origin,
     vessel_situation: 'seeking'
   }
 }
@@ -103,10 +112,80 @@ function computeVesselProximity(vLat: number, vLon: number, destLat: number, des
   return { distNm, relevance }
 }
 
-// Global Destination Vessels Engine with Moving Journey Traces & Provenance
-function getVesselsForDestination(destName: string) {
+// Global Destination & Optional Origin Vessels Engine with Moving Journey Traces & Provenance
+function getVesselsForDestination(destName: string, originCountry?: string) {
   const lower = (destName || '').toLowerCase()
+  const origLower = (originCountry || '').toLowerCase()
   const nowStr = new Date().toISOString()
+
+  // 1. Origin-Matched Vessel Candidates (if specified)
+  if (origLower.includes('usa') || origLower.includes('houston') || origLower.includes('america')) {
+    const p1 = computeVesselProximity(25.0, -85.0, 18.96, 72.82)
+    return [
+      {
+        id: 'vess-us-orig-001',
+        imo: 'IMO 9812404',
+        mmsi: 'MMSI 248112233',
+        vessel_name: 'Atlantic Condor (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        origin_port: 'USA (Houston Terminal)',
+        origin_coords: [29.76, -95.36],
+        current_destination: destName || 'Mumbai, India',
+        dest_coords: [18.96, 72.82],
+        potential_delivery: destName || 'Mumbai',
+        lat: 25.0,
+        lon: -85.0,
+        speed_knots: 14.5,
+        eta_days: 12,
+        eta_source: 'CALCULATED',
+        distance_nm: p1.distNm,
+        route_relevance: 'HIGH',
+        total_dwt: 160000,
+        capacity_bbls: 1050000,
+        transport_provider: 'Overseas Shipholding Group',
+        data_source: 'DEMO DATA (AIS API Offline)',
+        status_label: 'DEMO DATA',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Sourced from ${originCountry || 'USA'}. Currently transiting Gulf of Mexico outbound toward destination.`,
+      }
+    ]
+  }
+
+  if (origLower.includes('nigeria') || origLower.includes('angola') || origLower.includes('africa')) {
+    const p1 = computeVesselProximity(4.0, 6.0, 18.96, 72.82)
+    return [
+      {
+        id: 'vess-ng-orig-001',
+        imo: 'IMO 9745199',
+        mmsi: 'MMSI 657001234',
+        vessel_name: 'Bonny Light Voyager (Suezmax)',
+        vessel_type: 'Suezmax Tanker',
+        origin_port: 'Nigeria (Bonny Terminal)',
+        origin_coords: [4.43, 7.16],
+        current_destination: destName || 'Mumbai, India',
+        dest_coords: [18.96, 72.82],
+        potential_delivery: destName || 'Mumbai',
+        lat: 4.0,
+        lon: 6.0,
+        speed_knots: 14.0,
+        eta_days: 9,
+        eta_source: 'CALCULATED',
+        distance_nm: p1.distNm,
+        route_relevance: 'HIGH',
+        total_dwt: 155000,
+        capacity_bbls: 1000000,
+        transport_provider: 'Nigerian National Petroleum',
+        data_source: 'DEMO DATA (AIS API Offline)',
+        status_label: 'DEMO DATA',
+        data_updated_at: nowStr,
+        provenance_status: 'CANDIDATE_UNVERIFIED',
+        commercial_verification_status: 'NOT YET VERIFIED',
+        relevance_reason: `Sourced from ${originCountry || 'Nigeria'}. Currently off Gulf of Guinea outbound to destination.`,
+      }
+    ]
+  }
   
   if (lower.includes('china') || lower.includes('shanghai')) {
     const p = computeVesselProximity(10.0, 110.0, 31.23, 121.47)
