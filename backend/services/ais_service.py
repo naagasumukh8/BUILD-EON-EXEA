@@ -169,6 +169,51 @@ async def _fetch_aisstream_snapshot(
         return []
 
 
+async def _fetch_ais_rest_snapshot(
+    dest_lat: float,
+    dest_lon: float,
+    api_key: str,
+    api_url: str,
+) -> list[dict[str, Any]]:
+    """
+    Fetch live AIS positions via REST HTTP request to vendor endpoint.
+    """
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            headers = {"Authorization": f"Bearer {api_key}", "x-api-key": api_key}
+            params = {"lat": dest_lat, "lon": dest_lon, "radius_km": 1500, "api_key": api_key}
+            res = await client.get(api_url, headers=headers, params=params)
+            if res.status_code == 200:
+                data = res.json()
+                vessels_list = data.get("vessels") or data.get("data") or []
+                results = []
+                for item in vessels_list[:20]:
+                    results.append({
+                        "mmsi": str(item.get("mmsi") or item.get("id")),
+                        "imo": item.get("imo"),
+                        "name": item.get("name") or item.get("shipname") or "Unknown Vessel",
+                        "vessel_type": item.get("vessel_type") or "Tanker",
+                        "flag": item.get("flag"),
+                        "dwt": item.get("dwt"),
+                        "current_lat": item.get("lat") or item.get("latitude"),
+                        "current_lon": item.get("lon") or item.get("longitude"),
+                        "current_destination": item.get("destination", "En Route"),
+                        "eta_destination": item.get("eta"),
+                        "speed_knots": item.get("speed") or 13.0,
+                        "heading": item.get("heading") or 0,
+                        "source": api_url,
+                        "source_type": "AIS_LIVE",
+                        "provenance_status": "CANDIDATE_UNVERIFIED",
+                        "ais_timestamp": datetime.now(timezone.utc).isoformat(),
+                        "notes": "Live AIS position. Spare cargo capacity NOT known — verify with vessel owner.",
+                    })
+                return results
+    except Exception as e:
+        print(f"[AIS] REST endpoint {api_url} error: {e}")
+    return []
+
+
 def _map_vessel_type(ship_type_code: int) -> str:
     if 80 <= ship_type_code <= 89:
         return "Tanker"
@@ -201,17 +246,22 @@ async def discover_candidates(
     All records are labelled CANDIDATE_UNVERIFIED.
     """
     settings = get_settings()
-    raw_vessels: list[dict]
-    source_label: str
+    raw_vessels: list[dict] = []
+    source_label: str = "SIMULATED"
 
     if settings.has_aisstream:
-        raw_vessels = await _fetch_aisstream_snapshot(
-            dest_lat, dest_lon, settings.aisstream_api_key
-        )
-        source_label = "aisstream.io (AIS_LIVE)"
+        api_key = settings.effective_ais_key
+        # Check if custom REST API URL provided
+        if settings.ais_api_url:
+            raw_vessels = await _fetch_ais_rest_snapshot(dest_lat, dest_lon, api_key, settings.ais_api_url)
+            source_label = f"Live AIS API ({settings.ais_api_url})"
+        else:
+            raw_vessels = await _fetch_aisstream_snapshot(dest_lat, dest_lon, api_key)
+            source_label = "aisstream.io (AIS_LIVE)"
+
         if not raw_vessels:
             raw_vessels = SIMULATED_VESSELS
-            source_label = "SIMULATED (AIS unavailable)"
+            source_label = "SIMULATED (Live AIS offline/fallback)"
     else:
         raw_vessels = SIMULATED_VESSELS
         source_label = "SIMULATED"

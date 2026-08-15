@@ -28,6 +28,8 @@ class Settings(BaseSettings):
 
     # ── AIS ────────────────────────────────────────────────────────────
     aisstream_api_key: str = ""
+    ais_api_key: str = ""
+    ais_api_url: str = ""
 
     # ── Economics / Reference ───────────────────────────────────────────
     market_price_usd_per_bbl: float = 85.00
@@ -52,8 +54,12 @@ class Settings(BaseSettings):
         return bool(self.supabase_url and self.supabase_service_key)
 
     @property
+    def effective_ais_key(self) -> str:
+        return self.ais_api_key or self.aisstream_api_key
+
+    @property
     def has_aisstream(self) -> bool:
-        return bool(self.aisstream_api_key)
+        return bool(self.effective_ais_key)
 
 
 @lru_cache
