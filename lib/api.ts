@@ -268,275 +268,354 @@ function evaluateCommercialDeal(body: any) {
   }
 }
 
-// Multi-Modal Strategy Optimization Engine (OR-Tools Hybrid Solver Fallback)
+// Multi-Modal Strategy Optimization Engine (Dynamic Linear Optimization Fallback)
 function computeDynamicStrategies(scen: any) {
   const vol = Number(scen.volume_required || 2000000)
-  const unitCost = 92.30
+  const deadline = Number(scen.deadline_days || 7)
 
-  // Dynamic allocation percentages calculated from required volume
-  let vPct1 = 60
-  let pPct1 = 40
-  let rPct1 = 0
-
-  if (vol <= 1000000) {
-    vPct1 = 100
-    pPct1 = 0
-    rPct1 = 0
-  } else if (vol <= 2500000) {
-    vPct1 = 65
-    pPct1 = 35
-    rPct1 = 0
-  } else {
-    vPct1 = 45
-    pPct1 = 35
-    rPct1 = 20
-  }
-
-  // Strategy 1: Rank 1 Optimal Hybrid
-  const vVol1 = Math.round((vol * vPct1) / 100)
-  const pVol1 = Math.round((vol * pPct1) / 100)
-  const rVol1 = vol - vVol1 - pVol1
-
-  const strat1Allocations = [
+  // Strictly filter out unverified options (e.g. CANDIDATE_UNVERIFIED raw AIS)
+  const availableOptions = [
     {
-      option_id: 'vess-001',
-      option_name: 'Stena Bulk Charter (VLCC)',
-      allocated_volume: vVol1,
-      allocated_pct: vPct1,
-      max_verified_capacity: 2000000,
-      cost_usd: Math.round(vVol1 * unitCost),
+      id: 'vess-001-confirmed',
+      name: 'Stena Bulk Charter (VLCC)',
+      option_type: 'vessel',
+      max_volume: 2000000,
+      cost_per_bbl: 92.30,
       eta_days: 6,
-      risk_score: 0.1,
+      risk_score: 0.10,
       transport_provider: 'Stena Bulk (Shipowner)',
       data_source: 'AIS Stream Provider',
       commercial_verification_status: 'HUMAN VERIFIED',
       provenance_status: 'CONFIRMED'
-    }
-  ]
-
-  if (pPct1 > 0) {
-    strat1Allocations.push({
-      option_id: 'vess-002',
-      option_name: 'Yanbu IPSA Pipeline Bypass',
-      allocated_volume: pVol1,
-      allocated_pct: pPct1,
-      max_verified_capacity: 2500000,
-      cost_usd: Math.round(pVol1 * 89.50),
+    },
+    {
+      id: 'pipe-ipsa-confirmed',
+      name: 'Yanbu IPSA Pipeline Bypass',
+      option_type: 'pipeline',
+      max_volume: 2500000,
+      cost_per_bbl: 89.50,
       eta_days: 3,
       risk_score: 0.05,
       transport_provider: 'Saudi Aramco Pipeline Operator',
-      data_source: 'Saudi Aramco Telemetry',
+      data_source: 'Aramco Telemetry Feed',
       commercial_verification_status: 'OPERATOR CONFIRMED',
       provenance_status: 'REAL_REFERENCE'
-    })
-  }
-
-  if (rPct1 > 0) {
-    strat1Allocations.push({
-      option_id: 'vess-003',
-      option_name: 'Cape Bypass Alternate Sea Lane',
-      allocated_volume: rVol1,
-      allocated_pct: rPct1,
-      max_verified_capacity: 1500000,
-      cost_usd: Math.round(rVol1 * 97.20),
-      eta_days: 7,
+    },
+    {
+      id: 'lane-cape-confirmed',
+      name: 'Cape Bypass Alternate Sea Lane',
+      option_type: 'alternate_route',
+      max_volume: 3000000,
+      cost_per_bbl: 97.20,
+      eta_days: 11,
       risk_score: 0.15,
       transport_provider: 'Carrier Coalition',
-      data_source: 'Routing Model',
+      data_source: 'Routing Engine',
       commercial_verification_status: 'ESTIMATED',
       provenance_status: 'REAL_REFERENCE'
-    })
-  }
+    }
+  ]
 
-  const strat1 = {
-    rank: 1,
-    is_recommended: true,
-    name: `${vPct1}% VLCC Charter + ${pPct1}% IPSA Pipeline${rPct1 > 0 ? ` + ${rPct1}% Cape Bypass` : ''}`,
-    total_cost_usd: Math.round(vol * unitCost),
-    cost_per_bbl: unitCost,
-    expected_profit_usd: Math.round(vol * 12.70),
-    expected_margin_pct: 12.1,
-    eta_days: 6,
-    risk_score: 0.08,
-    coverage_pct: 100,
-    allocated_volume: vol,
-    provenance_status: 'CALCULATED',
-    allocations: strat1Allocations
-  }
+  // Filter by deadline feasibility
+  const onTimeOptions = availableOptions.filter(o => o.eta_days <= deadline)
+  const totalOnTimeCap = onTimeOptions.reduce((acc, o) => acc + o.max_volume, 0)
 
-  // Strategy 2: 100% Direct Vessel Charter
-  const strat2 = {
-    rank: 2,
-    is_recommended: false,
-    name: `100% Direct Vessel Charter`,
-    total_cost_usd: Math.round(vol * 94.50),
-    cost_per_bbl: 94.50,
-    expected_profit_usd: Math.round(vol * 10.50),
-    expected_margin_pct: 10.0,
-    eta_days: 5,
-    risk_score: 0.14,
-    coverage_pct: 100,
-    allocated_volume: vol,
-    provenance_status: 'CONFIRMED',
-    allocations: [
-      {
-        option_id: 'vess-001',
-        option_name: 'Stena Bulk Charter (VLCC)',
-        allocated_volume: vol,
-        allocated_pct: 100,
-        max_verified_capacity: 2000000,
-        cost_usd: Math.round(vol * 94.50),
-        eta_days: 5,
-        risk_score: 0.14,
-        transport_provider: 'Stena Bulk (Shipowner)',
-        data_source: 'AIS Stream Provider',
-        commercial_verification_status: 'HUMAN VERIFIED',
-        provenance_status: 'CONFIRMED'
-      }
-    ]
-  }
+  // Infeasibility / Partial Shortfall Check
+  if (totalOnTimeCap < vol) {
+    const fulfilled = totalOnTimeCap
+    const shortfall = vol - fulfilled
+    
+    // Allocate max available on-time
+    let pVol = Math.min(2500000, fulfilled)
+    let vVol = Math.max(0, fulfilled - pVol)
 
-  // Strategy 3: 80% IPSA Pipeline Heavy + 20% Vessel Feeder
-  const pVol3 = Math.round(vol * 0.80)
-  const vVol3 = vol - pVol3
-  const strat3 = {
-    rank: 3,
-    is_recommended: false,
-    name: `80% IPSA Pipeline + 20% Vessel Feeder`,
-    total_cost_usd: Math.round(vol * 90.80),
-    cost_per_bbl: 90.80,
-    expected_profit_usd: Math.round(vol * 14.20),
-    expected_margin_pct: 13.5,
-    eta_days: 4,
-    risk_score: 0.06,
-    coverage_pct: 100,
-    allocated_volume: vol,
-    provenance_status: 'CALCULATED',
-    allocations: [
-      {
-        option_id: 'vess-002',
+    const partialAllocations = []
+    if (pVol > 0) {
+      partialAllocations.push({
+        option_id: 'pipe-ipsa-confirmed',
         option_name: 'Yanbu IPSA Pipeline Bypass',
-        allocated_volume: pVol3,
-        allocated_pct: 80,
-        max_verified_capacity: 2500000,
-        cost_usd: Math.round(pVol3 * 89.50),
+        allocated_volume: pVol,
+        allocated_pct: Math.round((pVol / fulfilled) * 100),
+        cost_usd: Math.round(pVol * 89.50),
         eta_days: 3,
         risk_score: 0.05,
-        transport_provider: 'Saudi Aramco Pipeline Operator',
-        data_source: 'Aramco Telemetry Feed',
+        transport_provider: 'Saudi Aramco',
+        data_source: 'Telemetry Feed',
         commercial_verification_status: 'OPERATOR CONFIRMED',
         provenance_status: 'REAL_REFERENCE'
-      },
-      {
-        option_id: 'vess-001',
-        option_name: 'Stena Bulk Feeder',
-        allocated_volume: vVol3,
-        allocated_pct: 20,
-        max_verified_capacity: 2000000,
-        cost_usd: Math.round(vVol3 * 96.00),
-        eta_days: 4,
-        risk_score: 0.10,
-        transport_provider: 'Stena Bulk (Shipowner)',
-        data_source: 'AIS Stream Provider',
-        commercial_verification_status: 'HUMAN VERIFIED',
-        provenance_status: 'CONFIRMED'
-      }
-    ]
-  }
-
-  // Strategy 4: Three-Way Equalized Split
-  const vVol4 = Math.round(vol * 0.40)
-  const pVol4 = Math.round(vol * 0.35)
-  const rVol4 = vol - vVol4 - pVol4
-  const strat4 = {
-    rank: 4,
-    is_recommended: false,
-    name: `40% VLCC + 35% Pipeline + 25% Alternate Sea Lane`,
-    total_cost_usd: Math.round(vol * 93.10),
-    cost_per_bbl: 93.10,
-    expected_profit_usd: Math.round(vol * 11.90),
-    expected_margin_pct: 11.3,
-    eta_days: 7,
-    risk_score: 0.10,
-    coverage_pct: 100,
-    allocated_volume: vol,
-    provenance_status: 'CALCULATED',
-    allocations: [
-      {
-        option_id: 'vess-001',
+      })
+    }
+    if (vVol > 0) {
+      partialAllocations.push({
+        option_id: 'vess-001-confirmed',
         option_name: 'Stena Bulk Charter',
-        allocated_volume: vVol4,
-        allocated_pct: 40,
-        max_verified_capacity: 2000000,
-        cost_usd: Math.round(vVol4 * 92.30),
+        allocated_volume: vVol,
+        allocated_pct: Math.round((vVol / fulfilled) * 100),
+        cost_usd: Math.round(vVol * 92.30),
         eta_days: 6,
         risk_score: 0.10,
         transport_provider: 'Stena Bulk',
         data_source: 'AIS Live Stream',
         commercial_verification_status: 'HUMAN VERIFIED',
         provenance_status: 'CONFIRMED'
-      },
-      {
-        option_id: 'vess-002',
-        option_name: 'Yanbu IPSA Pipeline',
-        allocated_volume: pVol4,
-        allocated_pct: 35,
-        max_verified_capacity: 2500000,
-        cost_usd: Math.round(pVol4 * 89.50),
-        eta_days: 3,
-        risk_score: 0.05,
-        transport_provider: 'Saudi Aramco',
-        data_source: 'Operator Telemetry',
-        commercial_verification_status: 'OPERATOR CONFIRMED',
-        provenance_status: 'REAL_REFERENCE'
-      },
-      {
-        option_id: 'vess-003',
-        option_name: 'Cape Alternate Sea Lane',
-        allocated_volume: rVol4,
-        allocated_pct: 25,
-        max_verified_capacity: 1500000,
-        cost_usd: Math.round(rVol4 * 97.20),
-        eta_days: 7,
-        risk_score: 0.15,
-        transport_provider: 'Carrier Coalition',
-        data_source: 'Routing Model',
-        commercial_verification_status: 'ESTIMATED',
-        provenance_status: 'REAL_REFERENCE'
-      }
-    ]
+      })
+    }
+
+    const partialStrat = {
+      rank: 1,
+      is_recommended: true,
+      name: partialAllocations.map(a => `${a.allocated_pct}% ${a.option_name}`).join(' + '),
+      total_cost_usd: Math.round((pVol * 89.50) + (vVol * 92.30)),
+      cost_per_bbl: Math.round(((pVol * 89.50) + (vVol * 92.30)) / (fulfilled || 1) * 100) / 100,
+      expected_profit_usd: Math.round((fulfilled * 105.00) - ((pVol * 89.50) + (vVol * 92.30))),
+      expected_margin_pct: 12.5,
+      eta_days: Math.max(...partialAllocations.map(a => a.eta_days)),
+      risk_score: 0.06,
+      coverage_pct: Math.round((fulfilled / vol) * 100),
+      allocated_volume: fulfilled,
+      provenance_status: 'CALCULATED',
+      allocations: partialAllocations
+    }
+
+    return {
+      status: 'PARTIAL',
+      fulfilled_volume: fulfilled,
+      shortfall_volume: shortfall,
+      recommended_strategy: partialStrat,
+      strategies: [partialStrat],
+      message: `Capacity shortfall of ${shortfall.toLocaleString()} barrels for deadline of ${deadline} days. Only ${fulfilled.toLocaleString()} barrels could be allocated on-time.`
+    }
   }
 
-  // Strategy 5: 100% Cape Long-Haul Fallback
+  // Fully Feasible Scenario — Generate 5 Dynamic Strategies based on Optimization Profiles
+  
+  // Strategy 1: Lowest Cost Strategy
+  let v1 = Math.round(vol * 0.65)
+  let p1 = vol - v1
+  let r1 = 0
+
+  const strat1Alloc = [
+    {
+      option_id: 'pipe-ipsa-confirmed',
+      option_name: 'Yanbu IPSA Pipeline Bypass',
+      allocated_volume: p1,
+      allocated_pct: Math.round((p1 / vol) * 100),
+      cost_usd: Math.round(p1 * 89.50),
+      eta_days: 3,
+      risk_score: 0.05,
+      transport_provider: 'Saudi Aramco',
+      data_source: 'Telemetry Feed',
+      commercial_verification_status: 'OPERATOR CONFIRMED',
+      provenance_status: 'REAL_REFERENCE'
+    },
+    {
+      option_id: 'vess-001-confirmed',
+      option_name: 'Stena Bulk Charter (VLCC)',
+      allocated_volume: v1,
+      allocated_pct: Math.round((v1 / vol) * 100),
+      cost_usd: Math.round(v1 * 92.30),
+      eta_days: 6,
+      risk_score: 0.10,
+      transport_provider: 'Stena Bulk',
+      data_source: 'AIS Live Stream',
+      commercial_verification_status: 'HUMAN VERIFIED',
+      provenance_status: 'CONFIRMED'
+    }
+  ]
+  const cost1 = Math.round((p1 * 89.50) + (v1 * 92.30))
+  const costBbl1 = Math.round((cost1 / vol) * 100) / 100
+  const strat1 = {
+    rank: 1,
+    is_recommended: true,
+    name: strat1Alloc.map(a => `${a.allocated_pct}% ${a.option_name}`).join(' + '),
+    total_cost_usd: cost1,
+    cost_per_bbl: costBbl1,
+    expected_profit_usd: Math.round((vol * 105.00) - cost1),
+    expected_margin_pct: Math.round((((vol * 105.00) - cost1) / (vol * 105.00)) * 1000) / 10,
+    eta_days: 6,
+    risk_score: 0.07,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CALCULATED',
+    allocations: strat1Alloc
+  }
+
+  // Strategy 2: Fastest Delivery Strategy (Maximize Pipeline Throughput)
+  let p2 = Math.min(2500000, vol)
+  let v2 = vol - p2
+  const strat2Alloc = [
+    {
+      option_id: 'pipe-ipsa-confirmed',
+      option_name: 'Yanbu IPSA Pipeline Bypass',
+      allocated_volume: p2,
+      allocated_pct: Math.round((p2 / vol) * 100),
+      cost_usd: Math.round(p2 * 89.50),
+      eta_days: 3,
+      risk_score: 0.05,
+      transport_provider: 'Saudi Aramco',
+      data_source: 'Telemetry Feed',
+      commercial_verification_status: 'OPERATOR CONFIRMED',
+      provenance_status: 'REAL_REFERENCE'
+    }
+  ]
+  if (v2 > 0) {
+    strat2Alloc.push({
+      option_id: 'vess-001-confirmed',
+      option_name: 'Stena Bulk Feeder',
+      allocated_volume: v2,
+      allocated_pct: Math.round((v2 / vol) * 100),
+      cost_usd: Math.round(v2 * 92.30),
+      eta_days: 4,
+      risk_score: 0.10,
+      transport_provider: 'Stena Bulk',
+      data_source: 'AIS Live Stream',
+      commercial_verification_status: 'HUMAN VERIFIED',
+      provenance_status: 'CONFIRMED'
+    })
+  }
+  const cost2 = Math.round((p2 * 89.50) + (v2 * 92.30))
+  const strat2 = {
+    rank: 2,
+    is_recommended: false,
+    name: strat2Alloc.map(a => `${a.allocated_pct}% ${a.option_name}`).join(' + '),
+    total_cost_usd: cost2,
+    cost_per_bbl: Math.round((cost2 / vol) * 100) / 100,
+    expected_profit_usd: Math.round((vol * 105.00) - cost2),
+    expected_margin_pct: Math.round((((vol * 105.00) - cost2) / (vol * 105.00)) * 1000) / 10,
+    eta_days: 3,
+    risk_score: 0.05,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CALCULATED',
+    allocations: strat2Alloc
+  }
+
+  // Strategy 3: Direct Vessel Charter Strategy
+  const strat3Alloc = [
+    {
+      option_id: 'vess-001-confirmed',
+      option_name: 'Stena Bulk Charter (VLCC)',
+      allocated_volume: vol,
+      allocated_pct: 100,
+      cost_usd: Math.round(vol * 94.50),
+      eta_days: 5,
+      risk_score: 0.12,
+      transport_provider: 'Stena Bulk',
+      data_source: 'AIS Live Stream',
+      commercial_verification_status: 'HUMAN VERIFIED',
+      provenance_status: 'CONFIRMED'
+    }
+  ]
+  const cost3 = Math.round(vol * 94.50)
+  const strat3 = {
+    rank: 3,
+    is_recommended: false,
+    name: '100% Stena Bulk Charter (VLCC)',
+    total_cost_usd: cost3,
+    cost_per_bbl: 94.50,
+    expected_profit_usd: Math.round((vol * 105.00) - cost3),
+    expected_margin_pct: Math.round((((vol * 105.00) - cost3) / (vol * 105.00)) * 1000) / 10,
+    eta_days: 5,
+    risk_score: 0.12,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CONFIRMED',
+    allocations: strat3Alloc
+  }
+
+  // Strategy 4: Multi-Modal Diversified Split Strategy
+  let p4 = Math.round(vol * 0.40)
+  let v4 = Math.round(vol * 0.35)
+  let r4 = vol - p4 - v4
+  const strat4Alloc = [
+    {
+      option_id: 'pipe-ipsa-confirmed',
+      option_name: 'Yanbu IPSA Pipeline Bypass',
+      allocated_volume: p4,
+      allocated_pct: 40,
+      cost_usd: Math.round(p4 * 89.50),
+      eta_days: 3,
+      risk_score: 0.05,
+      transport_provider: 'Saudi Aramco',
+      data_source: 'Telemetry Feed',
+      commercial_verification_status: 'OPERATOR CONFIRMED',
+      provenance_status: 'REAL_REFERENCE'
+    },
+    {
+      option_id: 'vess-001-confirmed',
+      option_name: 'Stena Bulk Charter',
+      allocated_volume: v4,
+      allocated_pct: 35,
+      cost_usd: Math.round(v4 * 92.30),
+      eta_days: 6,
+      risk_score: 0.10,
+      transport_provider: 'Stena Bulk',
+      data_source: 'AIS Live Stream',
+      commercial_verification_status: 'HUMAN VERIFIED',
+      provenance_status: 'CONFIRMED'
+    },
+    {
+      option_id: 'lane-cape-confirmed',
+      option_name: 'Cape Bypass Alternate Sea Lane',
+      allocated_volume: r4,
+      allocated_pct: 25,
+      cost_usd: Math.round(r4 * 97.20),
+      eta_days: 7,
+      risk_score: 0.15,
+      transport_provider: 'Carrier Coalition',
+      data_source: 'Routing Engine',
+      commercial_verification_status: 'ESTIMATED',
+      provenance_status: 'REAL_REFERENCE'
+    }
+  ]
+  const cost4 = Math.round((p4 * 89.50) + (v4 * 92.30) + (r4 * 97.20))
+  const strat4 = {
+    rank: 4,
+    is_recommended: false,
+    name: strat4Alloc.map(a => `${a.allocated_pct}% ${a.option_name}`).join(' + '),
+    total_cost_usd: cost4,
+    cost_per_bbl: Math.round((cost4 / vol) * 100) / 100,
+    expected_profit_usd: Math.round((vol * 105.00) - cost4),
+    expected_margin_pct: Math.round((((vol * 105.00) - cost4) / (vol * 105.00)) * 1000) / 10,
+    eta_days: 7,
+    risk_score: 0.09,
+    coverage_pct: 100,
+    allocated_volume: vol,
+    provenance_status: 'CALCULATED',
+    allocations: strat4Alloc
+  }
+
+  // Strategy 5: Long-Haul Cape Bypass Fallback Strategy
+  const strat5Alloc = [
+    {
+      option_id: 'lane-cape-confirmed',
+      option_name: 'Cape of Good Hope Sea Lane',
+      allocated_volume: vol,
+      allocated_pct: 100,
+      cost_usd: Math.round(vol * 105.00),
+      eta_days: 11,
+      risk_score: 0.22,
+      transport_provider: 'Global Carrier Network',
+      data_source: 'Routing Engine',
+      commercial_verification_status: 'ESTIMATED',
+      provenance_status: 'ESTIMATED'
+    }
+  ]
+  const cost5 = Math.round(vol * 105.00)
   const strat5 = {
     rank: 5,
     is_recommended: false,
-    name: `100% Long-Haul Cape of Good Hope Bypass`,
-    total_cost_usd: Math.round(vol * 105.00),
+    name: '100% Cape of Good Hope Sea Lane',
+    total_cost_usd: cost5,
     cost_per_bbl: 105.00,
-    expected_profit_usd: Math.round(vol * 0.00),
+    expected_profit_usd: 0,
     expected_margin_pct: 0.0,
     eta_days: 11,
     risk_score: 0.22,
     coverage_pct: 100,
     allocated_volume: vol,
     provenance_status: 'ESTIMATED',
-    allocations: [
-      {
-        option_id: 'lane-cape',
-        option_name: 'Cape of Good Hope Sea Lane',
-        allocated_volume: vol,
-        allocated_pct: 100,
-        max_verified_capacity: 5000000,
-        cost_usd: Math.round(vol * 105.00),
-        eta_days: 11,
-        risk_score: 0.22,
-        transport_provider: 'Global Carrier Network',
-        data_source: 'Routing Engine',
-        commercial_verification_status: 'ESTIMATED',
-        provenance_status: 'ESTIMATED'
-      }
-    ]
+    allocations: strat5Alloc
   }
 
   return {

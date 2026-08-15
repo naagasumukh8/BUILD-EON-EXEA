@@ -9,6 +9,7 @@ Constraints & Rules:
   3. Allocations sum to required_volume when feasible.
   4. If capacity meeting deadline < required_volume, returns status "PARTIAL" / "INFEASIBLE"
      with exact fulfilled volume, shortfall volume, and shortfall explanation.
+  5. Dynamically generates up to 5 distinct feasible strategies based on available options.
 """
 from __future__ import annotations
 import itertools
@@ -50,7 +51,7 @@ class OptConfig:
     cost_weight: float = 0.40
     time_weight: float = 0.35
     risk_weight: float = 0.25
-    market_price_per_bbl: float = 85.00
+    market_price_per_bbl: float = 105.00
     min_target_margin: float = 0.08
 
 
@@ -79,58 +80,90 @@ def _score_strategy(
     revenue = config.market_price_per_bbl * total_vol
     profit = revenue - total_cost
     margin = (profit / revenue * 100.0) if revenue > 0 else 0.0
-    eta = max(o.eta_days for o, v in zip(options, volumes) if v > 0)
+    active_etas = [o.eta_days for o, v in zip(options, volumes) if v > 0.01]
+    eta = max(active_etas) if active_etas else 0.0
     risk = sum(o.risk_score * v for o, v in zip(options, volumes)) / total_vol
 
     return total_cost, cost_per_bbl, profit, margin, eta, risk
 
 
-def _objective_score(
-    total_cost: float,
-    cost_per_bbl: float,
-    eta_days: int,
-    risk_score: float,
-    config: OptConfig,
-) -> float:
-    cost_norm = cost_per_bbl / max(config.market_price_per_bbl, 1.0)
-    time_norm = eta_days / max(config.deadline_days, 1)
-    return (
-        config.cost_weight * cost_norm
-        + config.time_weight * time_norm
-        + config.risk_weight * risk_score
-    )
+def _ortools_optimize(
+    options: list[OptOption],
+    required_volume: float,
+    mode: str = "cost",
+    max_cap_pct: float = 1.0
+) -> list[float]:
+    """
+    Solve continuous linear optimization with OR-Tools GLOP.
+    Modes:
+      - 'cost': minimize total landed cost
+      - 'time': minimize weighted transit ETA
+      - 'balanced': minimize cost + 10*ETA + 1000*Risk
+      - 'diversified': cap any single option at max_cap_pct of required volume
+    """
+    if not _ORTOOLS_AVAILABLE:
+        return _greedy_allocate(options, required_volume, mode=mode, max_cap_pct=max_cap_pct)
 
-
-def _ortools_optimize(options: list[OptOption], required_volume: float) -> list[float]:
     solver = pywraplp.Solver.CreateSolver("GLOP")
     if not solver:
-        return _greedy_allocate(options, required_volume)
+        return _greedy_allocate(options, required_volume, mode=mode, max_cap_pct=max_cap_pct)
 
-    x = [solver.NumVar(0.0, float(opt.max_volume), f"x_{i}") for i, opt in enumerate(options)]
-    
-    # Require total volume equal to required_volume (or max possible capacity)
     target_vol = min(required_volume, sum(opt.max_volume for opt in options))
+
+    x = []
+    for opt in options:
+        upper = min(opt.max_volume, target_vol * max_cap_pct)
+        # Ensure upper is at least 0
+        upper = max(0.0, float(upper))
+        x.append(solver.NumVar(0.0, upper, f"x_{opt.id}"))
+
     solver.Add(solver.Sum(x) == target_vol)
 
-    # Objective: minimize total cost
-    solver.Minimize(solver.Sum(opt.cost_per_bbl * x[i] for i, opt in enumerate(options)))
+    if mode == "cost":
+        solver.Minimize(solver.Sum(opt.cost_per_bbl * x[i] for i, opt in enumerate(options)))
+    elif mode == "time":
+        solver.Minimize(solver.Sum((opt.eta_days * 100.0 + opt.cost_per_bbl) * x[i] for i, opt in enumerate(options)))
+    elif mode == "risk":
+        solver.Minimize(solver.Sum((opt.risk_score * 1000.0 + opt.cost_per_bbl) * x[i] for i, opt in enumerate(options)))
+    elif mode == "balanced":
+        solver.Minimize(solver.Sum((opt.cost_per_bbl + opt.eta_days * 20.0 + opt.risk_score * 500.0) * x[i] for i, opt in enumerate(options)))
+    else:
+        solver.Minimize(solver.Sum(opt.cost_per_bbl * x[i] for i, opt in enumerate(options)))
 
     status = solver.Solve()
     if status in (pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE):
         return [xi.solution_value() for xi in x]
-    return _greedy_allocate(options, required_volume)
+
+    return _greedy_allocate(options, required_volume, mode=mode, max_cap_pct=max_cap_pct)
 
 
-def _greedy_allocate(options: list[OptOption], required_volume: float) -> list[float]:
-    indexed = sorted(enumerate(options), key=lambda iv: iv[1].cost_per_bbl)
+def _greedy_allocate(
+    options: list[OptOption],
+    required_volume: float,
+    mode: str = "cost",
+    max_cap_pct: float = 1.0
+) -> list[float]:
+    if mode == "time":
+        sort_key = lambda iv: (iv[1].eta_days, iv[1].cost_per_bbl)
+    elif mode == "risk":
+        sort_key = lambda iv: (iv[1].risk_score, iv[1].cost_per_bbl)
+    else:
+        sort_key = lambda iv: (iv[1].cost_per_bbl, iv[1].eta_days)
+
+    indexed = sorted(enumerate(options), key=sort_key)
     remaining = required_volume
     volumes = [0.0] * len(options)
+
     for orig_i, opt in indexed:
         if remaining <= 0:
             break
-        alloc = min(opt.max_volume, remaining)
+        cap_limit = opt.max_volume
+        if max_cap_pct < 1.0:
+            cap_limit = min(cap_limit, required_volume * max_cap_pct)
+        alloc = min(cap_limit, remaining)
         volumes[orig_i] = alloc
         remaining -= alloc
+
     return volumes
 
 
@@ -194,6 +227,7 @@ def solve_optimization(
 ) -> OptimizationOutput:
     """
     Solves capacity allocation with strict provenance filtering & feasibility checks.
+    Dynamically generates up to 5 genuinely distinct feasible strategies.
     """
     if config.required_volume <= 0:
         raise ValueError("Required volume must be strictly positive (> 0)")
@@ -244,9 +278,28 @@ def solve_optimization(
             message=msg,
         )
 
-    # FULLY FEASIBLE OPTIMIZATION
-    vols = _ortools_optimize(on_time_options, config.required_volume)
-    recommended = _build_strategy(on_time_options, vols, config, rank=1, is_recommended=True)
+    # FULLY FEASIBLE OPTIMIZATION — DYNAMICALLY GENERATE UP TO 5 GENUINELY DIFFERENT STRATEGIES
+    candidate_profiles = [
+        ("cost", 1.0, 1, True, "Lowest Cost Strategy"),
+        ("time", 1.0, 2, False, "Fastest Delivery Strategy"),
+        ("balanced", 1.0, 3, False, "Balanced Cost/Time Strategy"),
+        ("diversified", 0.60, 4, False, "Diversified Resilience Strategy"),
+        ("risk", 1.0, 5, False, "Low Risk Profile Strategy")
+    ]
+
+    strategies: list[StrategyResult] = []
+    seen_signatures = set()
+
+    for mode, max_cap_pct, rank_num, is_rec, label in candidate_profiles:
+        vols = _ortools_optimize(on_time_options, config.required_volume, mode=mode, max_cap_pct=max_cap_pct)
+        strat = _build_strategy(on_time_options, vols, config, rank=len(strategies) + 1, is_recommended=(len(strategies) == 0))
+        
+        if strat:
+            # Signature check to prevent duplicate identical strategy allocations
+            sig = tuple(sorted((a.option_id, a.allocated_volume) for a in strat.allocations))
+            if sig not in seen_signatures:
+                seen_signatures.add(sig)
+                strategies.append(strat)
 
     # Single-option baseline (most cost-effective single route covering capacity)
     single_covering = [o for o in on_time_options if o.max_volume >= config.required_volume]
@@ -257,7 +310,7 @@ def solve_optimization(
     else:
         baseline = None
 
-    strategies = [recommended] if recommended else []
+    recommended = strategies[0] if strategies else None
 
     return OptimizationOutput(
         status="OPTIMAL",
@@ -266,7 +319,7 @@ def solve_optimization(
         strategies=strategies,
         recommended_strategy=recommended,
         baseline_strategy=baseline,
-        message="Optimal hybrid allocation found.",
+        message="Optimal dynamic multi-modal strategies solved successfully.",
     )
 
 
