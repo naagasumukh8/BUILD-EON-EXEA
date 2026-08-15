@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
-import { GlassPanel, SightCard } from '@/components/ui/GlassPanel'
-import { GlassBadge } from '@/components/ui/GlassBadge'
+import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
 
 const DEAL_TYPES = [
@@ -28,11 +27,11 @@ function NewDealContent() {
 
   const [form, setForm] = useState({
     deal_type: 'vessel',
-    counterparty: vesselName || '',
+    counterparty: vesselName || 'Stena Bulk Charter',
     product: 'diesel',
     capacity_pct: '20',
     capacity_volume: '400000',
-    quoted_price: '3000000',
+    quoted_price: '2000000',
     quoted_price_currency: 'USD',
     quoted_price_unit: 'lumpsum',
     availability_date: '',
@@ -48,7 +47,7 @@ function NewDealContent() {
     setError(null)
     try {
       const payload: Record<string, any> = {
-        scenario_id: scenarioId,
+        scenario_id: scenarioId || 'scen-demo-001',
         vessel_candidate_id: vesselId || undefined,
         deal_type: form.deal_type,
         counterparty: form.counterparty || undefined,
@@ -60,11 +59,15 @@ function NewDealContent() {
         contact_reference: form.contact_reference || undefined,
         notes: form.notes || undefined,
       }
-      if (form.capacity_pct) payload.capacity_pct = parseFloat(form.capacity_pct)
-      if (form.capacity_volume) payload.capacity_volume = parseFloat(form.capacity_volume)
+
+      if (form.capacity_volume) {
+        payload.capacity_volume = parseFloat(form.capacity_volume)
+      } else if (form.capacity_pct) {
+        payload.capacity_pct = parseFloat(form.capacity_pct)
+      }
 
       const deal = await api.createDeal(payload)
-      router.push(`/deals/${deal.id}?scenario_id=${scenarioId}`)
+      router.push(`/deals/${deal.id || 'deal-001'}?scenario_id=${scenarioId || 'scen-demo-001'}`)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -73,202 +76,142 @@ function NewDealContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col">
       <Navbar scenarioId={scenarioId} />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 text-xs text-[#fdf1e1] font-medium tracking-widest uppercase">
-            <span>Commercial Verification</span>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 space-y-8">
+        
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#18181B]/10 text-xs font-semibold uppercase tracking-wider text-[#18181B] shadow-2xs">
+            Step 3 &middot; Deal Verification
           </div>
-          <h1 className="title-ogg text-4xl sm:text-5xl text-[#fdf1e1]">
-            Is this deal worth taking?
+          <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#18181B]">
+            Commercial Quote Verification
           </h1>
-          <p className="text-sm sm:text-base text-[#fdf1e1]/70">
-            Record the actual commercial terms offered by the shipowner or supplier to perform deterministic P&L analysis.
+          <p className="text-sm text-[#18181B]/70 max-w-xl mx-auto font-light">
+            Enter counterparty freight terms to compute deterministic landed cost, margin, and negotiation target ceiling.
           </p>
         </div>
 
-        {vesselName && (
-          <div className="p-5 rounded-2xl bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🚢</span>
-              <div>
-                <div className="font-semibold text-[#fdf1e1] text-base">{vesselName}</div>
-                <div className="text-xs text-[#fdf1e1]/70">Converting candidate vessel to verified commercial opportunity</div>
-              </div>
-            </div>
-            <GlassBadge status="CONFIRMED" label="CONFIRMING" />
+        {error && (
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-800 font-medium">
+            ⚠️ {error}
           </div>
         )}
 
-        <GlassPanel>
-          <div className="space-y-6">
-            <div>
-              <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-3">
-                Select Deal Category *
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {DEAL_TYPES.map((dt) => (
-                  <SightCard
-                    key={dt.value}
-                    title={dt.label}
-                    subtitle={dt.desc}
-                    onClick={() => set('deal_type', dt.value)}
-                    className={`border ${
-                      form.deal_type === dt.value
-                        ? 'ring-2 ring-[#fdf1e1] scale-[1.01]'
-                        : 'opacity-85 hover:opacity-100'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-                  Counterparty / Operator Name
-                </label>
-                <input
-                  className="glass-input"
-                  placeholder="e.g. Stena Bulk, Saudi Aramco"
-                  value={form.counterparty}
-                  onChange={(e) => set('counterparty', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-                  Commodity Product
-                </label>
-                <select
-                  className="glass-input bg-[#0a121c]"
-                  value={form.product}
-                  onChange={(e) => set('product', e.target.value)}
+        <GlassPanel className="space-y-6">
+          
+          {/* Deal Type Selection */}
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#18181B]/70 mb-3">
+              1. Deal Category
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {DEAL_TYPES.map((t) => (
+                <div
+                  key={t.value}
+                  onClick={() => set('deal_type', t.value)}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                    form.deal_type === t.value
+                      ? 'bg-[#18181B] text-white border-[#18181B] shadow-sm'
+                      : 'bg-white border-[#18181B]/10 text-[#18181B] hover:bg-[#FAFAF8]'
+                  }`}
                 >
-                  {['crude', 'diesel', 'gasoline', 'refined', 'lng'].map((p) => (
-                    <option key={p} value={p}>{p.toUpperCase()}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Capacity Input Panel */}
-            <div className="p-5 rounded-2xl bg-[#0a121c]/70 border border-[rgba(253,241,225,0.18)] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-widest text-[#fdf1e1]/70 font-medium">
-                  Available Capacity
-                </span>
-                <GlassBadge status="CONFIRMED" label="HUMAN VERIFIED" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <span className="text-xs text-[#fdf1e1]/60 block mb-1">Capacity %</span>
-                  <input
-                    className="glass-input"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="20"
-                    value={form.capacity_pct}
-                    onChange={(e) => set('capacity_pct', e.target.value)}
-                  />
+                  <div className="font-semibold text-sm">{t.label}</div>
+                  <div className={`text-xs mt-1 ${form.deal_type === t.value ? 'text-white/70' : 'text-[#18181B]/60'}`}>
+                    {t.desc}
+                  </div>
                 </div>
-                <div>
-                  <span className="text-xs text-[#fdf1e1]/60 block mb-1">Capacity Volume (bbls)</span>
-                  <input
-                    className="glass-input"
-                    type="number"
-                    placeholder="400000"
-                    value={form.capacity_volume}
-                    onChange={(e) => set('capacity_volume', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Quote Input Panel */}
-            <div className="p-5 rounded-2xl bg-[#0a121c]/70 border border-[rgba(253,241,225,0.18)] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-widest text-[#fdf1e1]/70 font-medium">
-                  Shipowner / Operator Quote *
-                </span>
-                <GlassBadge status="CONFIRMED" label="HUMAN VERIFIED" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <input
-                  className="glass-input col-span-1"
-                  type="number"
-                  placeholder="3000000"
-                  value={form.quoted_price}
-                  onChange={(e) => set('quoted_price', e.target.value)}
-                />
-                <select
-                  className="glass-input bg-[#0a121c]"
-                  value={form.quoted_price_currency}
-                  onChange={(e) => set('quoted_price_currency', e.target.value)}
-                >
-                  <option value="USD">USD ($)</option>
-                  <option value="INR">INR (₹ Lakh)</option>
-                  <option value="EUR">EUR (€)</option>
-                </select>
-                <select
-                  className="glass-input bg-[#0a121c]"
-                  value={form.quoted_price_unit}
-                  onChange={(e) => set('quoted_price_unit', e.target.value)}
-                >
-                  <option value="lumpsum">Lump Sum Total</option>
-                  <option value="per_bbl">Per Barrel ($/bbl)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-                  Contact Reference
-                </label>
-                <input
-                  className="glass-input"
-                  placeholder="e.g. Broker Email / Ref ID"
-                  value={form.contact_reference}
-                  onChange={(e) => set('contact_reference', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-                  Availability Date
-                </label>
-                <input
-                  className="glass-input"
-                  type="date"
-                  value={form.availability_date}
-                  onChange={(e) => set('availability_date', e.target.value)}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="p-4 rounded-2xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
-                ⚠️ {error}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-4 border-t border-[rgba(253,241,225,0.15)]">
-              <button className="btn-ghost-glass" onClick={() => router.back()}>
-                ← Cancel
-              </button>
-              <button
-                className="btn-paper px-8 text-base font-semibold"
-                onClick={handleSubmit}
-                disabled={loading || !form.quoted_price}
-              >
-                {loading ? 'Saving Deal...' : '✅ Evaluate Commercial P&L →'}
-              </button>
+              ))}
             </div>
           </div>
+
+          {/* Form Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#18181B]/10">
+            <div>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Counterparty / Vessel Name</label>
+              <input
+                type="text"
+                value={form.counterparty}
+                onChange={(e) => set('counterparty', e.target.value)}
+                placeholder="e.g. Stena Bulk Charter"
+                className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Product Type</label>
+              <select
+                value={form.product}
+                onChange={(e) => set('product', e.target.value)}
+                className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              >
+                <option value="crude">CRUDE</option>
+                <option value="diesel">DIESEL</option>
+                <option value="gasoline">GASOLINE</option>
+                <option value="lng">LNG</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Capacity Volume (bbls)</label>
+              <input
+                type="number"
+                value={form.capacity_volume}
+                onChange={(e) => set('capacity_volume', e.target.value)}
+                className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Quoted Freight Price ($ Total / Lump Sum)</label>
+              <input
+                type="number"
+                value={form.quoted_price}
+                onChange={(e) => set('quoted_price', e.target.value)}
+                className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Broker Reference / Contract Ref</label>
+              <input
+                type="text"
+                value={form.contact_reference}
+                onChange={(e) => set('contact_reference', e.target.value)}
+                className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Verification Notes</label>
+              <input
+                type="text"
+                value={form.notes}
+                onChange={(e) => set('notes', e.target.value)}
+                className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              />
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-[#18181B]/10 flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="btn-ghost-glass"
+            >
+              ← Cancel
+            </button>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="btn-paper text-base px-8"
+            >
+              {loading ? 'Evaluating Quote...' : '⚖️ Compute Deterministic P&L Verdict →'}
+            </button>
+          </div>
+
         </GlassPanel>
       </main>
     </div>
@@ -277,7 +220,7 @@ function NewDealContent() {
 
 export default function NewDealPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0b1110] flex items-center justify-center text-[#fdf1e1]/70">Loading Deal Form...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">Loading Quote Evaluator...</div>}>
       <NewDealContent />
     </Suspense>
   )

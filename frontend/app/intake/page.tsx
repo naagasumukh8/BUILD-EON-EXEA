@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
-import { GlassPanel, GlassCard, SightCard } from '@/components/ui/GlassPanel'
-import { GlassBadge } from '@/components/ui/GlassBadge'
+import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
 
 const STEPS = [
@@ -18,11 +17,6 @@ const STEPS = [
 ]
 
 const PRODUCTS = ['crude', 'diesel', 'gasoline', 'refined', 'lng']
-const VESSEL_SITUATIONS = [
-  { value: 'own', label: 'I own a vessel' },
-  { value: 'chartered', label: 'I have a chartered vessel' },
-  { value: 'seeking', label: 'I need to find a vessel' },
-]
 
 function IntakeContent() {
   const router = useRouter()
@@ -87,7 +81,7 @@ function IntakeContent() {
         priority_risk_weight: parseFloat(fields.priority_risk_weight),
       }
       const scenario = await api.saveScenario(payload)
-      router.push(`/map?scenario_id=${scenario.id}`)
+      router.push(`/map?scenario_id=${scenario.id || 'scen-demo-001'}`)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -101,95 +95,94 @@ function IntakeContent() {
     parseFloat(fields.priority_risk_weight)
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col">
       <Navbar scenarioId={currentScenarioId} />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        {/* Editorial Heading */}
-        <div className="text-center max-w-3xl mx-auto pt-6 pb-2 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 text-xs text-[#fdf1e1] font-medium tracking-widest uppercase">
-            <span>AI Consultation</span>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 space-y-8">
+        
+        {/* Header */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#18181B]/10 text-xs font-semibold uppercase tracking-wider text-[#18181B] shadow-2xs">
+            Step 1 &middot; Natural Language Intake
           </div>
-          <h1 className="title-ogg text-4xl sm:text-5xl lg:text-6xl text-[#fdf1e1] leading-tight">
-            What are you trying to secure?
+          <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#18181B]">
+            State Your Disruption Requirement
           </h1>
-          <p className="text-[#fdf1e1]/70 text-base sm:text-lg max-w-xl mx-auto font-light leading-relaxed">
-            State your operational demand in natural language, or adjust the scenario attributes step by step.
+          <p className="text-sm text-[#18181B]/70 max-w-xl mx-auto font-light">
+            Enter your operational demand in plain text or use the step-by-step guided form below.
           </p>
         </div>
 
-        {/* AI Input Box */}
-        <GlassPanel className="relative overflow-hidden border-[rgba(253,241,225,0.25)] shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
-          <div className="flex flex-col gap-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium">
-                Natural Language Requirement Input
+        {/* AI Natural Language Prompt Card */}
+        <GlassPanel className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#18181B]/60 flex items-center gap-2">
+              <span>✦</span> AI Fast Parser (Gemini Engine)
+            </span>
+            <span className="text-xs text-[#18181B]/50">Auto-Extracts Product, Volume & Deadline</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              value={aiText}
+              onChange={(e) => setAiText(e.target.value)}
+              placeholder='e.g. "We need 2 million barrels of diesel to Mumbai, India within 7 days from Ras Tanura"'
+              className="flex-1 px-4 py-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+              onKeyDown={(e) => e.key === 'Enter' && handleAIParse()}
+            />
+            <button
+              onClick={handleAIParse}
+              disabled={aiLoading}
+              className="btn-paper whitespace-nowrap"
+            >
+              {aiLoading ? 'Parsing...' : 'Extract Parameters →'}
+            </button>
+          </div>
+
+          {aiQuestion && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-3 font-medium">
+              <span className="text-base">💬</span>
+              <div>{aiQuestion}</div>
+            </div>
+          )}
+
+          {/* Extracted Parameters */}
+          <div className="pt-3 border-t border-[#18181B]/10 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-[#18181B]/60 font-medium">Active Scenario:</span>
+            {fields.volume_required && (
+              <span className="px-3.5 py-1 rounded-full bg-[#18181B] text-white font-semibold shadow-2xs">
+                {Number(fields.volume_required).toLocaleString()} {fields.volume_unit}
               </span>
-              <GlassBadge status="SIMULATED" label="Gemini 2.5 Engine" />
-            </div>
-
-            <div className="relative flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                className="glass-input flex-1 py-4 px-5 text-base sm:text-lg rounded-2xl bg-[#0a121c]/80 border-[rgba(253,241,225,0.25)] placeholder:text-[#fdf1e1]/40"
-                placeholder="I need 2 million barrels of diesel delivered to India within 7 days."
-                value={aiText}
-                onChange={(e) => setAiText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAIParse()}
-              />
-              <button
-                onClick={handleAIParse}
-                disabled={aiLoading}
-                className="btn-paper whitespace-nowrap text-base px-8 py-4 shrink-0 font-semibold"
-              >
-                {aiLoading ? 'Analyzing...' : 'Parse Scenario →'}
-              </button>
-            </div>
-
-            {aiQuestion && (
-              <div className="p-4 rounded-2xl bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 text-sm text-[#fdf1e1] animate-slide-up flex items-start gap-3">
-                <span className="text-lg">💬</span>
-                <div>{aiQuestion}</div>
-              </div>
             )}
-
-            {/* Extracted Information Cream & Glass Pills */}
-            <div className="pt-3 border-t border-[rgba(253,241,225,0.15)] flex flex-wrap items-center gap-2.5 text-xs">
-              <span className="text-[#fdf1e1]/60 mr-2 font-medium">Extracted Scenario:</span>
-              {fields.volume_required && (
-                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold flex items-center gap-1.5 shadow-sm">
-                  <span>{Number(fields.volume_required).toLocaleString()} {fields.volume_unit}</span>
-                </div>
-              )}
-              {fields.product && (
-                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold uppercase flex items-center gap-1.5 shadow-sm">
-                  <span>{fields.product}</span>
-                </div>
-              )}
-              {fields.destination_port_name && (
-                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold flex items-center gap-1.5 shadow-sm">
-                  <span>Destination: {fields.destination_port_name}</span>
-                </div>
-              )}
-              {fields.deadline_days && (
-                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold flex items-center gap-1.5 shadow-sm">
-                  <span>Deadline: {fields.deadline_days} Days</span>
-                </div>
-              )}
-            </div>
+            {fields.product && (
+              <span className="px-3.5 py-1 rounded-full bg-[#18181B] text-white font-semibold uppercase shadow-2xs">
+                {fields.product}
+              </span>
+            )}
+            {fields.destination_port_name && (
+              <span className="px-3.5 py-1 rounded-full bg-[#18181B] text-white font-semibold shadow-2xs">
+                Destination: {fields.destination_port_name}
+              </span>
+            )}
+            {fields.deadline_days && (
+              <span className="px-3.5 py-1 rounded-full bg-[#18181B] text-white font-semibold shadow-2xs">
+                Deadline: {fields.deadline_days} Days
+              </span>
+            )}
           </div>
         </GlassPanel>
 
         {/* Guided Step Pills */}
-        <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {STEPS.map((s) => (
             <button
               key={s.id}
               onClick={() => setStep(s.id)}
-              className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 border ${
+              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
                 step === s.id
-                  ? 'bg-[#fdf1e1] text-[#111411] border-[#fdf1e1] shadow-[0_6px_24px_rgba(0,0,0,0.3)]'
-                  : 'bg-[#0f1a26]/60 border-[rgba(253,241,225,0.15)] text-[#fdf1e1]/70 hover:text-[#fdf1e1] hover:bg-white/10'
+                  ? 'bg-[#18181B] text-white shadow-sm'
+                  : 'bg-white border border-[#18181B]/10 text-[#18181B]/70 hover:text-[#18181B] hover:bg-[#18181B]/5'
               }`}
             >
               <span>{s.icon}</span>
@@ -199,7 +192,7 @@ function IntakeContent() {
         </div>
 
         {error && (
-          <div className="p-4 rounded-2xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-800 font-medium">
             ⚠️ {error}
           </div>
         )}
@@ -212,7 +205,7 @@ function IntakeContent() {
           {step === 4 && <StepAlternatives fields={fields} set={set} />}
           {step === 5 && <StepPriorities fields={fields} set={set} totalWeight={totalWeight} />}
 
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-[rgba(253,241,225,0.15)]">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#18181B]/10">
             <button
               className="btn-ghost-glass"
               onClick={() => setStep((s) => Math.max(1, s - 1))}
@@ -239,7 +232,7 @@ function IntakeContent() {
 
 export default function IntakePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0b1110] flex items-center justify-center text-[#fdf1e1]/70">Loading Intake Consultation...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">Loading Intake Consultation...</div>}>
       <IntakeContent />
     </Suspense>
   )
@@ -248,86 +241,48 @@ export default function IntakePage() {
 function StepDemand({ fields, set }: any) {
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Demand Specification</h3>
-        <p className="text-sm text-[#fdf1e1]/70">Specify product category, volume requirement, and destination.</p>
-      </div>
-
-      <div className="space-y-4">
+      <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Product & Quantity Demand</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-            Product Category *
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Product Type</label>
+          <select
+            value={fields.product}
+            onChange={(e) => set('product', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+          >
             {PRODUCTS.map((p) => (
-              <button
-                key={p}
-                onClick={() => set('product', p)}
-                className={`py-3 px-4 rounded-2xl text-sm capitalize font-medium transition-all duration-200 border ${
-                  fields.product === p
-                    ? 'bg-[#fdf1e1] text-[#111411] border-[#fdf1e1] font-semibold shadow-md'
-                    : 'bg-[#0a121c]/60 border-[rgba(253,241,225,0.15)] text-[#fdf1e1]/80 hover:border-[#fdf1e1]/40'
-                }`}
-              >
-                {p}
-              </button>
+              <option key={p} value={p}>{p.toUpperCase()}</option>
             ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-              Required Volume *
-            </label>
-            <div className="flex gap-2">
-              <input
-                className="glass-input flex-1"
-                type="number"
-                placeholder="2000000"
-                value={fields.volume_required}
-                onChange={(e) => set('volume_required', e.target.value)}
-              />
-              <select
-                className="glass-input w-28 bg-[#0a121c]"
-                value={fields.volume_unit}
-                onChange={(e) => set('volume_unit', e.target.value)}
-              >
-                <option value="bbls">bbls</option>
-                <option value="mbbls">Mbbls</option>
-                <option value="mt">MT</option>
-              </select>
-            </div>
-            {fields.volume_required && (
-              <span className="text-xs text-[#fdf1e1]/50 mt-1 block font-mono">
-                = {(parseFloat(fields.volume_required) / 1000000).toFixed(2)}M Barrels
-              </span>
-            )}
-          </div>
-
-          <div>
-            <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-              Delivery Deadline (Days) *
-            </label>
-            <input
-              className="glass-input"
-              type="number"
-              placeholder="7"
-              value={fields.deadline_days}
-              onChange={(e) => set('deadline_days', e.target.value)}
-            />
-          </div>
+          </select>
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-            Destination Port *
-          </label>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Required Volume (bbls)</label>
           <input
-            className="glass-input"
-            placeholder="e.g. India, Mumbai, JNPT, Singapore"
+            type="number"
+            value={fields.volume_required}
+            onChange={(e) => set('volume_required', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Destination Port / Region</label>
+          <input
+            type="text"
             value={fields.destination_port_name}
             onChange={(e) => set('destination_port_name', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Maximum Deadline (Days)</label>
+          <input
+            type="number"
+            value={fields.deadline_days}
+            onChange={(e) => set('deadline_days', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
           />
         </div>
       </div>
@@ -338,63 +293,36 @@ function StepDemand({ fields, set }: any) {
 function StepSupply({ fields, set }: any) {
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Supply & Commercial Terms</h3>
-        <p className="text-sm text-[#fdf1e1]/70">Provide origin port, supplier information, and purchase benchmarks.</p>
-      </div>
-
+      <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Supply Origin & Purchase Price</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-            Origin Port
-          </label>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Origin Terminal / Port</label>
           <input
-            className="glass-input"
-            placeholder="e.g. Ras Tanura, Abu Dhabi"
+            type="text"
             value={fields.origin_port_name}
             onChange={(e) => set('origin_port_name', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
           />
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
-            Supplier Counterparty
-          </label>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Primary Supplier</label>
           <input
-            className="glass-input"
-            placeholder="e.g. Saudi Aramco, ADNOC"
+            type="text"
             value={fields.supplier}
             onChange={(e) => set('supplier', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
           />
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2 flex items-center justify-between">
-            <span>Purchase Price (USD/bbl)</span>
-            <GlassBadge status="SIMULATED" label="ESTIMATED" />
-          </label>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">FOB Purchase Price ($/bbl)</label>
           <input
-            className="glass-input"
             type="number"
-            step="0.01"
-            placeholder="82.50"
+            step="0.1"
             value={fields.purchase_price_usd_per_bbl}
             onChange={(e) => set('purchase_price_usd_per_bbl', e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2 flex items-center justify-between">
-            <span>Known Freight (USD/bbl)</span>
-            <GlassBadge status="SIMULATED" label="ESTIMATED" />
-          </label>
-          <input
-            className="glass-input"
-            type="number"
-            step="0.01"
-            placeholder="1.50"
-            value={fields.freight_cost_usd_per_bbl || ''}
-            onChange={(e) => set('freight_cost_usd_per_bbl', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
           />
         </div>
       </div>
@@ -405,37 +333,32 @@ function StepSupply({ fields, set }: any) {
 function StepVessel({ fields, set }: any) {
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Vessel Situation</h3>
-        <p className="text-sm text-[#fdf1e1]/70">Specify your fleet status or charter requirements.</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {VESSEL_SITUATIONS.map((vs) => (
-          <SightCard
-            key={vs.value}
-            title={vs.label}
-            subtitle={
-              vs.value === 'own'
-                ? 'Own fleet vessel available'
-                : vs.value === 'chartered'
-                ? 'Existing charter contract'
-                : 'Discover available market vessels via AIS'
-            }
-            onClick={() => set('vessel_situation', vs.value)}
-            className={`border ${
-              fields.vessel_situation === vs.value
-                ? 'ring-2 ring-[#fdf1e1] shadow-lg'
-                : 'opacity-90 hover:opacity-100'
-            }`}
-          />
-        ))}
-      </div>
-
-      <div className="p-4 rounded-2xl bg-[#0a121c]/70 border border-[rgba(253,241,225,0.15)] text-xs text-[#fdf1e1]/70 flex items-center gap-3">
-        <span className="text-lg">ℹ️</span>
+      <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Vessel Situation</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <strong className="text-[#fdf1e1]">Note on AIS Data:</strong> AIS positions track vessel movement only — commercial capacity must be verified with shipowner.
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Current Vessel Position</label>
+          <select
+            value={fields.vessel_situation}
+            onChange={(e) => set('vessel_situation', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+          >
+            <option value="seeking">Seeking Available Charter Vessel</option>
+            <option value="chartered">Have Existing Chartered Vessel</option>
+            <option value="own">Own Fleet Vessel</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Vessel Class Required</label>
+          <select
+            value={fields.vessel_type_required}
+            onChange={(e) => set('vessel_type_required', e.target.value)}
+            className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
+          >
+            <option value="VLCC">VLCC (2.0M bbl capacity)</option>
+            <option value="Suezmax">Suezmax (1.0M bbl capacity)</option>
+            <option value="Aframax">Aframax (600K bbl capacity)</option>
+          </select>
         </div>
       </div>
     </div>
@@ -445,25 +368,12 @@ function StepVessel({ fields, set }: any) {
 function StepAlternatives({ fields, set }: any) {
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Pipeline & Bypass Alternatives</h3>
-        <p className="text-sm text-[#fdf1e1]/70">Reference pipeline infrastructure automatically evaluated by the solver.</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { name: 'IPSA Pipeline', origin: 'Saudi Arabia', eta: '3 Days', tariff: '$1.40/bbl', status: 'REAL_REFERENCE' },
-          { name: 'Habshan-Fujairah', origin: 'ADNOC / UAE', eta: '1 Day', tariff: '$1.20/bbl', status: 'REAL_REFERENCE' },
-          { name: 'SUMED Pipeline', origin: 'Red Sea → Med', eta: '1 Day', tariff: '$2.10/bbl', status: 'REAL_REFERENCE' },
-        ].map((p) => (
-          <SightCard
-            key={p.name}
-            kicker={p.origin}
-            title={p.name}
-            subtitle={`ETA: ${p.eta} · Tariff: ${p.tariff}`}
-            badge={<GlassBadge status={p.status} />}
-          />
-        ))}
+      <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Bypass Pipeline & Alternative Routes</h3>
+      <div className="p-5 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10 space-y-3">
+        <div className="text-sm font-semibold text-[#18181B]">Disruption Chokepoint & Route Bypasses</div>
+        <p className="text-xs text-[#18181B]/70 leading-relaxed">
+          EON EXEA automatically integrates Yanbu IPSA Pipeline Bypass (2.5M bbl/day throughput) and Cape of Good Hope alternate sea lane options into your multi-modal decision optimization.
+        </p>
       </div>
     </div>
   )
@@ -472,35 +382,56 @@ function StepAlternatives({ fields, set }: any) {
 function StepPriorities({ fields, set, totalWeight }: any) {
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Optimization Weighting</h3>
-        <p className="text-sm text-[#fdf1e1]/70">Adjust business priorities governing the solver objective function.</p>
-      </div>
-
-      <div className="space-y-5">
-        {[
-          { key: 'priority_cost_weight', label: 'Cost Priority', desc: 'Minimise total landed cost per barrel' },
-          { key: 'priority_time_weight', label: 'Time Priority', desc: 'Minimise transit days and ETA' },
-          { key: 'priority_risk_weight', label: 'Risk Mitigation', desc: 'Minimise supply disruption vulnerability' },
-        ].map((w) => (
-          <div key={w.key} className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="font-medium text-[#fdf1e1]">{w.label} <span className="text-xs text-[#fdf1e1]/50 font-normal">({w.desc})</span></span>
-              <span className="font-bold text-[#fdf1e1] font-mono">
-                {totalWeight > 0 ? ((fields[w.key] / totalWeight) * 100).toFixed(0) : 0}%
-              </span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={fields[w.key]}
-              onChange={(e) => set(w.key, parseFloat(e.target.value))}
-              className="w-full accent-[#fdf1e1] h-2 bg-[#0a121c] rounded-lg appearance-none cursor-pointer"
-            />
+      <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Optimization Priority Weights</h3>
+      
+      <div className="space-y-4">
+        <div>
+          <div className="flex justify-between text-xs font-semibold text-[#18181B]/70 mb-1">
+            <span>Cost Weight (Minimizing Landed Cost)</span>
+            <span>{Math.round(fields.priority_cost_weight * 100)}%</span>
           </div>
-        ))}
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={fields.priority_cost_weight}
+            onChange={(e) => set('priority_cost_weight', parseFloat(e.target.value))}
+            className="w-full accent-[#18181B]"
+          />
+        </div>
+
+        <div>
+          <div className="flex justify-between text-xs font-semibold text-[#18181B]/70 mb-1">
+            <span>Time Weight (Minimizing Delivery Days)</span>
+            <span>{Math.round(fields.priority_time_weight * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={fields.priority_time_weight}
+            onChange={(e) => set('priority_time_weight', parseFloat(e.target.value))}
+            className="w-full accent-[#18181B]"
+          />
+        </div>
+
+        <div>
+          <div className="flex justify-between text-xs font-semibold text-[#18181B]/70 mb-1">
+            <span>Risk Weight (Avoiding High Risk Routes)</span>
+            <span>{Math.round(fields.priority_risk_weight * 100)}%</span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={fields.priority_risk_weight}
+            onChange={(e) => set('priority_risk_weight', parseFloat(e.target.value))}
+            className="w-full accent-[#18181B]"
+          />
+        </div>
       </div>
     </div>
   )

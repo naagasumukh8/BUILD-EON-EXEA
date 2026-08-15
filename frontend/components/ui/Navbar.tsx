@@ -9,45 +9,52 @@ interface NavbarProps {
 
 export function Navbar({ scenarioId }: NavbarProps) {
   const pathname = usePathname()
-
   const querySuffix = scenarioId ? `?scenario_id=${scenarioId}` : ''
 
   const navLinks = [
-    { label: 'Network', href: `/map${querySuffix}`, pathKey: '/map' },
     { label: 'Intake', href: `/intake${querySuffix}`, pathKey: '/intake' },
-    { label: 'Deals', href: `/deals/new${querySuffix}`, pathKey: '/deals' },
-    { label: 'Strategies', href: `/strategy${querySuffix}`, pathKey: '/strategy' },
-    { label: 'Reports', href: `/report${querySuffix}`, pathKey: '/report' },
+    { label: 'Network Map', href: `/map${querySuffix}`, pathKey: '/map' },
+    { label: 'Deal Evaluator', href: `/deals/new${querySuffix}`, pathKey: '/deals' },
+    { label: 'Strategy Solver', href: `/strategy${querySuffix}`, pathKey: '/strategy' },
+    { label: 'Briefing Report', href: `/report${querySuffix}`, pathKey: '/report' },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#0b1110]/80 backdrop-blur-xl border-b border-[rgba(253,241,225,0.12)] px-6 py-4 flex items-center justify-between transition-all duration-300">
-      {/* Brand / Logo */}
-      <div className="flex items-center gap-6">
-        <a
-          href="http://localhost:3000"
-          className="title-ogg text-2xl font-normal tracking-wide text-[#fdf1e1] hover:opacity-90 transition-opacity flex items-center gap-2"
+    <header className="sticky top-0 z-50 w-full bg-[#FAFAF8]/90 backdrop-blur-xl border-b border-[#1B133C]/10 px-4 md:px-8 py-3.5 flex items-center justify-between transition-all duration-300 shadow-xs">
+      
+      {/* Brand Logo */}
+      <div className="flex items-center gap-4">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 group"
         >
-          <span>EON EXEA</span>
-        </a>
-        <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-[#fdf1e1]/70 font-medium">
-          <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
-          <span>AI MARITIME DECISION NETWORK</span>
+          <svg className="w-6 h-6 text-[#1B133C] transition-transform group-hover:scale-105" viewBox="0 0 256 256" fill="none">
+            <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor" />
+            <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor" opacity="0.55" />
+          </svg>
+          <span className="font-['Instrument_Serif'] text-2xl font-normal tracking-wide text-[#1B133C]">
+            EON EXEA
+          </span>
+        </Link>
+
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#1B133C]/5 border border-[#1B133C]/10 text-xs text-[#1B133C]/70 font-medium">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>AI MARITIME DECISION PLATFORM</span>
         </div>
       </div>
 
-      {/* Center Nav Links */}
-      <nav className="flex items-center gap-1 sm:gap-2 bg-[#0f1a26]/70 p-1.5 rounded-full border border-[rgba(253,241,225,0.15)]">
+      {/* Navigation Pills */}
+      <nav className="flex items-center gap-1 sm:gap-1.5 bg-white/80 p-1.5 rounded-full border border-[#1B133C]/10 shadow-xs">
         {navLinks.map((link) => {
           const isActive = pathname?.startsWith(link.pathKey)
           return (
             <Link
               key={link.label}
               href={link.href}
-              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-[#fdf1e1] text-[#111411] shadow-[0_4px_20px_rgba(0,0,0,0.3)]'
-                  : 'text-[#fdf1e1]/70 hover:text-[#fdf1e1] hover:bg-white/10'
+                  ? 'bg-[#1B133C] text-white shadow-sm'
+                  : 'text-[#1B133C]/70 hover:text-[#1B133C] hover:bg-[#1B133C]/5'
               }`}
             >
               {link.label}
@@ -56,15 +63,16 @@ export function Navbar({ scenarioId }: NavbarProps) {
         })}
       </nav>
 
-      {/* Action / Back to Landing */}
+      {/* Landing Link */}
       <div className="flex items-center gap-3">
-        <a
-          href="http://localhost:3000"
-          className="btn-ghost-glass text-xs py-2 px-5 hidden sm:inline-flex items-center gap-1.5"
+        <Link
+          href="/"
+          className="text-xs sm:text-sm font-medium text-[#1B133C]/70 hover:text-[#1B133C] transition-colors"
         >
-          <span>← Overview</span>
-        </a>
+          ← Back to Landing
+        </Link>
       </div>
+
     </header>
   )
 }

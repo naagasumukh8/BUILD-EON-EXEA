@@ -1,11 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
-@font-face {
-  font-family: 'Ogg Medium';
-  src: url('https://dcym8fthxf5uu.cloudfront.net/fonts/247a073c-29f5-4a89-aa3a-741020f346fc/OggText-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -13,11 +6,11 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   html, body {
-    @apply bg-[#0b1110] text-[#fdf1e1];
+    @apply bg-[#FAFAF8] text-[#18181B];
     font-family: Inter, "Space Grotesk", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
@@ -25,64 +18,63 @@
 
   /* Custom scrollbars */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: rgba(11, 17, 16, 0.8); }
-  ::-webkit-scrollbar-thumb { background: rgba(253, 241, 225, 0.25); border-radius: 999px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(253, 241, 225, 0.5); }
+  ::-webkit-scrollbar-track { background: rgba(244, 244, 240, 0.8); }
+  ::-webkit-scrollbar-thumb { background: rgba(24, 24, 27, 0.2); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(24, 24, 27, 0.4); }
 }
 
 @layer components {
-  /* ── 1. Mostar Reference Sight Card ──────────────────────────────── */
+  /* ── 1. Google Opal Light Paper Sight Cards ─────────────────────── */
   .sight-card {
     position: relative;
-    background: #fdf1e1;
-    color: #111411;
-    border: 1px solid rgba(253, 241, 225, 0.42);
+    background: #FFFFFF;
+    color: #18181B;
+    border: 1px solid rgba(24, 24, 27, 0.10);
     border-radius: 24px;
     padding: 24px;
-    box-shadow: 0 18px 52px rgba(2, 47, 64, 0.18);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .sight-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+    border-color: rgba(24, 24, 27, 0.20);
   }
 
-  /* Translucent Sight Card option */
   .sight-card-glass {
     position: relative;
-    background: rgba(15, 26, 38, 0.75);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    color: #fdf1e1;
-    border: 1px solid rgba(253, 241, 225, 0.18);
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #18181B;
+    border: 1px solid rgba(24, 24, 27, 0.10);
     border-radius: 24px;
     padding: 24px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .sight-card-glass:hover {
-    border-color: rgba(253, 241, 225, 0.45);
-    transform: translateY(-3px);
+    border-color: rgba(24, 24, 27, 0.22);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   }
 
-  /* ── 2. Glass Panels ───────────────────────────────────────────── */
+  /* ── 2. Opal Glass Panels ───────────────────────────────────────── */
   .glass-panel {
-    background: rgba(15, 26, 38, 0.72);
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
-    border: 1px solid rgba(253, 241, 225, 0.15);
+    background: #FFFFFF;
+    border: 1px solid rgba(24, 24, 27, 0.10);
     border-radius: 28px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
   }
 
-  /* ── 3. Buttons & Pills (Mostar Reference) ─────────────────────── */
+  /* ── 3. Google Opal Buttons & Pills ─────────────────────────────── */
   .btn-paper {
-    background: #fdf1e1;
-    color: #111411;
+    background: #18181B;
+    color: #FFFFFF;
     font-weight: 600;
-    padding: 0.7rem 1.8rem;
+    padding: 0.75rem 1.75rem;
     border-radius: 999px;
-    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
@@ -90,132 +82,46 @@
     gap: 0.5rem;
   }
   .btn-paper:hover {
-    background: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.35);
+    background: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
   }
 
   .btn-glass {
-    background: rgba(253, 241, 225, 0.12);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(253, 241, 225, 0.3);
-    color: #fdf1e1;
+    background: #FFFFFF;
+    color: #18181B;
+    border: 1px solid rgba(24, 24, 27, 0.15);
     font-weight: 500;
-    padding: 0.65rem 1.6rem;
+    padding: 0.75rem 1.75rem;
     border-radius: 999px;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   }
   .btn-glass:hover {
-    background: rgba(253, 241, 225, 0.22);
-    border-color: rgba(253, 241, 225, 0.6);
-    color: #ffffff;
+    background: #FAFAF8;
+    border-color: rgba(24, 24, 27, 0.30);
+    transform: translateY(-1px);
   }
 
   .btn-ghost-glass {
     background: transparent;
-    border: 1px solid rgba(253, 241, 225, 0.2);
-    color: rgba(253, 241, 225, 0.85);
-    padding: 0.55rem 1.3rem;
+    color: #18181B;
+    padding: 0.65rem 1.5rem;
     border-radius: 999px;
+    border: 1px solid transparent;
     transition: all 0.2s ease;
   }
   .btn-ghost-glass:hover {
-    border-color: rgba(253, 241, 225, 0.5);
-    color: #fdf1e1;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(24, 24, 27, 0.05);
+    border-color: rgba(24, 24, 27, 0.10);
   }
 
-  /* ── 4. Inputs ─────────────────────────────────────────────────── */
-  .glass-input {
-    background: rgba(10, 18, 28, 0.8);
-    border: 1px solid rgba(253, 241, 225, 0.2);
-    border-radius: 16px;
-    padding: 0.85rem 1.2rem;
-    color: #fdf1e1;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    width: 100%;
-  }
-  .glass-input::placeholder {
-    color: rgba(253, 241, 225, 0.45);
-  }
-  .glass-input:focus {
-    outline: none;
-    border-color: rgba(253, 241, 225, 0.6);
-    box-shadow: 0 0 20px rgba(253, 241, 225, 0.15);
-    background: rgba(15, 26, 40, 0.95);
-  }
-
-  /* ── 5. Editorial Titles ──────────────────────────────────────── */
+  /* ── 4. Opal Typography Utilities ──────────────────────────────── */
   .title-ogg {
-    font-family: "Ogg Medium", Georgia, serif;
-    font-weight: 500;
-    color: #fdf1e1;
-    letter-spacing: -0.015em;
-  }
-
-  /* ── 6. Provenance Badges ─────────────────────────────────────── */
-  .badge-glass {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.25rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .badge-confirmed {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.4);
-  }
-  .badge-reference {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.4);
-  }
-  .badge-estimated {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
-    border: 1px solid rgba(245, 158, 11, 0.4);
-  }
-  .badge-simulated {
-    background: rgba(156, 163, 175, 0.15);
-    color: #9ca3af;
-    border: 1px solid rgba(156, 163, 175, 0.3);
-  }
-  .badge-candidate {
-    background: rgba(244, 63, 94, 0.15);
-    color: #fb7185;
-    border: 1px solid rgba(244, 63, 94, 0.4);
-  }
-  .badge-calculated {
-    background: rgba(168, 85, 247, 0.15);
-    color: #c084fc;
-    border: 1px solid rgba(168, 85, 247, 0.4);
-  }
-
-  /* Restrained Verdict Colors */
-  .verdict-go {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.5);
-    color: #10b981;
-  }
-  .verdict-negotiate {
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.5);
-    color: #f59e0b;
-  }
-  .verdict-reject {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.5);
-    color: #ef4444;
+    font-family: 'Instrument Serif', Georgia, serif;
   }
 }
