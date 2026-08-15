@@ -147,9 +147,9 @@ function MapContent() {
   const showHormuzMarker = showChokepoints && destCfg.showHormuz && routePassesThroughHormuz
 
   const keyPorts = [
-    { key: 'origin', lat: SUPPLY_ORIGIN_COORDS[0], lon: SUPPLY_ORIGIN_COORDS[1], name: 'Ras Tanura Terminal — Supply Origin', color: '#7c3aed', emoji: '???' },
-    { key: 'dest', lat: destCfg.destCoords[0], lon: destCfg.destCoords[1], name: `${destCfg.destLabel} — Destination`, color: '#16a34a', emoji: '?' },
-    ...(showIpsa ? [{ key: 'yanbu', lat: 24.09, lon: 38.06, name: 'Yanbu Terminal — Pipeline Endpoint', color: '#d97706', emoji: '??' }] : []),
+    { key: 'origin', lat: SUPPLY_ORIGIN_COORDS[0], lon: SUPPLY_ORIGIN_COORDS[1], name: 'Ras Tanura Terminal  Supply Origin', color: '#7c3aed', emoji: '???' },
+    { key: 'dest', lat: destCfg.destCoords[0], lon: destCfg.destCoords[1], name: `${destCfg.destLabel}  Destination`, color: '#16a34a', emoji: '?' },
+    ...(showIpsa ? [{ key: 'yanbu', lat: 24.09, lon: 38.06, name: 'Yanbu Terminal  Pipeline Endpoint', color: '#d97706', emoji: '??' }] : []),
   ]
 
   return (
@@ -167,7 +167,7 @@ function MapContent() {
                 attribution='&copy; <a href="https://carto.com/">CARTO</a>'
               />
 
-              {/* IPSA Pipeline — scenario-conditional */}
+              {/* IPSA Pipeline  scenario-conditional */}
               {showIpsa && (
                 <Polyline positions={IPSA_PIPELINE_COORDS} pathOptions={{ color: '#D97706', weight: 4, dashArray: '8,8' }}>
                   <Popup>
@@ -177,7 +177,7 @@ function MapContent() {
                       <div>Route: Ras Tanura ? Yanbu (Red Sea)</div>
                       <div>Capacity: 2,500,000 bbl/day</div>
                       <div>Purpose: Bypasses Strait of Hormuz</div>
-                      <div>Operator: Saudi Aramco · Tariff: ~$1.40/bbl</div>
+                      <div>Operator: Saudi Aramco  Tariff: ~$1.40/bbl</div>
                     </div>
                   </Popup>
                 </Polyline>
@@ -202,7 +202,7 @@ function MapContent() {
                           <div><b>ETA:</b> {route.eta_days} days</div>
                           <div><b>Cost:</b> ${route.cost_per_bbl?.toFixed(2)}/bbl</div>
                           <div><b>Risk:</b> <span className={route.risk === 'HIGH' ? 'text-red-600 font-bold' : route.risk === 'MEDIUM' ? 'text-amber-600 font-bold' : 'text-green-600 font-bold'}>{route.risk}</span></div>
-                          <div className="text-[10px] text-gray-400">{route.data_source} · {route.provenance}</div>
+                          <div className="text-[10px] text-gray-400">{route.data_source}  {route.provenance}</div>
                         </div>
                       </div>
                     </Popup>
@@ -210,7 +210,7 @@ function MapContent() {
                 )
               })}
 
-              {/* Hormuz chokepoint — only on routes that pass through it */}
+              {/* Hormuz chokepoint  only on routes that pass through it */}
               {showHormuzMarker && (
                 <Marker position={HORMUZ_COORDS} icon={createIcon(L, '#DC2626', '??', 30)}>
                   <Popup>
@@ -223,7 +223,7 @@ function MapContent() {
                 </Marker>
               )}
 
-              {/* Key port markers — only origin + destination + yanbu (if relevant) */}
+              {/* Key port markers  only origin + destination + yanbu (if relevant) */}
               {keyPorts.map((port) => (
                 <Marker key={port.key} position={[port.lat, port.lon]} icon={createIcon(L, port.color, port.emoji, 28)}>
                   <Popup><div className="p-2 font-sans text-xs font-bold">{port.name}</div></Popup>
@@ -273,7 +273,7 @@ function MapContent() {
           )}
         </div>
 
-        {/* LAYER TOGGLES — top right */}
+        {/* LAYER TOGGLES  top right */}
         <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-1 bg-white/90 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-[#18181B]/10 shadow-md">
           {[
             { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
@@ -288,23 +288,23 @@ function MapContent() {
           ))}
         </div>
 
-        {/* ROUTE SWITCHER — top center */}
+        {/* ROUTE SWITCHER  top center */}
         {!loading && routes.length > 0 && (
           <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center bg-white/92 backdrop-blur-md px-1 py-1 rounded-full border border-[#18181B]/10 shadow-xl">
             <button onClick={() => setActiveRouteIndex((p) => (p > 0 ? p - 1 : routes.length - 1))}
-              className="px-2 text-base font-bold hover:text-blue-600 leading-none">‹</button>
+              className="px-2 text-base font-bold hover:text-blue-600 leading-none"></button>
             <div className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#18181B] whitespace-nowrap">
               Route {activeRouteIndex + 1}/{routes.length} <span className="font-normal text-gray-400">({activeRoute?.type})</span>
             </div>
             <button onClick={() => setActiveRouteIndex((p) => (p < routes.length - 1 ? p + 1 : 0))}
-              className="px-2 text-base font-bold hover:text-blue-600 leading-none">›</button>
+              className="px-2 text-base font-bold hover:text-blue-600 leading-none"></button>
           </div>
         )}
 
         {/* OVERLAY PANELS */}
         <div className="absolute inset-0 z-10 pointer-events-none">
 
-          {/* Scenario info — top left */}
+          {/* Scenario info  top left */}
           <div className="absolute top-12 left-2 pointer-events-auto max-w-[260px] sm:max-w-sm">
             <GlassPanel className="p-4 space-y-3 shadow-lg">
               <div className="flex items-center justify-between">
@@ -338,7 +338,7 @@ function MapContent() {
             </GlassPanel>
           </div>
 
-          {/* Active route info — left, below scenario */}
+          {/* Active route info  left, below scenario */}
           {activeRoute && (
             <div className="absolute left-2 pointer-events-auto max-w-[260px] sm:max-w-sm" style={{ top: '215px' }}>
               <GlassPanel className="p-3 space-y-2 shadow-lg">
@@ -373,19 +373,19 @@ function MapContent() {
                       </span>
                     </div>
                   </div>
-                  <div className="text-[10px] text-gray-400 border-t pt-1">{activeRoute.data_source} · {activeRoute.provenance}</div>
+                  <div className="text-[10px] text-gray-400 border-t pt-1">{activeRoute.data_source}  {activeRoute.provenance}</div>
                 </div>
               </GlassPanel>
             </div>
           )}
 
-          {/* Route comparison table — bottom */}
+          {/* Route comparison table  bottom */}
           {showComparison && (
             <div className="absolute bottom-4 left-2 z-20 pointer-events-auto" style={{ maxWidth: 'calc(100vw - 16px)' }}>
               <GlassPanel className="p-4 shadow-2xl border border-[#18181B]/20 overflow-x-auto">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-['Instrument_Serif'] text-xl">Route Comparison</h3>
-                  <button onClick={() => setShowComparison(false)} className="font-bold text-lg hover:text-red-500 leading-none ml-4">×</button>
+                  <button onClick={() => setShowComparison(false)} className="font-bold text-lg hover:text-red-500 leading-none ml-4"></button>
                 </div>
                 <table className="text-xs text-left w-full min-w-[380px]">
                   <thead>
@@ -417,19 +417,19 @@ function MapContent() {
             </div>
           )}
 
-          {/* Selected vessel detail — bottom center */}
+          {/* Selected vessel detail  bottom center */}
           {selectedVessel && (
             <div className="absolute bottom-4 left-2 right-2 sm:left-auto sm:right-4 sm:max-w-sm pointer-events-auto z-30">
               <GlassPanel className="p-4 space-y-3 shadow-xl border border-[#18181B]/15">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#18181B]/50 block mb-0.5">
-                      VESSEL OPPORTUNITY · {selectedVessel.commercial_verification_status || 'CANDIDATE — UNVERIFIED'}
+                      VESSEL OPPORTUNITY  {selectedVessel.commercial_verification_status || 'CANDIDATE  UNVERIFIED'}
                     </span>
                     <h3 className="font-['Instrument_Serif'] text-xl text-[#18181B] truncate">{selectedVessel.vessel_name}</h3>
                     <p className="text-[11px] text-blue-700 font-medium mt-0.5 leading-snug">{selectedVessel.relevance_reason}</p>
                   </div>
-                  <button onClick={() => setSelectedVessel(null)} className="text-[#18181B]/40 hover:text-[#18181B] text-xl font-bold ml-2 flex-shrink-0">×</button>
+                  <button onClick={() => setSelectedVessel(null)} className="text-[#18181B]/40 hover:text-[#18181B] text-xl font-bold ml-2 flex-shrink-0"></button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
