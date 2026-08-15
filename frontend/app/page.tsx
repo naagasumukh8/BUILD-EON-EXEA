@@ -12,13 +12,13 @@ export default function Home() {
           ═══════════════════════════════════════════════════════════ */}
       <section className="relative h-screen w-full overflow-hidden flex flex-col justify-between" id="hero">
         
-        {/* Background Ocean Stream Video */}
+        {/* Background Ocean Stream Video — Vivid Visibility */}
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 z-0 w-full h-[130%] object-cover object-top opacity-60 pointer-events-none"
+          className="absolute inset-0 z-0 w-full h-[130%] object-cover object-top opacity-95 pointer-events-none"
         >
           <source
             src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4"
@@ -26,12 +26,12 @@ export default function Home() {
           />
         </video>
 
-        {/* Gradient Scrim for Crystal-Clear Readability */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-[#FAFAF8]/40 via-[#FAFAF8]/75 to-[#FAFAF8] pointer-events-none" />
+        {/* Lightweight Gradient Overlay (Keeps Video Clear & Vibrant) */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-[#FAFAF8]/10 via-[#FAFAF8]/25 to-[#FAFAF8] pointer-events-none" />
 
         {/* Floating Navigation Bar */}
         <header className="relative z-10 w-full pt-5 px-4 flex justify-center">
-          <div className="w-full max-w-5xl bg-white/80 backdrop-blur-xl rounded-full px-6 py-3.5 shadow-sm border border-[#1B133C]/10 flex items-center justify-between gap-4">
+          <div className="w-full max-w-5xl bg-white/85 backdrop-blur-xl rounded-full px-6 py-3.5 shadow-md border border-[#1B133C]/10 flex items-center justify-between gap-4">
             
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group">
@@ -39,20 +39,20 @@ export default function Home() {
                 <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor" />
                 <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor" opacity="0.55" />
               </svg>
-              <span className="font-['Instrument_Serif'] text-2xl font-normal tracking-wide text-[#1B133C]">
+              <span className="font-['Instrument_Serif'] text-2xl font-semibold tracking-wide text-[#1B133C]">
                 EON EXEA
               </span>
             </Link>
 
             {/* Nav Links */}
-            <nav className="hidden sm:flex items-center gap-8 text-sm font-medium">
-              <a href="#hero" className="text-[#1B133C]/80 hover:text-[#1B133C] transition-colors">
+            <nav className="hidden sm:flex items-center gap-8 text-sm font-semibold">
+              <a href="#hero" className="text-[#1B133C]/85 hover:text-[#1B133C] transition-colors">
                 Overview
               </a>
-              <a href="#explanation" className="text-[#1B133C]/80 hover:text-[#1B133C] transition-colors">
+              <a href="#explanation" className="text-[#1B133C]/85 hover:text-[#1B133C] transition-colors">
                 Capabilities
               </a>
-              <Link href="/intake" className="text-[#1B133C]/80 hover:text-[#1B133C] transition-colors">
+              <Link href="/intake" className="text-[#1B133C]/85 hover:text-[#1B133C] transition-colors">
                 AI Consultation
               </Link>
             </nav>
@@ -71,19 +71,19 @@ export default function Home() {
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto space-y-6">
           
           {/* Status Pill */}
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-[#1B133C]/15 bg-white/90 backdrop-blur-md px-4 py-2 text-xs sm:text-sm font-medium text-[#1B133C] shadow-xs">
+          <div className="inline-flex items-center gap-2.5 rounded-full border border-[#1B133C]/15 bg-white/90 backdrop-blur-md px-4.5 py-2 text-xs sm:text-sm font-semibold text-[#1B133C] shadow-sm">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>AI MARITIME SUPPLY DECISION PLATFORM</span>
           </div>
 
           {/* Heading */}
-          <h1 className="font-['Instrument_Serif'] text-4xl sm:text-6xl lg:text-7xl text-[#1B133C] leading-[1.05] font-normal tracking-tight">
+          <h1 className="font-['Instrument_Serif'] text-4xl sm:text-6xl lg:text-7xl text-[#1B133C] leading-[1.05] font-normal tracking-tight drop-shadow-xs">
             When a supply route breaks,<br />
-            <em className="italic font-light opacity-90">find the fastest way forward.</em>
+            <em className="italic font-light opacity-95">find the fastest way forward.</em>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-xl text-[#1B133C]/80 max-w-2xl mx-auto font-light leading-relaxed">
+          <p className="text-base sm:text-xl text-[#1B133C]/90 max-w-2xl mx-auto font-normal leading-relaxed drop-shadow-xs">
             Eliminate uncertainty in maritime supply chain disruptions. EON EXEA evaluates vessel candidates, pipeline bypasses, and alternate sea lanes &mdash; simultaneously &mdash; and surfaces the optimal decision in minutes.
           </p>
 
@@ -91,7 +91,7 @@ export default function Home() {
           <div className="pt-3">
             <Link
               href="/intake"
-              className="rounded-full bg-[#1B133C] px-9 py-4 text-base font-semibold text-white shadow-md hover:bg-black transition-all flex items-center gap-2.5"
+              className="rounded-full bg-[#1B133C] px-9 py-4 text-base font-semibold text-white shadow-lg hover:bg-black hover:scale-[1.02] transition-all flex items-center gap-2.5"
             >
               Launch AI Workspace
               <span className="text-lg">&rarr;</span>
@@ -100,7 +100,7 @@ export default function Home() {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="relative z-10 pb-6 text-center text-xs font-medium text-[#1B133C]/50 uppercase tracking-widest">
+        <div className="relative z-10 pb-6 text-center text-xs font-bold text-[#1B133C]/60 uppercase tracking-widest">
           Scroll to explore ↓
         </div>
       </section>
