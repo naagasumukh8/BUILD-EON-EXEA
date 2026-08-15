@@ -1,15 +1,15 @@
 {
-  "app\\map\\page.tsx -> leaflet": {
+  "app\\map\\MapClient.tsx -> leaflet": {
     "id": 7691,
     "files": [
       "static/chunks/d0deef33.afff9b3bf7059c8b.js"
     ]
   },
-  "app\\map\\page.tsx -> react-leaflet": {
-    "id": 143,
+  "app\\map\\MapClient.tsx -> react-leaflet": {
+    "id": 609,
     "files": [
       "static/chunks/d0deef33.afff9b3bf7059c8b.js",
-      "static/chunks/143.87e28499e533fc1e.js"
+      "static/chunks/143.20c4cc627e0f31cd.js"
     ]
   }
 }
