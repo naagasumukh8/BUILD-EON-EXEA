@@ -121,48 +121,54 @@ async def _fetch_aisstream_snapshot(
         }
 
         vessels: dict[str, dict] = {}
+        try:
+            async with websockets.connect(
+                "wss://stream.aisstream.io/v0/stream",
+                open_timeout=10,
+                close_timeout=3,
+            ) as ws:
+                await ws.send(json.dumps(subscribe_msg))
+                deadline = asyncio.get_event_loop().time() + timeout_s
+                while asyncio.get_event_loop().time() < deadline:
+                    try:
+                        raw = await asyncio.wait_for(ws.recv(), timeout=2.0)
+                        msg = json.loads(raw)
+                        meta = msg.get("MetaData", {})
+                        pos = msg.get("Message", {}).get("PositionReport", {})
+                        mmsi = str(meta.get("MMSI", ""))
+                        if mmsi and mmsi not in vessels:
+                            vessels[mmsi] = {
+                                "mmsi": mmsi,
+                                "imo": None,
+                                "name": meta.get("ShipName", "Unknown").strip(),
+                                "vessel_type": _map_vessel_type(meta.get("ShipType", 0)),
+                                "flag": None,
+                                "dwt": None,
+                                "current_lat": pos.get("Latitude"),
+                                "current_lon": pos.get("Longitude"),
+                                "current_destination": meta.get("Destination", "").strip(),
+                                "eta_destination": None,
+                                "speed_knots": pos.get("Sog"),
+                                "heading": pos.get("Cog"),
+                                "source": "aisstream.io",
+                                "source_type": "AIS_LIVE",
+                                "provenance_status": "CANDIDATE_UNVERIFIED",
+                                "ais_timestamp": datetime.now(timezone.utc).isoformat(),
+                                "raw_ais_payload": msg,
+                                "notes": "Live AIS position. Spare cargo capacity NOT known — contact vessel operator to verify.",
+                            }
+                            if len(vessels) >= 20:
+                                break
+                    except asyncio.TimeoutError:
+                        continue
+                    except Exception:
+                        break
+        except Exception as ws_err:
+            print(f"[AIS] WebSocket note: {ws_err}")
 
-        async with websockets.connect(
-            "wss://stream.aisstream.io/v0/stream",
-            open_timeout=10,
-            close_timeout=5,
-        ) as ws:
-            await ws.send(json.dumps(subscribe_msg))
-            deadline = asyncio.get_event_loop().time() + timeout_s
-            while asyncio.get_event_loop().time() < deadline:
-                try:
-                    raw = await asyncio.wait_for(ws.recv(), timeout=2.0)
-                    msg = json.loads(raw)
-                    meta = msg.get("MetaData", {})
-                    pos = msg.get("Message", {}).get("PositionReport", {})
-                    mmsi = str(meta.get("MMSI", ""))
-                    if mmsi and mmsi not in vessels:
-                        vessels[mmsi] = {
-                            "mmsi": mmsi,
-                            "imo": None,
-                            "name": meta.get("ShipName", "Unknown").strip(),
-                            "vessel_type": _map_vessel_type(meta.get("ShipType", 0)),
-                            "flag": None,
-                            "dwt": None,
-                            "current_lat": pos.get("Latitude"),
-                            "current_lon": pos.get("Longitude"),
-                            "current_destination": meta.get("Destination", "").strip(),
-                            "eta_destination": None,
-                            "speed_knots": pos.get("Sog"),
-                            "heading": pos.get("Cog"),
-                            "source": "aisstream.io",
-                            "source_type": "AIS_LIVE",
-                            "provenance_status": "CANDIDATE_UNVERIFIED",
-                            "ais_timestamp": datetime.now(timezone.utc).isoformat(),
-                            "raw_ais_payload": msg,
-                            "notes": "Live AIS position. Spare cargo capacity NOT known — contact vessel operator to verify.",
-                        }
-                        if len(vessels) >= 20:
-                            break
-                except asyncio.TimeoutError:
-                    continue
-
-        return list(vessels.values())
+        if vessels:
+            return list(vessels.values())
+        return []
 
     except Exception as e:
         print(f"[AIS] aisstream.io error: {e} — falling back to SIMULATED")
