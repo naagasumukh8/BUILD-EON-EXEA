@@ -114,6 +114,9 @@ function MapContent() {
   const [showChokepoints, setShowChokepoints] = useState(true)
   const [showOilCompanies, setShowOilCompanies] = useState(true)
   const [showTriangulation, setShowTriangulation] = useState(true)
+  const [showSTS, setShowSTS] = useState(true)
+  const [showAltDest, setShowAltDest] = useState(true)
+  const [showAltOrigin, setShowAltOrigin] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -332,6 +335,102 @@ function MapContent() {
                 </>
               )}
 
+              {/* ⚡ STS / Lightering Zones */}
+              {showSTS && (
+                <>
+                  <Marker position={[25.12, 56.33]} icon={createIcon(L, '#0d9488', '⚡', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-teal-100 text-teal-900 font-bold text-[10px] uppercase">STS / LIGHTERING ZONE</div>
+                        <div className="font-bold text-sm">Fujairah Offshore Anchorage — STS Transfer Hub</div>
+                        <div className="text-gray-600">Post-pipeline STS to neutral-flag Aframax. Saves VLCC port congestion.</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=sts_lightering&counterparty=${encodeURIComponent('Fujairah STS Operator')}&journey=${encodeURIComponent('Fujairah Anchorage STS → Mumbai')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-[#0d9488] text-white text-[11px] font-semibold hover:bg-teal-700">
+                          ⚡ Initiate STS Lightering Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                  <Marker position={[17.01, 54.09]} icon={createIcon(L, '#0d9488', '⚡', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-teal-100 text-teal-900 font-bold text-[10px] uppercase">STS / LIGHTERING ZONE</div>
+                        <div className="font-bold text-sm">Salalah Offshore Anchorage — STS Transfer Hub</div>
+                        <div className="text-gray-600">Split cargo via STS at Salalah: half direct, half transshipped via Aframax.</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=sts_lightering&counterparty=${encodeURIComponent('Salalah STS Operator')}&journey=${encodeURIComponent('Salalah Anchorage STS → Destination')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-[#0d9488] text-white text-[11px] font-semibold hover:bg-teal-700">
+                          ⚡ Initiate STS Lightering Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                </>
+              )}
+
+              {/* 🔶 Alternative Destination / Discharge Hubs */}
+              {showAltDest && (
+                <>
+                  <Marker position={[25.12, 56.33]} icon={createIcon(L, '#f97316', '🔶', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-900 font-bold text-[10px] uppercase">ALTERNATIVE DESTINATION</div>
+                        <div className="font-bold text-sm">Fujairah Terminal — Alternative Discharge Hub</div>
+                        <div className="text-gray-600">Discharge here and forward to destination via coastal feeder. Avoids long-haul VLCC risk.</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=alt_destination&counterparty=${encodeURIComponent('Fujairah Terminal Operator')}&journey=${encodeURIComponent('Discharge at Fujairah → Coastal Feeder → Destination')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-orange-500 text-white text-[11px] font-semibold hover:bg-orange-600">
+                          🔶 Explore Alt. Discharge Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                  <Marker position={[17.01, 54.09]} icon={createIcon(L, '#f97316', '🔶', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-orange-100 text-orange-900 font-bold text-[10px] uppercase">ALTERNATIVE DESTINATION</div>
+                        <div className="font-bold text-sm">Salalah Port — Alternative Discharge Hub</div>
+                        <div className="text-gray-600">Discharge at Salalah and forward by coastal vessel — reduces large-vessel exposure.</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=alt_destination&counterparty=${encodeURIComponent('Salalah Port Authority')}&journey=${encodeURIComponent('Discharge at Salalah → Coastal Feeder → Destination')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-orange-500 text-white text-[11px] font-semibold hover:bg-orange-600">
+                          🔶 Explore Alt. Discharge Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                </>
+              )}
+
+              {/* 🌿 Alternative Origin Terminals */}
+              {showAltOrigin && (
+                <>
+                  <Marker position={[4.43, 7.16]} icon={createIcon(L, '#65a30d', '🌿', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-lime-100 text-lime-900 font-bold text-[10px] uppercase">ALTERNATIVE ORIGIN</div>
+                        <div className="font-bold text-sm">Bonny Terminal — West Africa (Nigeria)</div>
+                        <div className="text-gray-600">Completely Hormuz-independent loading origin. Bonny Light grade.</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=alternative_origin&counterparty=${encodeURIComponent('Nigerian National Petroleum Corp (NNPC)')}&journey=${encodeURIComponent('Bonny Terminal, Nigeria → Destination')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-lime-600 text-white text-[11px] font-semibold hover:bg-lime-700">
+                          🌿 Explore Alt. Origin Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                  <Marker position={[60.44, 1.30]} icon={createIcon(L, '#65a30d', '🌿', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-lime-100 text-lime-900 font-bold text-[10px] uppercase">ALTERNATIVE ORIGIN</div>
+                        <div className="font-bold text-sm">Sullom Voe Terminal — North Sea (UK)</div>
+                        <div className="text-gray-600">Completely Hormuz-independent loading origin. Brent / Forties grade.</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=alternative_origin&counterparty=${encodeURIComponent('North Sea Operator / BP')}&journey=${encodeURIComponent('Sullom Voe, North Sea → Destination')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-lime-600 text-white text-[11px] font-semibold hover:bg-lime-700">
+                          🌿 Explore Alt. Origin Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                </>
+              )}
+
               {/* Moving vessels with journey trace */}
               {showVessels && vessels.map((v) => {
                 const pos: [number, number] = [v.lat, v.lon]
@@ -380,6 +479,9 @@ function MapContent() {
           {[
             { label: 'Oil Hubs', active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
             { label: 'Triangulation', active: showTriangulation, toggle: () => setShowTriangulation(!showTriangulation), color: 'bg-pink-600' },
+            { label: 'STS Zones', active: showSTS, toggle: () => setShowSTS(!showSTS), color: 'bg-teal-600' },
+            { label: 'Alt. Dest', active: showAltDest, toggle: () => setShowAltDest(!showAltDest), color: 'bg-orange-500' },
+            { label: 'Alt. Origin', active: showAltOrigin, toggle: () => setShowAltOrigin(!showAltOrigin), color: 'bg-lime-600' },
             { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
             { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
             { label: 'Vessels', active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },

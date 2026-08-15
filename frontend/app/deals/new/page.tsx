@@ -8,14 +8,62 @@ import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
 
-const DEAL_TYPES = [
-  { value: 'vessel', label: 'Vessel Charter', desc: 'Moving ship commercial opportunity' },
-  { value: 'bicoastal_swap', label: 'Bi-Coastal Cargo Swap', desc: 'Unload West Coast (Mumbai) ⇄ Release East Coast (Vizag)' },
-  { value: 'triangulation', label: '3-Party Triangulation Swap', desc: 'Closed 3-node loop swap (Node A ➔ Node B ➔ Node C)' },
-  { value: 'pipeline', label: 'Pipeline Capacity', desc: 'Overland pipeline throughput tariff' },
-  { value: 'alternate_route', label: 'Alternate Route', desc: 'Bypass or long-haul sea lane' },
-  { value: 'supplier', label: 'Spot Supplier', desc: 'Direct commercial supply offer' },
+// ── 20-STRATEGY TAXONOMY: 4 COMMERCIAL FAMILIES ─────────────────────────────
+const DEAL_FAMILIES = [
+  {
+    family: 'MOVE_DIFFERENTLY',
+    label: '🚢 Move Differently',
+    color: 'bg-sky-600',
+    types: [
+      { value: 'alternate_route',    label: 'Direct Alternate Route',   desc: 'Bypass Hormuz via Cape of Good Hope or another maritime corridor' },
+      { value: 'pipeline',           label: 'Pipeline Bypass',          desc: 'Move crude through a pipeline and re-ship from a terminal' },
+      { value: 'transshipment',      label: 'Transshipment',            desc: 'Transfer cargo at a hub to avoid an inefficient direct movement' },
+      { value: 'sts_lightering',     label: 'STS / Lightering',         desc: 'Ship-to-ship transfer where operationally and commercially feasible' },
+      { value: 'multimodal',         label: 'Multi-modal',              desc: 'Maritime + pipeline + road/rail/terminal infrastructure combined' },
+    ],
+  },
+  {
+    family: 'DONT_MOVE',
+    label: "📦 Don't Move Your Cargo",
+    color: 'bg-emerald-600',
+    types: [
+      { value: 'supplier',           label: 'Replacement Supply',       desc: 'Buy equivalent product from another origin/market' },
+      { value: 'local_inventory',    label: 'Local Inventory',          desc: 'Obtain product from existing regional inventory or SPR' },
+      { value: 'bicoastal_swap',     label: 'Bi-Coastal Cargo Swap',    desc: 'Unload West Coast (Mumbai) ⇄ Release East Coast (Vizag)' },
+      { value: 'regional_exchange',  label: 'Local / Regional Exchange','desc': 'Use equivalent inventory already near the destination' },
+      { value: 'alternative_origin', label: 'Alternative Origin',       desc: 'Change the loading origin entirely — remove Hormuz dependency' },
+    ],
+  },
+  {
+    family: 'USE_NETWORK',
+    label: '🌐 Use the Network',
+    color: 'bg-violet-600',
+    types: [
+      { value: 'vessel',             label: 'Moving Vessel Opportunity','desc': 'Identify a vessel already near a useful corridor' },
+      { value: 'backhaul',           label: 'Backhaul Opportunity',     desc: "Use a vessel's empty return journey for another cargo" },
+      { value: 'triangulation',      label: '3-Party Triangulation',    desc: 'Closed 3-node loop swap eliminating ballast voyages' },
+      { value: 'diversified_split',  label: 'Diversified Split',        desc: 'Spread requirement across several independent sources/routes' },
+      { value: 'demand_rebalancing', label: 'Demand Rebalancing',       desc: 'Change which refinery/unit receives which available cargo' },
+    ],
+  },
+  {
+    family: 'CHANGE_TIMING',
+    label: '⏱️ Change Timing / Structure',
+    color: 'bg-amber-600',
+    types: [
+      { value: 'wait_timing',        label: 'Wait / Timing Strategy',   desc: 'Delay transit until a feasible/safe window opens' },
+      { value: 'alt_destination',    label: 'Alternative Destination',  desc: 'Discharge somewhere feasible and forward through another network' },
+      { value: 'emergency_replace',  label: 'Emergency Replacement',    desc: 'Procure replacement supply now; treat stranded cargo separately' },
+      { value: 'counterparty_exchange', label: 'Counterparty Exchange', desc: 'Two companies exchange physical positions or delivery obligations' },
+      { value: 'hybrid',             label: 'Hybrid Strategy',          desc: 'Combine multiple modes — pipeline + vessel + replacement supply' },
+    ],
+  },
 ]
+
+// Flat list for legacy deal_type selects
+const DEAL_TYPES = DEAL_FAMILIES.flatMap(f => f.types)
+
+
 
 function NewDealContent() {
   const searchParams = useSearchParams()
@@ -115,31 +163,39 @@ function NewDealContent() {
             <div><strong>AIS Status:</strong> AIS tracks position & course only (AIS does NOT claim spare cargo capacity). Capacity is confirmed below via human broker entry.</div>
           </div>
 
-          {/* Deal Category selector */}
-          <div className="space-y-3">
+          {/* Strategy Family Selector — 20 Classes / 4 Families */}
+          <div className="space-y-5">
             <label className="text-xs font-bold uppercase tracking-wider text-[#18181B]/70 block">
-              Opportunity Category
+              Strategy Family &amp; Opportunity Class
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {DEAL_TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => set('deal_type', t.value)}
-                  className={`p-4 rounded-2xl border text-left transition-all ${
-                    form.deal_type === t.value
-                      ? 'bg-[#18181B] text-white border-[#18181B] shadow-sm'
-                      : 'bg-white text-[#18181B] border-[#18181B]/10 hover:border-[#18181B]/30'
-                  }`}
-                >
-                  <div className="font-semibold text-sm">{t.label}</div>
-                  <div className={`text-xs mt-0.5 ${form.deal_type === t.value ? 'text-white/70' : 'text-[#18181B]/50'}`}>
-                    {t.desc}
-                  </div>
-                </button>
-              ))}
-            </div>
+            {DEAL_FAMILIES.map((family) => (
+              <div key={family.family} className="space-y-2">
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white ${family.color}`}>
+                  {family.label}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {family.types.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => set('deal_type', t.value)}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        form.deal_type === t.value
+                          ? 'bg-[#18181B] text-white border-[#18181B] shadow-sm'
+                          : 'bg-white text-[#18181B] border-[#18181B]/10 hover:border-[#18181B]/30'
+                      }`}
+                    >
+                      <div className="font-semibold text-xs">{t.label}</div>
+                      <div className={`text-[10px] mt-0.5 leading-tight ${form.deal_type === t.value ? 'text-white/60' : 'text-[#18181B]/45'}`}>
+                        {t.desc}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
+
 
           {/* Form Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
