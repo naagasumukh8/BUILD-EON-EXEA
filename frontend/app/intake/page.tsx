@@ -1,9 +1,11 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
-import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
+import { GlassPanel, GlassCard, SightCard } from '@/components/ui/GlassPanel'
 import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
@@ -38,7 +40,7 @@ function IntakeContent() {
     product: 'diesel',
     volume_required: '2000000',
     volume_unit: 'bbls',
-    destination_port_name: 'Mumbai',
+    destination_port_name: 'India',
     deadline_days: '7',
     origin_port_name: 'Ras Tanura',
     supplier: 'Saudi Aramco',
@@ -102,33 +104,35 @@ function IntakeContent() {
     <div className="min-h-screen flex flex-col">
       <Navbar scenarioId={currentScenarioId} />
 
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        <div className="text-center max-w-3xl mx-auto pt-4 pb-2 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e6faa]/15 border border-[#1e6faa]/40 text-xs text-[#2a9aff]">
-            <span>AI Supply Chain Consultation</span>
+      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
+        {/* Editorial Heading */}
+        <div className="text-center max-w-3xl mx-auto pt-6 pb-2 space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 text-xs text-[#fdf1e1] font-medium tracking-widest uppercase">
+            <span>AI Consultation</span>
           </div>
           <h1 className="title-ogg text-4xl sm:text-5xl lg:text-6xl text-[#fdf1e1] leading-tight">
-            What supply requirement are you trying to solve?
+            What are you trying to secure?
           </h1>
-          <p className="text-[#8aacca] text-base sm:text-lg max-w-xl mx-auto font-light">
-            Describe your operational demand in plain language, or configure your scenario terms step by step below.
+          <p className="text-[#fdf1e1]/70 text-base sm:text-lg max-w-xl mx-auto font-light leading-relaxed">
+            State your operational demand in natural language, or adjust the scenario attributes step by step.
           </p>
         </div>
 
-        <GlassPanel className="relative overflow-hidden border-[#1e6faa]/40 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
-          <div className="flex flex-col gap-4">
+        {/* AI Input Box */}
+        <GlassPanel className="relative overflow-hidden border-[rgba(253,241,225,0.25)] shadow-[0_24px_60px_rgba(0,0,0,0.6)]">
+          <div className="flex flex-col gap-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
-                AI Natural Language Parser
+              <span className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium">
+                Natural Language Requirement Input
               </span>
-              <GlassBadge status="SIMULATED" label="Gemini 2.5 Parsing" />
+              <GlassBadge status="SIMULATED" label="Gemini 2.5 Engine" />
             </div>
 
             <div className="relative flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
-                className="glass-input flex-1 py-4 px-5 text-base sm:text-lg rounded-2xl bg-[#0a121c]/80 border-[#1e6faa]/40 placeholder:text-[#6b8499]"
-                placeholder="e.g. I need 2 million barrels of diesel delivered to Mumbai in 7 days, seeking a ship..."
+                className="glass-input flex-1 py-4 px-5 text-base sm:text-lg rounded-2xl bg-[#0a121c]/80 border-[rgba(253,241,225,0.25)] placeholder:text-[#fdf1e1]/40"
+                placeholder="I need 2 million barrels of diesel delivered to India within 7 days."
                 value={aiText}
                 onChange={(e) => setAiText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAIParse()}
@@ -136,58 +140,56 @@ function IntakeContent() {
               <button
                 onClick={handleAIParse}
                 disabled={aiLoading}
-                className="btn-paper whitespace-nowrap text-base px-8 py-4 shrink-0 font-medium"
+                className="btn-paper whitespace-nowrap text-base px-8 py-4 shrink-0 font-semibold"
               >
                 {aiLoading ? 'Analyzing...' : 'Parse Scenario →'}
               </button>
             </div>
 
             {aiQuestion && (
-              <div className="p-4 rounded-xl bg-[#1e6faa]/15 border border-[#2a9aff]/40 text-sm text-[#2a9aff] animate-slide-up flex items-start gap-3">
+              <div className="p-4 rounded-2xl bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 text-sm text-[#fdf1e1] animate-slide-up flex items-start gap-3">
                 <span className="text-lg">💬</span>
                 <div>{aiQuestion}</div>
               </div>
             )}
 
-            <div className="pt-2 border-t border-[rgba(30,90,140,0.25)] flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-[#6b8499] mr-2">Parsed Chips:</span>
+            {/* Extracted Information Cream & Glass Pills */}
+            <div className="pt-3 border-t border-[rgba(253,241,225,0.15)] flex flex-wrap items-center gap-2.5 text-xs">
+              <span className="text-[#fdf1e1]/60 mr-2 font-medium">Extracted Scenario:</span>
               {fields.volume_required && (
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#fdf1e1] flex items-center gap-1.5">
-                  <span className="text-[#2a9aff]">Volume:</span>
-                  <span className="font-semibold">{Number(fields.volume_required).toLocaleString()} {fields.volume_unit}</span>
+                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold flex items-center gap-1.5 shadow-sm">
+                  <span>{Number(fields.volume_required).toLocaleString()} {fields.volume_unit}</span>
                 </div>
               )}
               {fields.product && (
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#fdf1e1] flex items-center gap-1.5 uppercase">
-                  <span className="text-[#2a9aff]">Product:</span>
-                  <span className="font-semibold">{fields.product}</span>
+                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold uppercase flex items-center gap-1.5 shadow-sm">
+                  <span>{fields.product}</span>
                 </div>
               )}
               {fields.destination_port_name && (
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#fdf1e1] flex items-center gap-1.5">
-                  <span className="text-[#2a9aff]">Destination:</span>
-                  <span className="font-semibold">{fields.destination_port_name}</span>
+                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold flex items-center gap-1.5 shadow-sm">
+                  <span>Destination: {fields.destination_port_name}</span>
                 </div>
               )}
               {fields.deadline_days && (
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#fdf1e1] flex items-center gap-1.5">
-                  <span className="text-[#2a9aff]">Deadline:</span>
-                  <span className="font-semibold">{fields.deadline_days} Days</span>
+                <div className="px-4 py-1.5 rounded-full bg-[#fdf1e1] text-[#111411] font-semibold flex items-center gap-1.5 shadow-sm">
+                  <span>Deadline: {fields.deadline_days} Days</span>
                 </div>
               )}
             </div>
           </div>
         </GlassPanel>
 
+        {/* Guided Step Pills */}
         <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
           {STEPS.map((s) => (
             <button
               key={s.id}
               onClick={() => setStep(s.id)}
-              className={`px-4 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 border ${
+              className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-2 border ${
                 step === s.id
-                  ? 'bg-gradient-to-r from-[#1e6faa] to-[#144970] text-[#fdf1e1] border-[#2a9aff]/50 shadow-[0_4px_20px_rgba(30,111,170,0.4)]'
-                  : 'bg-[#0f1a26]/60 border-[rgba(30,80,120,0.3)] text-[#8aacca] hover:text-[#fdf1e1] hover:bg-white/5'
+                  ? 'bg-[#fdf1e1] text-[#111411] border-[#fdf1e1] shadow-[0_6px_24px_rgba(0,0,0,0.3)]'
+                  : 'bg-[#0f1a26]/60 border-[rgba(253,241,225,0.15)] text-[#fdf1e1]/70 hover:text-[#fdf1e1] hover:bg-white/10'
               }`}
             >
               <span>{s.icon}</span>
@@ -197,11 +199,12 @@ function IntakeContent() {
         </div>
 
         {error && (
-          <div className="p-4 rounded-xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
+          <div className="p-4 rounded-2xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
             ⚠️ {error}
           </div>
         )}
 
+        {/* Step Form Panel */}
         <GlassPanel>
           {step === 1 && <StepDemand fields={fields} set={set} />}
           {step === 2 && <StepSupply fields={fields} set={set} />}
@@ -209,7 +212,7 @@ function IntakeContent() {
           {step === 4 && <StepAlternatives fields={fields} set={set} />}
           {step === 5 && <StepPriorities fields={fields} set={set} totalWeight={totalWeight} />}
 
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-[rgba(30,90,140,0.3)]">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-[rgba(253,241,225,0.15)]">
             <button
               className="btn-ghost-glass"
               onClick={() => setStep((s) => Math.max(1, s - 1))}
@@ -224,7 +227,7 @@ function IntakeContent() {
               </button>
             ) : (
               <button className="btn-paper text-base px-8" onClick={handleSave} disabled={loading}>
-                {loading ? 'Saving Scenario...' : '🚢 Save Scenario & Launch Map →'}
+                {loading ? 'Saving Scenario...' : '🚢 Launch Network Map →'}
               </button>
             )}
           </div>
@@ -236,7 +239,7 @@ function IntakeContent() {
 
 export default function IntakePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Intake...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0b1110] flex items-center justify-center text-[#fdf1e1]/70">Loading Intake Consultation...</div>}>
       <IntakeContent />
     </Suspense>
   )
@@ -246,13 +249,13 @@ function StepDemand({ fields, set }: any) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="title-ogg text-2xl mb-1 text-[#fdf1e1]">Demand Specification</h3>
-        <p className="text-sm text-[#8aacca]">Select commodity type, total volume requirement, and destination.</p>
+        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Demand Specification</h3>
+        <p className="text-sm text-[#fdf1e1]/70">Specify product category, volume requirement, and destination.</p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
             Product Category *
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -260,10 +263,10 @@ function StepDemand({ fields, set }: any) {
               <button
                 key={p}
                 onClick={() => set('product', p)}
-                className={`py-3 px-4 rounded-xl text-sm capitalize font-medium transition-all duration-200 border ${
+                className={`py-3 px-4 rounded-2xl text-sm capitalize font-medium transition-all duration-200 border ${
                   fields.product === p
-                    ? 'bg-[#1e6faa] text-[#fdf1e1] border-[#2a9aff] shadow-[0_0_15px_rgba(42,154,255,0.3)]'
-                    : 'bg-[#0a121c]/60 border-[rgba(30,80,120,0.3)] text-[#8aacca] hover:border-[#1e6faa]'
+                    ? 'bg-[#fdf1e1] text-[#111411] border-[#fdf1e1] font-semibold shadow-md'
+                    : 'bg-[#0a121c]/60 border-[rgba(253,241,225,0.15)] text-[#fdf1e1]/80 hover:border-[#fdf1e1]/40'
                 }`}
               >
                 {p}
@@ -274,7 +277,7 @@ function StepDemand({ fields, set }: any) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+            <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
               Required Volume *
             </label>
             <div className="flex gap-2">
@@ -296,14 +299,14 @@ function StepDemand({ fields, set }: any) {
               </select>
             </div>
             {fields.volume_required && (
-              <span className="text-xs text-[#6b8499] mt-1 block">
+              <span className="text-xs text-[#fdf1e1]/50 mt-1 block font-mono">
                 = {(parseFloat(fields.volume_required) / 1000000).toFixed(2)}M Barrels
               </span>
             )}
           </div>
 
           <div>
-            <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+            <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
               Delivery Deadline (Days) *
             </label>
             <input
@@ -317,12 +320,12 @@ function StepDemand({ fields, set }: any) {
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
             Destination Port *
           </label>
           <input
             className="glass-input"
-            placeholder="e.g. Mumbai, JNPT, Singapore, Rotterdam"
+            placeholder="e.g. India, Mumbai, JNPT, Singapore"
             value={fields.destination_port_name}
             onChange={(e) => set('destination_port_name', e.target.value)}
           />
@@ -336,13 +339,13 @@ function StepSupply({ fields, set }: any) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="title-ogg text-2xl mb-1 text-[#fdf1e1]">Supply & Commercial Terms</h3>
-        <p className="text-sm text-[#8aacca]">Provide known origin, supplier details, and reference pricing.</p>
+        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Supply & Commercial Terms</h3>
+        <p className="text-sm text-[#fdf1e1]/70">Provide origin port, supplier information, and purchase benchmarks.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
             Origin Port
           </label>
           <input
@@ -354,7 +357,7 @@ function StepSupply({ fields, set }: any) {
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
             Supplier Counterparty
           </label>
           <input
@@ -366,7 +369,7 @@ function StepSupply({ fields, set }: any) {
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2 flex items-center justify-between">
+          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2 flex items-center justify-between">
             <span>Purchase Price (USD/bbl)</span>
             <GlassBadge status="SIMULATED" label="ESTIMATED" />
           </label>
@@ -381,7 +384,7 @@ function StepSupply({ fields, set }: any) {
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2 flex items-center justify-between">
+          <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2 flex items-center justify-between">
             <span>Known Freight (USD/bbl)</span>
             <GlassBadge status="SIMULATED" label="ESTIMATED" />
           </label>
@@ -403,37 +406,36 @@ function StepVessel({ fields, set }: any) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="title-ogg text-2xl mb-1 text-[#fdf1e1]">Vessel Situation</h3>
-        <p className="text-sm text-[#8aacca]">Specify your current fleet or charter status.</p>
+        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Vessel Situation</h3>
+        <p className="text-sm text-[#fdf1e1]/70">Specify your fleet status or charter requirements.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {VESSEL_SITUATIONS.map((vs) => (
-          <GlassCard
+          <SightCard
             key={vs.value}
-            onClick={() => set('vessel_situation', vs.value)}
-            className={`border ${
-              fields.vessel_situation === vs.value
-                ? 'border-[#2a9aff] bg-[#1e6faa]/20'
-                : 'border-[rgba(30,80,120,0.3)] hover:border-[#1e6faa]'
-            }`}
-          >
-            <div className="font-semibold text-base text-[#fdf1e1] mb-1">{vs.label}</div>
-            <p className="text-xs text-[#8aacca]">
-              {vs.value === 'own'
+            title={vs.label}
+            subtitle={
+              vs.value === 'own'
                 ? 'Own fleet vessel available'
                 : vs.value === 'chartered'
                 ? 'Existing charter contract'
-                : 'Discover available market vessels via AIS'}
-            </p>
-          </GlassCard>
+                : 'Discover available market vessels via AIS'
+            }
+            onClick={() => set('vessel_situation', vs.value)}
+            className={`border ${
+              fields.vessel_situation === vs.value
+                ? 'ring-2 ring-[#fdf1e1] shadow-lg'
+                : 'opacity-90 hover:opacity-100'
+            }`}
+          />
         ))}
       </div>
 
-      <div className="p-4 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)] text-xs text-[#8aacca] flex items-center gap-3">
+      <div className="p-4 rounded-2xl bg-[#0a121c]/70 border border-[rgba(253,241,225,0.15)] text-xs text-[#fdf1e1]/70 flex items-center gap-3">
         <span className="text-lg">ℹ️</span>
         <div>
-          <strong className="text-[#fdf1e1]">Note on AIS Data:</strong> AIS positions indicate vessel movement, but do NOT confirm commercial cargo capacity. Every candidate discovered is labeled <GlassBadge status="CANDIDATE_UNVERIFIED" /> until verified.
+          <strong className="text-[#fdf1e1]">Note on AIS Data:</strong> AIS positions track vessel movement only — commercial capacity must be verified with shipowner.
         </div>
       </div>
     </div>
@@ -444,8 +446,8 @@ function StepAlternatives({ fields, set }: any) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="title-ogg text-2xl mb-1 text-[#fdf1e1]">Infrastructure Alternatives</h3>
-        <p className="text-sm text-[#8aacca]">The engine incorporates reference pipeline infrastructure alongside sea routes.</p>
+        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Pipeline & Bypass Alternatives</h3>
+        <p className="text-sm text-[#fdf1e1]/70">Reference pipeline infrastructure automatically evaluated by the solver.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -454,16 +456,13 @@ function StepAlternatives({ fields, set }: any) {
           { name: 'Habshan-Fujairah', origin: 'ADNOC / UAE', eta: '1 Day', tariff: '$1.20/bbl', status: 'REAL_REFERENCE' },
           { name: 'SUMED Pipeline', origin: 'Red Sea → Med', eta: '1 Day', tariff: '$2.10/bbl', status: 'REAL_REFERENCE' },
         ].map((p) => (
-          <GlassCard key={p.name}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-[#fdf1e1] text-sm">{p.name}</span>
-              <GlassBadge status={p.status} />
-            </div>
-            <div className="text-xs text-[#8aacca] space-y-1">
-              <div>Origin: {p.origin}</div>
-              <div>ETA: {p.eta} · Tariff: {p.tariff}</div>
-            </div>
-          </GlassCard>
+          <SightCard
+            key={p.name}
+            kicker={p.origin}
+            title={p.name}
+            subtitle={`ETA: ${p.eta} · Tariff: ${p.tariff}`}
+            badge={<GlassBadge status={p.status} />}
+          />
         ))}
       </div>
     </div>
@@ -474,20 +473,20 @@ function StepPriorities({ fields, set, totalWeight }: any) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="title-ogg text-2xl mb-1 text-[#fdf1e1]">Optimization Priorities</h3>
-        <p className="text-sm text-[#8aacca]">Adjust the weights driving the OR-Tools decision engine.</p>
+        <h3 className="title-ogg text-3xl mb-1 text-[#fdf1e1]">Optimization Weighting</h3>
+        <p className="text-sm text-[#fdf1e1]/70">Adjust business priorities governing the solver objective function.</p>
       </div>
 
       <div className="space-y-5">
         {[
-          { key: 'priority_cost_weight', label: 'Cost Priority', desc: 'Minimise landed cost per barrel' },
+          { key: 'priority_cost_weight', label: 'Cost Priority', desc: 'Minimise total landed cost per barrel' },
           { key: 'priority_time_weight', label: 'Time Priority', desc: 'Minimise transit days and ETA' },
-          { key: 'priority_risk_weight', label: 'Risk Mitigation', desc: 'Minimise supply disruption risk' },
+          { key: 'priority_risk_weight', label: 'Risk Mitigation', desc: 'Minimise supply disruption vulnerability' },
         ].map((w) => (
           <div key={w.key} className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="font-medium text-[#fdf1e1]">{w.label} <span className="text-xs text-[#6b8499] font-normal">({w.desc})</span></span>
-              <span className="font-bold text-[#2a9aff]">
+              <span className="font-medium text-[#fdf1e1]">{w.label} <span className="text-xs text-[#fdf1e1]/50 font-normal">({w.desc})</span></span>
+              <span className="font-bold text-[#fdf1e1] font-mono">
                 {totalWeight > 0 ? ((fields[w.key] / totalWeight) * 100).toFixed(0) : 0}%
               </span>
             </div>
@@ -498,7 +497,7 @@ function StepPriorities({ fields, set, totalWeight }: any) {
               step="0.05"
               value={fields[w.key]}
               onChange={(e) => set(w.key, parseFloat(e.target.value))}
-              className="w-full accent-[#2a9aff] h-2 bg-[#0a121c] rounded-lg appearance-none cursor-pointer"
+              className="w-full accent-[#fdf1e1] h-2 bg-[#0a121c] rounded-lg appearance-none cursor-pointer"
             />
           </div>
         ))}

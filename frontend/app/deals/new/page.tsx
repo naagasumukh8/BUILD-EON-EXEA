@@ -1,17 +1,19 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
-import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
+import { GlassPanel, SightCard } from '@/components/ui/GlassPanel'
 import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
 const DEAL_TYPES = [
-  { value: 'vessel', label: '🚢 Vessel Charter' },
-  { value: 'pipeline', label: '🔧 Pipeline Capacity' },
-  { value: 'alternate_route', label: '🗺️ Alternate Sea Route' },
-  { value: 'supplier', label: '🏭 Spot Supplier' },
+  { value: 'vessel', label: '🚢 Vessel Charter', desc: 'Commercial ship charter quote' },
+  { value: 'pipeline', label: '🔧 Pipeline Capacity', desc: 'Pipeline throughput agreement' },
+  { value: 'alternate_route', label: '🗺️ Alternate Route', desc: 'Bypass or alternate sea lane' },
+  { value: 'supplier', label: '🏭 Spot Supplier', desc: 'Direct supplier commercial offer' },
 ]
 
 function NewDealContent() {
@@ -74,56 +76,58 @@ function NewDealContent() {
     <div className="min-h-screen flex flex-col">
       <Navbar scenarioId={scenarioId} />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 animate-fade-in">
-        <div className="text-center space-y-2">
-          <GlassBadge status="CONFIRMED" label="Commercial Verification" />
-          <h1 className="title-ogg text-3xl sm:text-4xl text-[#fdf1e1]">
-            Verify Commercial Opportunity
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 text-xs text-[#fdf1e1] font-medium tracking-widest uppercase">
+            <span>Commercial Verification</span>
+          </div>
+          <h1 className="title-ogg text-4xl sm:text-5xl text-[#fdf1e1]">
+            Is this deal worth taking?
           </h1>
-          <p className="text-sm text-[#8aacca]">
-            Confirm commercial terms with the vessel operator or supplier to create a verified record.
+          <p className="text-sm sm:text-base text-[#fdf1e1]/70">
+            Record the actual commercial terms offered by the shipowner or supplier to perform deterministic P&L analysis.
           </p>
         </div>
 
         {vesselName && (
-          <div className="p-4 rounded-2xl bg-[#1e6faa]/15 border border-[#2a9aff]/40 flex items-center justify-between">
+          <div className="p-5 rounded-2xl bg-[#fdf1e1]/10 border border-[#fdf1e1]/30 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-xl">🚢</span>
+              <span className="text-2xl">🚢</span>
               <div>
-                <div className="font-semibold text-[#fdf1e1] text-sm">{vesselName}</div>
-                <div className="text-xs text-[#8aacca]">Converting AIS candidate to verified commercial deal</div>
+                <div className="font-semibold text-[#fdf1e1] text-base">{vesselName}</div>
+                <div className="text-xs text-[#fdf1e1]/70">Converting candidate vessel to verified commercial opportunity</div>
               </div>
             </div>
-            <GlassBadge status="CONFIRMED" />
+            <GlassBadge status="CONFIRMED" label="CONFIRMING" />
           </div>
         )}
 
         <GlassPanel>
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div>
-              <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
-                Supply Deal Category *
+              <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-3">
+                Select Deal Category *
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {DEAL_TYPES.map((dt) => (
-                  <button
+                  <SightCard
                     key={dt.value}
+                    title={dt.label}
+                    subtitle={dt.desc}
                     onClick={() => set('deal_type', dt.value)}
-                    className={`p-3 rounded-xl text-xs font-medium text-left border transition-all ${
+                    className={`border ${
                       form.deal_type === dt.value
-                        ? 'bg-[#1e6faa] border-[#2a9aff] text-[#fdf1e1]'
-                        : 'bg-[#0a121c]/60 border-[rgba(30,80,120,0.3)] text-[#8aacca] hover:border-[#1e6faa]'
+                        ? 'ring-2 ring-[#fdf1e1] scale-[1.01]'
+                        : 'opacity-85 hover:opacity-100'
                     }`}
-                  >
-                    {dt.label}
-                  </button>
+                  />
                 ))}
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
                   Counterparty / Operator Name
                 </label>
                 <input
@@ -135,7 +139,7 @@ function NewDealContent() {
               </div>
 
               <div>
-                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
                   Commodity Product
                 </label>
                 <select
@@ -150,16 +154,17 @@ function NewDealContent() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#0a121c]/60 border border-[rgba(30,80,120,0.3)] space-y-3">
+            {/* Capacity Input Panel */}
+            <div className="p-5 rounded-2xl bg-[#0a121c]/70 border border-[rgba(253,241,225,0.18)] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
-                  Commercial Capacity
+                <span className="text-xs uppercase tracking-widest text-[#fdf1e1]/70 font-medium">
+                  Available Capacity
                 </span>
-                <GlassBadge status="CONFIRMED" label="Human Verified" />
+                <GlassBadge status="CONFIRMED" label="HUMAN VERIFIED" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-xs text-[#6b8499] block mb-1">Capacity %</span>
+                  <span className="text-xs text-[#fdf1e1]/60 block mb-1">Capacity %</span>
                   <input
                     className="glass-input"
                     type="number"
@@ -171,7 +176,7 @@ function NewDealContent() {
                   />
                 </div>
                 <div>
-                  <span className="text-xs text-[#6b8499] block mb-1">Capacity Volume (bbls)</span>
+                  <span className="text-xs text-[#fdf1e1]/60 block mb-1">Capacity Volume (bbls)</span>
                   <input
                     className="glass-input"
                     type="number"
@@ -183,12 +188,13 @@ function NewDealContent() {
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#0a121c]/60 border border-[rgba(30,80,120,0.3)] space-y-3">
+            {/* Quote Input Panel */}
+            <div className="p-5 rounded-2xl bg-[#0a121c]/70 border border-[rgba(253,241,225,0.18)] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
+                <span className="text-xs uppercase tracking-widest text-[#fdf1e1]/70 font-medium">
                   Shipowner / Operator Quote *
                 </span>
-                <GlassBadge status="CONFIRMED" label="Human Verified" />
+                <GlassBadge status="CONFIRMED" label="HUMAN VERIFIED" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input
@@ -220,7 +226,7 @@ function NewDealContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
                   Contact Reference
                 </label>
                 <input
@@ -232,7 +238,7 @@ function NewDealContent() {
               </div>
 
               <div>
-                <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
+                <label className="text-xs uppercase tracking-widest text-[#fdf1e1]/60 font-medium block mb-2">
                   Availability Date
                 </label>
                 <input
@@ -245,12 +251,12 @@ function NewDealContent() {
             </div>
 
             {error && (
-              <div className="p-4 rounded-xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
+              <div className="p-4 rounded-2xl bg-[#ef4444]/15 border border-[#ef4444]/40 text-sm text-[#ef4444]">
                 ⚠️ {error}
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-[rgba(30,90,140,0.3)]">
+            <div className="flex items-center justify-between pt-4 border-t border-[rgba(253,241,225,0.15)]">
               <button className="btn-ghost-glass" onClick={() => router.back()}>
                 ← Cancel
               </button>
@@ -259,7 +265,7 @@ function NewDealContent() {
                 onClick={handleSubmit}
                 disabled={loading || !form.quoted_price}
               >
-                {loading ? 'Saving Deal...' : '✅ Save Deal & Evaluate Economics →'}
+                {loading ? 'Saving Deal...' : '✅ Evaluate Commercial P&L →'}
               </button>
             </div>
           </div>
@@ -271,7 +277,7 @@ function NewDealContent() {
 
 export default function NewDealPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Deal Form...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0b1110] flex items-center justify-center text-[#fdf1e1]/70">Loading Deal Form...</div>}>
       <NewDealContent />
     </Suspense>
   )

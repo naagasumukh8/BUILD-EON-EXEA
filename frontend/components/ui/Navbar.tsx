@@ -14,40 +14,40 @@ export function Navbar({ scenarioId }: NavbarProps) {
 
   const navLinks = [
     { label: 'Network', href: `/map${querySuffix}`, pathKey: '/map' },
-    { label: 'Analysis', href: `/intake${querySuffix}`, pathKey: '/intake' },
+    { label: 'Intake', href: `/intake${querySuffix}`, pathKey: '/intake' },
     { label: 'Deals', href: `/deals/new${querySuffix}`, pathKey: '/deals' },
     { label: 'Strategies', href: `/strategy${querySuffix}`, pathKey: '/strategy' },
     { label: 'Reports', href: `/report${querySuffix}`, pathKey: '/report' },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#080e14]/75 backdrop-blur-xl border-b border-[rgba(30,80,120,0.35)] px-6 py-3.5 flex items-center justify-between transition-all duration-300">
-      {/* Brand / Logo - visually identical to landing page logo */}
+    <header className="sticky top-0 z-50 w-full bg-[#0b1110]/80 backdrop-blur-xl border-b border-[rgba(253,241,225,0.12)] px-6 py-4 flex items-center justify-between transition-all duration-300">
+      {/* Brand / Logo */}
       <div className="flex items-center gap-6">
         <a
           href="http://localhost:3000"
-          className="title-ogg text-2xl font-normal tracking-wider text-[#fdf1e1] hover:opacity-90 transition-opacity flex items-center gap-2"
+          className="title-ogg text-2xl font-normal tracking-wide text-[#fdf1e1] hover:opacity-90 transition-opacity flex items-center gap-2"
         >
           <span>EON EXEA</span>
         </a>
-        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-[#0f1a26]/80 border border-[rgba(30,80,120,0.3)] text-xs text-[#6b8499]">
+        <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-[#fdf1e1]/70 font-medium">
           <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></span>
-          <span>LIVE AIS & AI ENGINE</span>
+          <span>AI MARITIME DECISION NETWORK</span>
         </div>
       </div>
 
       {/* Center Nav Links */}
-      <nav className="flex items-center gap-1 md:gap-2 bg-[#0d1822]/60 p-1 rounded-full border border-[rgba(30,80,120,0.25)]">
+      <nav className="flex items-center gap-1 sm:gap-2 bg-[#0f1a26]/70 p-1.5 rounded-full border border-[rgba(253,241,225,0.15)]">
         {navLinks.map((link) => {
           const isActive = pathname?.startsWith(link.pathKey)
           return (
             <Link
               key={link.label}
               href={link.href}
-              className={`px-4 py-1.5 rounded-full text-sm transition-all duration-200 ${
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-gradient-to-r from-[#1e6faa] to-[#164e78] text-[#fdf1e1] font-medium shadow-[0_4px_16px_rgba(30,111,170,0.4)]'
-                  : 'text-[#8aacca] hover:text-[#fdf1e1] hover:bg-white/5'
+                  ? 'bg-[#fdf1e1] text-[#111411] shadow-[0_4px_20px_rgba(0,0,0,0.3)]'
+                  : 'text-[#fdf1e1]/70 hover:text-[#fdf1e1] hover:bg-white/10'
               }`}
             >
               {link.label}
@@ -60,9 +60,9 @@ export function Navbar({ scenarioId }: NavbarProps) {
       <div className="flex items-center gap-3">
         <a
           href="http://localhost:3000"
-          className="btn-ghost-glass text-xs py-1.5 px-4 hidden sm:inline-flex items-center gap-1.5"
+          className="btn-ghost-glass text-xs py-2 px-5 hidden sm:inline-flex items-center gap-1.5"
         >
-          <span>← Landing Page</span>
+          <span>← Overview</span>
         </a>
       </div>
     </header>
