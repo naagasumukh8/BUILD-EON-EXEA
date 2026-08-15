@@ -1,241 +1,226 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EON EXEA — AI Maritime Decision Network</title>
+  <title>EON EXEA - AI Maritime Decision Network</title>
   <meta name="description" content="When a supply route breaks, find the best way forward. AI-powered maritime supply chain optimization for energy companies." />
   <link rel="icon" href="data:," />
-
-  <!-- Fonts: Google Fonts (Inter, Space Grotesk, Playfair Display, Cormorant Garamond) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-  <!-- Display serif: Ogg Medium (with Playfair Display / Cormorant Garamond fallbacks) -->
-  <style>
-    @font-face {
-      font-family: "Ogg Medium";
-      src: url("https://dcym8fthxf5uu.cloudfront.net/fonts/247a073c-29f5-4a89-aa3a-741020f346fc/OggText-Medium.woff2") format("woff2");
-      font-weight: 500;
-      font-style: normal;
-      font-display: swap;
-    }
-  </style>
-
-  <!-- Leaflet map (open-source, no API key) -->
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SECTION 1: CINEMATIC LANDING PAGE
-     Mostar scroll architecture adapted for maritime
-     ═══════════════════════════════════════════════════════════ -->
-<main class="site-shell">
+<section class="hero-section" id="hero" aria-label="EON EXEA hero">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-scrim" aria-hidden="true"></div>
+  <div class="hero-content-layer">
 
-  <section class="cinema-scroll" id="cinema" aria-label="Maritime cinematic scroll story">
-    <div class="stage">
-      <div class="world">
+    <header class="hero-nav" aria-label="Primary navigation">
+      <div class="nav-pill" id="nav-pill">
+        <a href="#hero" class="nav-logo" aria-label="EON EXEA home">
+          <svg width="24" height="24" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor"/>
+            <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor" opacity="0.55"/>
+          </svg>
+          <span class="nav-logo-text">EON EXEA</span>
+        </a>
+        <nav class="nav-links" aria-label="Main menu">
+          <a href="#hero" class="nav-link" id="nl-overview">Overview</a>
+          <a href="#disruption-anchor" class="nav-link" id="nl-disruption">Disruption</a>
+          <a href="#strategy-anchor" class="nav-link" id="nl-strategy">Strategy</a>
+          <a href="#command-center" class="nav-link" id="nl-command">Command Center</a>
+        </nav>
+        <button class="nav-cta" id="btn-open-command" aria-label="Start analysis">Start Analysis</button>
+      </div>
+    </header>
 
-        <!-- Sky / ocean horizon layer (z-index 0) -->
-        <img class="scene-img sky-img" src="https://raft-blast-61784561.figma.site/_assets/v11/16b5007d9c93971e26ffe4e0e3e37946f6bd538c.png" alt="" />
-
-        <!-- Header Navigation (z 50) -->
-        <header class="site-header" aria-label="Primary navigation">
-          <div class="nav-glass-container">
-            <a class="site-logo" href="#cinema">
-              <span class="logo-symbol">⚡</span>
-              <span class="logo-text">EON EXEA</span>
-            </a>
-            <nav class="site-nav" aria-label="Main menu">
-              <a href="#cinema" class="nav-link active">Overview</a>
-              <a href="#disruption-anchor" class="nav-link">Disruption</a>
-              <a href="#strategy-anchor" class="nav-link">Strategy</a>
-              <a href="#command-center" class="nav-link" id="nav-command-link">Command Center</a>
-            </nav>
-            <button class="nav-cta-btn" aria-label="Open command center" id="btn-open-command">
-              <span>Start Analysis</span>
-              <span class="nav-cta-arrow" aria-hidden="true">→</span>
-            </button>
-          </div>
-        </header>
-
-        <!-- Back stack: route glow + vessel opportunities + port layer (z 1) -->
-        <div class="back-stack">
-          <img class="scene-img back-img back-four" src="https://raft-blast-61784561.figma.site/_assets/v11/8a7f8af50e0ce92ec2e228e7b0b4112178c51cf1.png" alt="" />
-
-          <!-- Vessel Opportunity Slider (equivalent of sights-slider) -->
-          <section class="sights-slider" aria-label="Vessel opportunities slider">
-            <div class="sights-track" id="sights-track">
-              <!-- Cards injected by JS -->
-            </div>
-          </section>
-
-          <img class="scene-img back-img back-bazaar" src="https://raft-blast-61784561.figma.site/_assets/v11/864afe00e41e2fa20a5aa546e15cb807e0f81384.png" alt="" />
-        </div>
-
-        <!-- Slider Controls -->
-        <div class="sights-controls" id="sights-controls" aria-label="Slider controls">
-          <button class="sight-nav sight-prev" aria-label="Previous vessel" id="sight-prev">←</button>
-          <button class="sight-nav sight-next" aria-label="Next vessel" id="sight-next">→</button>
-        </div>
-
-        <!-- Hero Eyebrow Badge (z 3) -->
-        <div class="hero-eyebrow" id="hero-eyebrow">
-          <span class="eyebrow-dot"></span>
-          <span class="eyebrow-text">AI Maritime Decision Network</span>
-        </div>
-
-        <!-- Hero Title (z 3) -->
-        <h1 class="hero-title">MARITIME</h1>
-
-        <!-- Splitframe LEFT / RIGHT (corridor halves, open on scroll) -->
-        <img class="scene-img splitframe-img splitframe-left"  src="https://raft-blast-61784561.figma.site/_assets/v11/7536d7b60a1fce482cf6edf3f0bffd3bad5d0f8a.png" alt="" />
-        <img class="scene-img splitframe-img splitframe-right" src="https://raft-blast-61784561.figma.site/_assets/v11/392db6a6a6b98e868bd7f8d3f55bb719d51e5028.png" alt="" />
-
-        <!-- Foreground vessel / bridge layer (z 4) -->
-        <img class="scene-img bridge-img" src="https://raft-blast-61784561.figma.site/_assets/v11/c6a6d8ef49bca43f708aa852692942c45ec950d4.png" alt="" />
-
-        <!-- Frame-two: strategy reveal close-up (z 5) -->
-        <img class="scene-img frame-two-img" src="https://raft-blast-61784561.figma.site/_assets/v11/ba75252bab2b1c510987b74837770f7bc8a6b2d4.png" alt="" />
-
-        <!-- Shade / gradient overlay -->
-        <div class="shade"></div>
-
-      </div><!-- /.world -->
-
-      <!-- Intro copy (z 9) -->
-      <section class="intro-copy" aria-label="Maritime Decision Network overview">
-        <p class="intro-lead">When a supply route breaks, find the cheapest, fastest, and safest way forward — in minutes.</p>
-        <div class="hero-actions">
-          <button class="btn-hero-primary" id="btn-hero-start">
-            <span>Launch Decision Platform</span>
-            <span class="btn-arrow" aria-hidden="true">→</span>
-          </button>
-          <a href="#disruption-anchor" class="btn-hero-secondary">
-            <span>Explore Disruption Engine</span>
-            <span class="btn-arrow-down" aria-hidden="true">↓</span>
-          </a>
-        </div>
-        <div class="hero-tags" aria-label="Platform capabilities">
-          <span class="hero-tag"><span class="tag-icon">⚡</span> Route Disruption</span>
-          <span class="hero-tag"><span class="tag-icon">⚓</span> Hybrid Optimization</span>
-          <span class="hero-tag"><span class="tag-icon">✦</span> AI Decision Support</span>
-        </div>
-      </section>
-
-      <!-- Story Panel 2: Disruption (appears at ~900px scroll) -->
-      <section class="story-panel story-panel-bridge" aria-label="Disruption analysis" id="disruption-anchor">
-        <div class="panel-eyebrow">CRITICAL SUPPLY DISRUPTION</div>
-        <h2>The route is disrupted.<br/>The clock is running.</h2>
-        <p>Every hour of indecision has an escalating financial cost. The platform evaluates every feasible option — vessels, pipelines, alternate routes, and hybrid combinations — simultaneously.</p>
-        <dl class="facts">
-          <div class="fact-card">
-            <dt>21%</dt>
-            <dd>of global oil trade passes through the Strait of Hormuz</dd>
-          </div>
-          <div class="fact-card">
-            <dt>2.5M</dt>
-            <dd>barrels per day capacity on the IPSA bypass pipeline</dd>
-          </div>
-        </dl>
-      </section>
-
-      <!-- Story Panel 3: Strategy reveal (appears at ~2000px scroll) -->
-      <section class="story-panel story-panel-bazaar" aria-label="Strategy optimization" id="strategy-anchor">
-        <div class="panel-eyebrow">HYBRID OPTIMIZATION ENGINE</div>
-        <h2>The optimal path is rarely one route.</h2>
-        <p>Split your supply across available vessel capacity, pipeline bypasses, and alternate suppliers. The AI optimizer determines the exact volume allocation that minimizes cost, time, and geopolitical risk.</p>
-        <button class="note-button" id="btn-open-command-2">
-          <span>Open Command Center</span>
-          <span class="note-arrow" aria-hidden="true">↗</span>
+    <div class="hero-body">
+      <div class="hero-badge" id="hero-badge">
+        <span class="badge-icon" aria-hidden="true">&#9889;</span>
+        <span>AI Maritime Decision Network</span>
+      </div>
+      <h1 class="hero-heading" id="hero-heading">
+        When a supply route breaks,<br />
+        <em>find the fastest way forward.</em>
+      </h1>
+      <p class="hero-subtitle" id="hero-subtitle">
+        Eliminate uncertainty in maritime supply chain disruptions. EON EXEA evaluates every vessel, pipeline bypass, and hybrid route combination &mdash; simultaneously &mdash; and surfaces the optimal decision in minutes.
+      </p>
+      <div class="hero-actions" id="hero-actions">
+        <button class="btn-primary" id="btn-hero-start">
+          Launch Decision Platform
+          <span class="btn-arrow" aria-hidden="true">&rarr;</span>
         </button>
-      </section>
+        <a href="#disruption-anchor" class="btn-ghost" id="btn-hero-explore">
+          Explore the Engine
+          <span class="btn-arrow" aria-hidden="true">&darr;</span>
+        </a>
+      </div>
+      <div class="hero-tags" aria-label="Platform capabilities" id="hero-tags">
+        <span class="hero-tag" id="tag-disruption">Route Disruption</span>
+        <span class="hero-divider" aria-hidden="true">&middot;</span>
+        <span class="hero-tag" id="tag-optimization">Hybrid Optimization</span>
+        <span class="hero-divider" aria-hidden="true">&middot;</span>
+        <span class="hero-tag" id="tag-ai">AI Decision Support</span>
+      </div>
+    </div>
 
-    </div><!-- /.stage -->
-  </section><!-- /.cinema-scroll -->
+  </div>
+</section>
+
+<main class="story-shell" id="story-shell">
+
+  <section class="story-section" id="disruption-anchor" aria-label="Disruption analysis">
+    <div class="story-section-inner">
+      <div class="story-content">
+        <div class="story-eyebrow">CRITICAL SUPPLY DISRUPTION</div>
+        <h2 class="story-heading">The route is disrupted.<br/>The clock is running.</h2>
+        <p class="story-body">Every hour of indecision has an escalating financial cost. The platform evaluates every feasible option &mdash; vessels, pipelines, alternate routes, and hybrid combinations &mdash; simultaneously.</p>
+        <div class="facts-grid" aria-label="Key disruption facts">
+          <div class="fact-card" id="fact-hormuz">
+            <div class="fact-value">21%</div>
+            <div class="fact-label">of global oil trade passes through the Strait of Hormuz</div>
+          </div>
+          <div class="fact-card" id="fact-ipsa">
+            <div class="fact-value">2.5M</div>
+            <div class="fact-label">barrels per day capacity on the IPSA bypass pipeline</div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-tiles" aria-label="Platform capabilities">
+        <div class="feature-tile" id="feat-speed">
+          <div class="feature-tile-icon" aria-hidden="true">&#9201;</div>
+          <h3 class="feature-tile-title">Sub-60s Analysis</h3>
+          <p class="feature-tile-desc">From disruption alert to ranked strategy options &mdash; in under a minute.</p>
+        </div>
+        <div class="feature-tile" id="feat-multimodal">
+          <div class="feature-tile-icon" aria-hidden="true">&#9875;</div>
+          <h3 class="feature-tile-title">Multi-modal Routing</h3>
+          <p class="feature-tile-desc">Vessels, pipelines, and alternate suppliers evaluated as a unified system.</p>
+        </div>
+        <div class="feature-tile" id="feat-ai">
+          <div class="feature-tile-icon" aria-hidden="true">&#10022;</div>
+          <h3 class="feature-tile-title">AI Explanation Layer</h3>
+          <p class="feature-tile-desc">Every recommendation is explained with transparent, auditable reasoning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="story-section story-section-alt" id="strategy-anchor" aria-label="Strategy optimization">
+    <div class="story-section-inner story-section-inner--reversed">
+      <div class="feature-tiles" aria-label="Optimization modules">
+        <div class="feature-tile feature-tile--dark" id="feat-ortools">
+          <div class="feature-tile-icon" aria-hidden="true">&#128290;</div>
+          <h3 class="feature-tile-title">OR-Tools Optimizer</h3>
+          <p class="feature-tile-desc">Google's constraint solver allocates volume across all feasible supply paths.</p>
+        </div>
+        <div class="feature-tile feature-tile--dark" id="feat-risk">
+          <div class="feature-tile-icon" aria-hidden="true">&#128737;</div>
+          <h3 class="feature-tile-title">Risk Scoring</h3>
+          <p class="feature-tile-desc">Geopolitical, insurance, and transit risk quantified and weighted per route.</p>
+        </div>
+        <div class="feature-tile feature-tile--dark" id="feat-report">
+          <div class="feature-tile-icon" aria-hidden="true">&#128203;</div>
+          <h3 class="feature-tile-title">Executive Reports</h3>
+          <p class="feature-tile-desc">AI-generated decision briefs ready for C-suite presentation in one click.</p>
+        </div>
+      </div>
+      <div class="story-content">
+        <div class="story-eyebrow">HYBRID OPTIMIZATION ENGINE</div>
+        <h2 class="story-heading">The optimal path is rarely one route.</h2>
+        <p class="story-body">Split your supply across available vessel capacity, pipeline bypasses, and alternate suppliers. The AI optimizer determines the exact volume allocation that minimizes cost, time, and geopolitical risk.</p>
+        <button class="btn-outline" id="btn-open-command-2">
+          Open Command Center
+          <span class="btn-arrow" aria-hidden="true">&#8599;</span>
+        </button>
+      </div>
+    </div>
+  </section>
 
 </main>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SECTION 2: COMMAND CENTER (below scroll, revealed on CTA)
-     ═══════════════════════════════════════════════════════════ -->
-<div id="command-center" class="command-center hidden">
+<div id="command-center" class="command-center hidden" aria-label="Maritime Command Center">
 
-  <!-- Top Bar -->
-  <header class="cc-header">
-    <div class="cc-brand">
-      <span class="cc-logo-icon">⚡</span>
-      <span class="cc-title">EON EXEA — Maritime Decision Network</span>
-    </div>
-    <div class="cc-status-row">
-      <div class="cc-status-badge" id="cc-api-status">
-        <span class="pulse-dot" id="cc-status-dot"></span>
-        <span id="cc-status-text">Checking API...</span>
+  <header class="cc-header" id="cc-header">
+    <div class="cc-header-inner">
+      <div class="cc-brand">
+        <svg width="20" height="20" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor"/>
+          <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor" opacity="0.55"/>
+        </svg>
+        <span class="cc-title">EON EXEA &mdash; Maritime Decision Network</span>
       </div>
-      <button class="cc-close-btn" id="btn-close-command" aria-label="Back to overview">← Back</button>
+      <div class="cc-header-right">
+        <div class="cc-status-badge" id="cc-api-status">
+          <span class="pulse-dot" id="cc-status-dot"></span>
+          <span id="cc-status-text">Checking API...</span>
+        </div>
+        <button class="cc-back-btn" id="btn-close-command" aria-label="Back to overview">&larr; Back to Overview</button>
+      </div>
     </div>
   </header>
 
-  <!-- Disruption Banner -->
   <div class="disruption-banner" id="disruption-banner">
-    <div class="disruption-icon">⚠</div>
-    <div class="disruption-info">
-      <div class="disruption-label">ACTIVE DISRUPTION</div>
-      <div class="disruption-name" id="disruption-name">Strait of Hormuz — Elevated Passage Risk</div>
-      <div class="disruption-meta" id="disruption-meta">Risk score: 0.87 · ~21M bbl/day affected · Insurance premium +45%</div>
-    </div>
-    <div class="disruption-actions">
-      <select class="scenario-select" id="disruption-select" aria-label="Select disruption scenario">
-        <option value="hormuz-blockage">Hormuz Blockage (Critical)</option>
-        <option value="suez-closure">Suez Canal Closure (High)</option>
-        <option value="malacca-restriction">Malacca Restriction (Medium)</option>
-      </select>
+    <div class="disruption-banner-inner">
+      <div class="disruption-left">
+        <div class="disruption-alert-pill">
+          <span class="disruption-alert-dot" aria-hidden="true"></span>
+          ACTIVE DISRUPTION
+        </div>
+        <div class="disruption-name" id="disruption-name">Strait of Hormuz &mdash; Elevated Passage Risk</div>
+        <div class="disruption-meta" id="disruption-meta">Risk score: 0.87 &middot; ~21M bbl/day affected &middot; Insurance premium +45%</div>
+      </div>
+      <div class="disruption-right">
+        <select class="scenario-select" id="disruption-select" aria-label="Select disruption scenario">
+          <option value="hormuz-blockage">Hormuz Blockage (Critical)</option>
+          <option value="suez-closure">Suez Canal Closure (High)</option>
+          <option value="malacca-restriction">Malacca Restriction (Medium)</option>
+        </select>
+      </div>
     </div>
   </div>
 
-  <!-- Main Grid: Map + Side Panel -->
-  <div class="cc-grid">
+  <div class="cc-main-grid" id="cc-main-grid">
 
-    <!-- Left: Interactive Map -->
-    <div class="cc-map-panel">
-      <div class="cc-panel-label">ROUTE MAP</div>
-      <div id="map" class="map-container" aria-label="Interactive maritime route map"></div>
-      <div class="map-legend">
-        <span class="legend-item legend-disrupted">● Disrupted route</span>
-        <span class="legend-item legend-vessel">● Vessel</span>
-        <span class="legend-item legend-pipeline">● Pipeline</span>
-        <span class="legend-item legend-altroute">● Alternate route</span>
+    <div class="cc-map-panel" id="cc-map-panel">
+      <div class="cc-panel-header">
+        <span class="cc-panel-label">ROUTE MAP</span>
+        <div class="map-legend" aria-label="Map legend">
+          <span class="legend-dot legend-dot--red"></span><span class="legend-text">Disrupted</span>
+          <span class="legend-dot legend-dot--blue"></span><span class="legend-text">Vessel</span>
+          <span class="legend-dot legend-dot--teal"></span><span class="legend-text">Pipeline</span>
+          <span class="legend-dot legend-dot--green"></span><span class="legend-text">Alternate</span>
+        </div>
       </div>
+      <div id="map" class="map-container" aria-label="Interactive maritime route map"></div>
     </div>
 
-    <!-- Right: Intake + Analysis -->
-    <div class="cc-side-panel">
+    <div class="cc-side-panel" id="cc-side-panel">
 
-      <!-- Step Indicator -->
-      <div class="step-indicator" id="step-indicator">
-        <div class="step-dot active" data-step="1">1</div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="2">2</div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="3">3</div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="4">4</div>
-        <div class="step-line"></div>
-        <div class="step-dot" data-step="5">5</div>
+      <div class="step-indicator" id="step-indicator" aria-label="Analysis steps">
+        <div class="step-dot active" data-step="1" id="sdot-1">1</div>
+        <div class="step-line" aria-hidden="true"></div>
+        <div class="step-dot" data-step="2" id="sdot-2">2</div>
+        <div class="step-line" aria-hidden="true"></div>
+        <div class="step-dot" data-step="3" id="sdot-3">3</div>
+        <div class="step-line" aria-hidden="true"></div>
+        <div class="step-dot" data-step="4" id="sdot-4">4</div>
+        <div class="step-line" aria-hidden="true"></div>
+        <div class="step-dot" data-step="5" id="sdot-5">5</div>
       </div>
 
-      <!-- INTAKE FORM (Steps 1–5) -->
       <div id="intake-section">
 
-        <!-- Step 1: Demand -->
         <div class="intake-step active" id="step-1">
-          <div class="intake-label">STEP 1 OF 5 — DEMAND</div>
+          <div class="intake-eyebrow">STEP 1 OF 5 &mdash; DEMAND</div>
           <h3 class="intake-heading">What do you need to secure?</h3>
-
           <div class="field-group">
             <label class="field-label" for="f-product">Product Type</label>
             <select class="form-ctrl" id="f-product">
@@ -245,7 +230,6 @@
               <option value="refined">Refined Products (general)</option>
             </select>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="f-volume">Required Volume</label>
             <div class="input-with-unit">
@@ -256,7 +240,6 @@
               </select>
             </div>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="f-dest">Destination Port</label>
             <select class="form-ctrl" id="f-dest">
@@ -268,20 +251,16 @@
               <option value="HPT">Houston, USA</option>
             </select>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="f-deadline">Required Delivery (days)</label>
             <input class="form-ctrl" type="number" id="f-deadline" value="14" min="1" max="90" />
           </div>
-
-          <button class="btn-next" onclick="nextStep(1)">Continue →</button>
+          <button class="btn-step-next" onclick="nextStep(1)">Continue &rarr;</button>
         </div>
 
-        <!-- Step 2: Current Supply -->
         <div class="intake-step" id="step-2">
-          <div class="intake-label">STEP 2 OF 5 — CURRENT SUPPLY</div>
+          <div class="intake-eyebrow">STEP 2 OF 5 &mdash; CURRENT SUPPLY</div>
           <h3 class="intake-heading">Where is your supply coming from?</h3>
-
           <div class="field-group">
             <label class="field-label" for="f-origin">Origin / Supplier Port</label>
             <select class="form-ctrl" id="f-origin">
@@ -292,209 +271,165 @@
               <option value="MUS">Muscat, Oman</option>
             </select>
           </div>
-
           <div class="field-group">
             <label class="field-label" for="f-price">Purchase Price (USD/bbl, optional)</label>
             <input class="form-ctrl" type="number" id="f-price" placeholder="e.g. 82.50" step="0.01" />
           </div>
-
           <div class="step-nav">
-            <button class="btn-back" onclick="prevStep(2)">← Back</button>
-            <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+            <button class="btn-step-back" onclick="prevStep(2)">&larr; Back</button>
+            <button class="btn-step-next" onclick="nextStep(2)">Continue &rarr;</button>
           </div>
         </div>
 
-        <!-- Step 3: Vessel Situation -->
         <div class="intake-step" id="step-3">
-          <div class="intake-label">STEP 3 OF 5 — VESSEL SITUATION</div>
+          <div class="intake-eyebrow">STEP 3 OF 5 &mdash; VESSEL SITUATION</div>
           <h3 class="intake-heading">What is your vessel status?</h3>
-
           <div class="field-group">
             <label class="field-label">Vessel Ownership Mode</label>
             <div class="radio-group" id="vessel-mode-group">
-              <label class="radio-option">
-                <input type="radio" name="vessel-mode" value="own" id="vm-own" /> Own vessel
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="vessel-mode" value="chartered" id="vm-chartered" /> Chartered / Rented
-              </label>
-              <label class="radio-option selected">
-                <input type="radio" name="vessel-mode" value="seeking" id="vm-seeking" checked /> Need to find a vessel
-              </label>
+              <label class="radio-option"><input type="radio" name="vessel-mode" value="own" id="vm-own" /> Own vessel</label>
+              <label class="radio-option"><input type="radio" name="vessel-mode" value="chartered" id="vm-chartered" /> Chartered / Rented</label>
+              <label class="radio-option selected"><input type="radio" name="vessel-mode" value="seeking" id="vm-seeking" checked /> Need to find a vessel</label>
             </div>
           </div>
-
           <div class="field-group" id="own-vessel-fields" style="display:none">
             <label class="field-label" for="f-vessel-type">Vessel Type</label>
             <select class="form-ctrl" id="f-vessel-type">
               <option value="VLCC">VLCC (300,000+ DWT)</option>
-              <option value="Suezmax">Suezmax (120,000–200,000 DWT)</option>
-              <option value="Aframax">Aframax (80,000–120,000 DWT)</option>
-              <option value="MR Tanker">MR Tanker (25,000–55,000 DWT)</option>
+              <option value="Suezmax">Suezmax (120,000-200,000 DWT)</option>
+              <option value="Aframax">Aframax (80,000-120,000 DWT)</option>
+              <option value="MR Tanker">MR Tanker (25,000-55,000 DWT)</option>
             </select>
             <label class="field-label" for="f-vessel-cap" style="margin-top:12px">Available Capacity (Mbbl)</label>
             <input class="form-ctrl" type="number" id="f-vessel-cap" placeholder="e.g. 500" />
           </div>
-
           <div class="step-nav">
-            <button class="btn-back" onclick="prevStep(3)">← Back</button>
-            <button class="btn-next" onclick="nextStep(3)">Continue →</button>
+            <button class="btn-step-back" onclick="prevStep(3)">&larr; Back</button>
+            <button class="btn-step-next" onclick="nextStep(3)">Continue &rarr;</button>
           </div>
         </div>
 
-        <!-- Step 4: Disruption + Alternatives -->
         <div class="intake-step" id="step-4">
-          <div class="intake-label">STEP 4 OF 5 — DISRUPTION & ALTERNATIVES</div>
+          <div class="intake-eyebrow">STEP 4 OF 5 &mdash; DISRUPTION &amp; ALTERNATIVES</div>
           <h3 class="intake-heading">What disruption are you facing?</h3>
-
           <div class="field-group">
             <label class="field-label" for="f-disruption">Disruption Scenario</label>
             <select class="form-ctrl" id="f-disruption">
-              <option value="hormuz-blockage">Strait of Hormuz — Elevated Risk</option>
-              <option value="suez-closure">Suez Canal — Closed</option>
-              <option value="malacca-restriction">Strait of Malacca — Restricted</option>
+              <option value="hormuz-blockage">Strait of Hormuz &mdash; Elevated Risk</option>
+              <option value="suez-closure">Suez Canal &mdash; Closed</option>
+              <option value="malacca-restriction">Strait of Malacca &mdash; Restricted</option>
               <option value="">No active disruption (normal operations)</option>
             </select>
           </div>
-
           <div class="field-group">
-            <label class="field-label">Known Alternatives (check all you have access to)</label>
+            <label class="field-label">Known Alternatives</label>
             <div class="check-group">
               <label class="check-option"><input type="checkbox" id="alt-pipeline" checked /> Pipeline bypass routes</label>
               <label class="check-option"><input type="checkbox" id="alt-altsupplier" /> Alternate supplier</label>
-              <label class="check-option"><input type="checkbox" id="alt-vessels" checked /> Available vessel capacity (from market)</label>
+              <label class="check-option"><input type="checkbox" id="alt-vessels" checked /> Available vessel capacity</label>
             </div>
           </div>
-
           <div class="step-nav">
-            <button class="btn-back" onclick="prevStep(4)">← Back</button>
-            <button class="btn-next" onclick="nextStep(4)">Continue →</button>
+            <button class="btn-step-back" onclick="prevStep(4)">&larr; Back</button>
+            <button class="btn-step-next" onclick="nextStep(4)">Continue &rarr;</button>
           </div>
         </div>
 
-        <!-- Step 5: Objective + Weights -->
         <div class="intake-step" id="step-5">
-          <div class="intake-label">STEP 5 OF 5 — OBJECTIVE</div>
+          <div class="intake-eyebrow">STEP 5 OF 5 &mdash; OBJECTIVE</div>
           <h3 class="intake-heading">How should we prioritize?</h3>
-
           <p class="intake-desc">Drag the sliders to set the relative importance of each factor. The optimizer will weight strategies accordingly.</p>
-
           <div class="weight-sliders" id="weight-sliders">
             <div class="weight-row">
-              <label class="weight-label">💰 Minimize Cost</label>
+              <label class="weight-label">&#128176; Minimize Cost</label>
               <input type="range" class="weight-slider" id="w-cost" min="0" max="100" value="40" oninput="updateWeights()" />
               <span class="weight-val" id="wv-cost">40%</span>
             </div>
             <div class="weight-row">
-              <label class="weight-label">⏱ Minimize Time</label>
+              <label class="weight-label">&#9201; Minimize Time</label>
               <input type="range" class="weight-slider" id="w-time" min="0" max="100" value="35" oninput="updateWeights()" />
               <span class="weight-val" id="wv-time">35%</span>
             </div>
             <div class="weight-row">
-              <label class="weight-label">🛡 Minimize Risk</label>
+              <label class="weight-label">&#128737; Minimize Risk</label>
               <input type="range" class="weight-slider" id="w-risk" min="0" max="100" value="25" oninput="updateWeights()" />
               <span class="weight-val" id="wv-risk">25%</span>
             </div>
           </div>
-
           <div class="step-nav">
-            <button class="btn-back" onclick="prevStep(5)">← Back</button>
-            <button class="btn-primary-action" id="btn-analyze" onclick="runAnalysis()">
-              <span class="btn-spinner hidden" id="analyze-spinner">⟳</span>
-              Run AI Analysis →
+            <button class="btn-step-back" onclick="prevStep(5)">&larr; Back</button>
+            <button class="btn-analyze" id="btn-analyze" onclick="runAnalysis()">
+              <span class="btn-spinner hidden" id="analyze-spinner">&#10227;</span>
+              Run AI Analysis &rarr;
             </button>
           </div>
         </div>
 
-      </div><!-- /#intake-section -->
+      </div>
 
-      <!-- RESULTS SECTION (revealed after analysis) -->
       <div id="results-section" class="hidden">
-
-        <!-- Confidence Banner -->
         <div class="confidence-banner" id="confidence-banner">
-          <span class="conf-icon">ℹ</span>
+          <span class="conf-icon" aria-hidden="true">&#8505;</span>
           <span id="conf-text">Estimates based on vessel specs and voyage signals. Not confirmed booking data.</span>
         </div>
-
-        <!-- Strategy Board -->
-        <div class="results-panel">
-          <div class="panel-header">
-            <span class="panel-label">STRATEGY BOARD</span>
-            <button class="btn-sm" onclick="backToIntake()">← New Analysis</button>
+        <div class="results-block">
+          <div class="results-block-header">
+            <span class="results-block-label">STRATEGY BOARD</span>
+            <button class="btn-sm" onclick="backToIntake()">&larr; New Analysis</button>
           </div>
-
-          <div id="strategy-board">
-            <!-- Populated by JS -->
-          </div>
+          <div id="strategy-board"></div>
         </div>
-
-        <!-- AI Explanation -->
         <div class="ai-panel" id="ai-panel">
           <div class="ai-panel-header">
             <span class="ai-badge">AI ANALYSIS</span>
             <span class="ai-provider-badge" id="ai-provider-badge"></span>
           </div>
-          <div class="ai-text" id="ai-text">
-            Analyzing strategies...
-          </div>
+          <div class="ai-text" id="ai-text">Analyzing strategies...</div>
         </div>
-
-        <!-- What-If Simulator -->
         <div class="whatif-panel">
-          <div class="panel-label">WHAT-IF SIMULATOR</div>
+          <div class="results-block-label">WHAT-IF SIMULATOR</div>
           <p class="whatif-desc">Adjust weights and re-run to compare strategies.</p>
           <div class="weight-sliders whatif-sliders">
             <div class="weight-row">
-              <label class="weight-label">💰 Cost</label>
+              <label class="weight-label">&#128176; Cost</label>
               <input type="range" class="weight-slider" id="wi-cost" min="0" max="100" value="40" oninput="updateWhatIfWeights()" />
               <span class="weight-val" id="wiv-cost">40%</span>
             </div>
             <div class="weight-row">
-              <label class="weight-label">⏱ Time</label>
+              <label class="weight-label">&#9201; Time</label>
               <input type="range" class="weight-slider" id="wi-time" min="0" max="100" value="35" oninput="updateWhatIfWeights()" />
               <span class="weight-val" id="wiv-time">35%</span>
             </div>
             <div class="weight-row">
-              <label class="weight-label">🛡 Risk</label>
+              <label class="weight-label">&#128737; Risk</label>
               <input type="range" class="weight-slider" id="wi-risk" min="0" max="100" value="25" oninput="updateWhatIfWeights()" />
               <span class="weight-val" id="wiv-risk">25%</span>
             </div>
           </div>
-          <button class="btn-sm btn-whatif" id="btn-whatif" onclick="runWhatIf()">Re-run with new weights →</button>
+          <button class="btn-whatif" id="btn-whatif" onclick="runWhatIf()">Re-run with new weights &rarr;</button>
         </div>
-
-        <!-- Report -->
         <div class="report-panel">
-          <div class="panel-label">DECISION REPORT</div>
+          <div class="results-block-label">DECISION REPORT</div>
           <div id="report-text" class="report-text">
             <span class="report-placeholder">Click "Generate Report" to produce the executive decision report.</span>
           </div>
-          <button class="btn-primary-action" id="btn-report" onclick="generateReport()">
-            Generate Decision Report →
-          </button>
+          <button class="btn-analyze" id="btn-report" onclick="generateReport()">Generate Decision Report &rarr;</button>
         </div>
+      </div>
 
-      </div><!-- /#results-section -->
-
-    </div><!-- /.cc-side-panel -->
-
-  </div><!-- /.cc-grid -->
-
-  <!-- Vessel Opportunities List (below map) -->
-  <div class="vessel-opportunities" id="vessel-opportunities">
-    <div class="cc-section-header">
-      <span class="panel-label">VESSEL OPPORTUNITIES</span>
-      <span class="data-badge" id="vessel-data-badge">⚠ Dev fallback data — not real AIS</span>
-    </div>
-    <div class="vessel-cards-row" id="vessel-cards-row">
-      <!-- Populated by JS -->
     </div>
   </div>
 
-</div><!-- /#command-center -->
+  <div class="vessel-opportunities" id="vessel-opportunities">
+    <div class="vessel-opp-header">
+      <span class="results-block-label">VESSEL OPPORTUNITIES</span>
+      <span class="data-badge" id="vessel-data-badge">&#9888; Dev fallback data &mdash; not real AIS</span>
+    </div>
+    <div class="vessel-cards-row" id="vessel-cards-row"></div>
+  </div>
 
-<!-- Leaflet + scripts -->
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="script.js" defer></script>
 </body>

@@ -5,14 +5,14 @@
 // 1. MOSTAR ANIMATION ENGINE (exact math)
 // ═══════════════════════════════════════
 
-const section = document.querySelector(".cinema-scroll");
+const section = document.querySelector(".cinema-scroll"); // may be null in new layout
 const root = document.documentElement;
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const track = document.querySelector(".sights-track");
 const sightsControls = document.getElementById("sights-controls");
 const sightPrev = document.getElementById("sight-prev");
 const sightNext = document.getElementById("sight-next");
-const originalCards = Array.from(document.querySelectorAll(".sights-track > .sight-card"));
+const originalCards = track ? Array.from(document.querySelectorAll(".sights-track > .sight-card")) : [];
 
 // State
 let targetMouseX = 0, targetMouseY = 0;
@@ -32,6 +32,7 @@ function segmentInOut(s, a, b, c, d) {
   return { enter, exit, active: enter * (1 - exit) };
 }
 function getScrollDistance() {
+  if (!section) return 0;
   return clamp(-section.getBoundingClientRect().top, 0, section.offsetHeight - window.innerHeight);
 }
 
@@ -267,8 +268,8 @@ function normalizeSightSlider() {
   else if (activeSight < originalSightCount) jumpSightSlider(activeSight + originalSightCount);
 }
 
-sightPrev.addEventListener("click", () => moveSightSlider(-1));
-sightNext.addEventListener("click", () => moveSightSlider(1));
+if (sightPrev) sightPrev.addEventListener("click", () => moveSightSlider(-1));
+if (sightNext) sightNext.addEventListener("click", () => moveSightSlider(1));
 
 // ═══════════════════════════════════════
 // 3. COMMAND CENTER CONTROLLER
@@ -302,10 +303,11 @@ function openCommandCenter() {
 }
 
 function closeCommandCenter() {
-  const cinema = document.getElementById("cinema");
-  if (cinema) {
-    cinema.scrollIntoView({ behavior: "smooth" });
-  }
+  const cc = document.getElementById("command-center");
+  if (cc) cc.classList.add("hidden");
+  const hero = document.getElementById("hero");
+  if (hero) hero.scrollIntoView({ behavior: "smooth" });
+  else window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 if (btnOpenCommand) btnOpenCommand.addEventListener("click", openCommandCenter);
@@ -845,7 +847,7 @@ async function checkApiStatus() {
 // 4. INIT
 // ═══════════════════════════════════════
 document.addEventListener("DOMContentLoaded", () => {
-  setupSightSlider();
+  if (track) setupSightSlider();
   checkApiStatus();
-  requestTick();
+  if (section) requestTick();
 });
