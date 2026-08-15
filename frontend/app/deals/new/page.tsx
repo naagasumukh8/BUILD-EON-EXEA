@@ -11,6 +11,7 @@ import { api } from '@/lib/api'
 const DEAL_TYPES = [
   { value: 'vessel', label: 'Vessel Charter', desc: 'Moving ship commercial opportunity' },
   { value: 'bicoastal_swap', label: 'Bi-Coastal Cargo Swap', desc: 'Unload West Coast (Mumbai) ⇄ Release East Coast (Vizag)' },
+  { value: 'triangulation', label: '3-Party Triangulation Swap', desc: 'Closed 3-node loop swap (Node A ➔ Node B ➔ Node C)' },
   { value: 'pipeline', label: 'Pipeline Capacity', desc: 'Overland pipeline throughput tariff' },
   { value: 'alternate_route', label: 'Alternate Route', desc: 'Bypass or long-haul sea lane' },
   { value: 'supplier', label: 'Spot Supplier', desc: 'Direct commercial supply offer' },

@@ -113,6 +113,7 @@ function MapContent() {
   const [showRoutes, setShowRoutes] = useState(true)
   const [showChokepoints, setShowChokepoints] = useState(true)
   const [showOilCompanies, setShowOilCompanies] = useState(true)
+  const [showTriangulation, setShowTriangulation] = useState(true)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -283,6 +284,54 @@ function MapContent() {
                 </>
               )}
 
+              {/* 3-Party Triangulation & Backhaul Loop Network */}
+              {showTriangulation && (
+                <>
+                  <Polyline positions={[[18.96, 72.82], [1.35, 103.80], [4.43, 7.16], [18.96, 72.82]]}
+                    pathOptions={{ color: '#EC4899', weight: 3, dashArray: '8,4' }}>
+                    <Popup>
+                      <div className="p-2 space-y-1 font-sans text-xs max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-pink-100 text-pink-900 font-bold text-[10px] uppercase">3-PARTY TRIANGULAR SWAP</div>
+                        <div className="font-bold text-sm">Closed 3-Node Arbitrage Exchange Loop</div>
+                        <div className="text-gray-600">Node A (India) ➔ Node B (Singapore) ➔ Node C (WAF / Europe)</div>
+                        <div className="text-pink-700 font-semibold">Eliminates 4,800 nm empty ballast voyages across 3 fleets!</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=triangulation&counterparty=${encodeURIComponent('Global Triangulation Pool')}&journey=${encodeURIComponent('India Hub (A) ➔ Singapore Hub (B) ➔ WAF Hub (C)')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-[#EC4899] text-white text-[11px] font-semibold hover:bg-pink-600 shadow">
+                          🤝 Initiate 3-Way Triangular Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Polyline>
+
+                  {/* 3-Party Node Markers */}
+                  <Marker position={[1.35, 103.80]} icon={createIcon(L, '#EC4899', '🔺', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="font-bold text-sm">Triangulation Swap Node B — Singapore Hub</div>
+                        <div className="text-gray-600 font-medium">Releases Asian Volume to Europe</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=triangulation&counterparty=${encodeURIComponent('Singapore Swap Partner')}&journey=${encodeURIComponent('Singapore (B) ➔ Rotterdam (C)')}`)}
+                          className="w-full mt-1 py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
+                          Propose Singapore Node Swap →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+
+                  <Marker position={[4.43, 7.16]} icon={createIcon(L, '#EC4899', '🔺', 28)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="font-bold text-sm">Triangulation Swap Node C — West Africa (Bonny Terminal)</div>
+                        <div className="text-gray-600 font-medium">Direct European Supply Replacement</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=triangulation&counterparty=${encodeURIComponent('WAF Energy Trader')}&journey=${encodeURIComponent('West Africa (C) ➔ India Hub (A)')}`)}
+                          className="w-full mt-1 py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
+                          Propose WAF Node Swap →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                </>
+              )}
+
               {/* Moving vessels with journey trace */}
               {showVessels && vessels.map((v) => {
                 const pos: [number, number] = [v.lat, v.lon]
@@ -330,6 +379,7 @@ function MapContent() {
         <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-1 bg-white/90 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-[#18181B]/10 shadow-md">
           {[
             { label: 'Oil Hubs', active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
+            { label: 'Triangulation', active: showTriangulation, toggle: () => setShowTriangulation(!showTriangulation), color: 'bg-pink-600' },
             { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
             { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
             { label: 'Vessels', active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },

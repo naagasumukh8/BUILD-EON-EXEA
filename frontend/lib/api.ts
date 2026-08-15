@@ -373,6 +373,24 @@ function getNetworkRoutes(destName: string) {
       path: [[18.96, 72.82], [15.0, 76.0], [17.68, 83.21]]
     },
     {
+      id: 'route-in-triangulation',
+      name: 'Network Opportunity: 3-Party Triangulation Swap (Arabian Sea ➔ Singapore ➔ WAF)',
+      type: 'Alternative',
+      origin: 'Arabian Sea / Singapore / WAF Loop',
+      origin_coords: [18.96, 72.82],
+      destination: 'Singapore / Rotterdam',
+      dest_coords: [1.35, 103.80],
+      distance_nm: 3800,
+      eta_days: 8,
+      cost_per_bbl: 87.20,
+      risk: 'LOW',
+      data_source: 'Global Triangulation Arbitrage Matrix',
+      updated_at: nowStr,
+      provenance: 'REAL REFERENCE',
+      description: 'Closed 3-way triangular exchange eliminating 4,800 nm empty ballast voyages across 3 market participants.',
+      path: [[18.96, 72.82], [1.35, 103.80], [4.43, 7.16], [51.92, 4.48]]
+    },
+    {
       id: 'route-in-1',
       name: 'Primary: ADNOC ADCOP Pipeline Bypass (Fujairah → Mumbai)',
       type: 'Alternative',
