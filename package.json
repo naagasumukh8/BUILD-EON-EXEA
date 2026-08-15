@@ -2,11 +2,12 @@
   "name": "eon-exea-maritime-decision-network",
   "version": "2.0.0",
   "description": "AI Maritime Decision Network — supply chain optimization for energy companies",
-  "main": "server.py",
+  "main": "frontend/app/page.tsx",
   "scripts": {
-    "start": "python server.py",
-    "dev": "python server.py",
-    "dev:vercel": "npx vercel dev"
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build",
+    "start": "cd frontend && npm start",
+    "dev": "cd frontend && npm run dev",
+    "postinstall": "cd frontend && npm install --legacy-peer-deps"
   },
   "keywords": [
     "maritime",
@@ -17,8 +18,5 @@
     "eon-exea"
   ],
   "author": "Naaga Sumukh B S",
-  "license": "MIT",
-  "dependencies": {
-    "leaflet": "^1.9.4"
-  }
+  "license": "MIT"
 }
