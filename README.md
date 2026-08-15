@@ -11,6 +11,27 @@
 
 ---
 
+## 💻 Multi-Laptop Sync Workflow (HP & ACER)
+
+When switching between your **HP** and **ACER** laptops:
+
+1. **Pull Latest Code on ACER / HP:**
+   ```bash
+   git pull origin main
+   ```
+2. **Setup Local Environment (`.env`):**
+   - Copy `.env.example` to `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Populate `.env` with your `GEMINI_API_KEY`, `SUPABASE_SERVICE_KEY`, and `AISSTREAM_API_KEY`.
+3. **Run Local Servers:**
+   - **Backend (FastAPI):** `cd backend && python main.py` (port 8000)
+   - **Frontend (Next.js):** `cd frontend && npm run dev` (port 3001)
+   - **Landing Page:** `python server.py` (port 3000)
+
+---
+
 ## 🚀 Vercel Deployment Instructions
 
 1. Import repository `naagasumukh8/BUILD-EON-EXEA` into Vercel Dashboard.
