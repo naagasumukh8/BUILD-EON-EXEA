@@ -262,7 +262,7 @@ function MapContent() {
                   <Popup>
                     <div className="p-2 space-y-1 text-center font-sans">
                       <div className="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[10px] uppercase">
-                        STABILITY RISK 94% &middot; BLOCKED
+                        STABILITY RISK 94% BLOCKED
                       </div>
                       <div className="font-bold text-sm text-[#18181B] mt-1">{PORTS.hormuz.name}</div>
                       <div className="text-xs text-red-700 font-medium">

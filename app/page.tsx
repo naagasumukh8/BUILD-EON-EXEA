@@ -77,7 +77,7 @@ export default function Home() {
 
           {/* Subtitle */}
           <p className="mt-5 sm:mt-6 max-w-3xl mx-auto text-xs sm:text-sm md:text-base leading-relaxed text-[#1B133C]/80 font-light">
-            Eliminate uncertainty when the Strait of Hormuz is unavailable. Wide Hormuz evaluates live vessel candidates, Yanbu IPSA pipeline bypasses, and alternate sea lanes &mdash; simultaneously &mdash; and surfaces the optimal decision in minutes.
+            Eliminate uncertainty when the Strait of Hormuz is unavailable. Wide Hormuz evaluates live vessel candidates, Yanbu IPSA pipeline bypasses, and alternate sea lanes simultaneously to surface the optimal decision in minutes.
           </p>
 
           {/* Primary Action Button */}
@@ -122,7 +122,7 @@ export default function Home() {
             
             {/* 01 */}
             <div className="p-8 rounded-3xl bg-white border border-[#1B133C]/10 shadow-xs space-y-4 hover:shadow-md transition-shadow">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">01 &middot; INTAKE & PARSING</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">01 INTAKE AND PARSING</div>
               <h3 className="font-['Instrument_Serif'] text-2xl text-[#1B133C]">Natural Language Prompt Intake</h3>
               <p className="text-sm text-[#1B133C]/70 leading-relaxed font-light">
                 State your operational demand in plain text (e.g. &quot;0.2 billion barrels of diesel to India within 700 days&quot;). Gemini AI extracts commodity volume, destination, and delivery deadline in seconds.
@@ -131,7 +131,7 @@ export default function Home() {
 
             {/* 02 */}
             <div className="p-8 rounded-3xl bg-white border border-[#1B133C]/10 shadow-xs space-y-4 hover:shadow-md transition-shadow">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">02 &middot; VESSEL & NETWORK DISCOVERY</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">02 VESSEL AND NETWORK DISCOVERY</div>
               <h3 className="font-['Instrument_Serif'] text-2xl text-[#1B133C]">AIS Vessel & Pipeline Tracking</h3>
               <p className="text-sm text-[#1B133C]/70 leading-relaxed font-light">
                 Tracks live AIS candidate vessels, Yanbu IPSA pipeline bypass throughput, and chokepoints with transparent, auditable data provenance tags.
@@ -140,7 +140,7 @@ export default function Home() {
 
             {/* 03 */}
             <div className="p-8 rounded-3xl bg-white border border-[#1B133C]/10 shadow-xs space-y-4 hover:shadow-md transition-shadow">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">03 &middot; FINANCIAL EVALUATOR</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">03 FINANCIAL EVALUATOR</div>
               <h3 className="font-['Instrument_Serif'] text-2xl text-[#1B133C]">Deterministic P&L & Ceiling</h3>
               <p className="text-sm text-[#1B133C]/70 leading-relaxed font-light">
                 100% arithmetic engine computes landed cost per barrel, expected profit, target price negotiation ceilings, and GO/NEGOTIATE/REJECT commercial verdicts.
@@ -149,7 +149,7 @@ export default function Home() {
 
             {/* 04 */}
             <div className="p-8 rounded-3xl bg-white border border-[#1B133C]/10 shadow-xs space-y-4 hover:shadow-md transition-shadow">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">04 &middot; STRATEGY OPTIMIZER</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#1B133C]/40">04 STRATEGY OPTIMIZER</div>
               <h3 className="font-['Instrument_Serif'] text-2xl text-[#1B133C]">OR-Tools Hybrid Strategy Solver</h3>
               <p className="text-sm text-[#1B133C]/70 leading-relaxed font-light">
                 Solves continuous linear capacity allocation across vessels and pipelines to maximize on-time volume fulfillment and generate audit-ready briefing reports.
