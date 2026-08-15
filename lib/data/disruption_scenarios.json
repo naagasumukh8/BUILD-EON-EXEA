@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "source": "curated_scenario_data",
+    "note": "Pre-built disruption scenarios for demonstration. Route risk scores are estimates based on historical patterns.",
+    "updated": "2026-08"
+  },
+  "scenarios": [
+    {
+      "id": "hormuz-blockage",
+      "name": "Strait of Hormuz Disruption",
+      "severity": "critical",
+      "affected_route": "Persian Gulf → Indian Ocean",
+      "chokepoint": { "lat": 26.56, "lon": 56.25 },
+      "description": "Geopolitical tensions have significantly increased passage risk through the Strait of Hormuz, affecting approximately 21% of global oil trade.",
+      "affected_volume_mbpd": 21.0,
+      "risk_score": 0.87,
+      "alternative_routes": [
+        { "id": "ipsa-bypass", "name": "IPSA Pipeline bypass to Red Sea", "via": "pipeline", "extra_days": 1, "extra_cost_pct": 8 },
+        { "id": "fujairah-bypass", "name": "Fujairah offshore bypass (outside strait)", "via": "maritime", "extra_days": 2, "extra_cost_pct": 12 },
+        { "id": "cape-route", "name": "Cape of Good Hope route (avoid Red Sea entirely)", "via": "maritime", "extra_days": 14, "extra_cost_pct": 35 }
+      ],
+      "affected_ports": ["AUH", "RAS", "KHO", "BAH"],
+      "insurance_premium_increase_pct": 45
+    },
+    {
+      "id": "suez-closure",
+      "name": "Suez Canal Closure",
+      "severity": "high",
+      "affected_route": "Red Sea → Mediterranean",
+      "chokepoint": { "lat": 30.58, "lon": 32.35 },
+      "description": "Suez Canal is closed due to a maritime incident. All traffic must divert.",
+      "affected_volume_mbpd": 9.0,
+      "risk_score": 0.72,
+      "alternative_routes": [
+        { "id": "sumed-pipeline", "name": "SUMED Pipeline (Ain Sukhna → Sidi Kerir)", "via": "pipeline", "extra_days": 1, "extra_cost_pct": 15 },
+        { "id": "cape-of-good-hope", "name": "Cape of Good Hope circumnavigation", "via": "maritime", "extra_days": 12, "extra_cost_pct": 40 }
+      ],
+      "affected_ports": ["SUZ", "DJI"],
+      "insurance_premium_increase_pct": 30
+    },
+    {
+      "id": "malacca-restriction",
+      "name": "Strait of Malacca Restricted Access",
+      "severity": "medium",
+      "affected_route": "Indian Ocean → Pacific",
+      "chokepoint": { "lat": 2.50, "lon": 102.0 },
+      "description": "Security restrictions and increased piracy risk in the Strait of Malacca.",
+      "affected_volume_mbpd": 15.0,
+      "risk_score": 0.58,
+      "alternative_routes": [
+        { "id": "lombok-strait", "name": "Lombok Strait (Indonesia)", "via": "maritime", "extra_days": 3, "extra_cost_pct": 18 },
+        { "id": "sunda-strait", "name": "Sunda Strait (Java Sea)", "via": "maritime", "extra_days": 2, "extra_cost_pct": 12 }
+      ],
+      "affected_ports": ["SIN"],
+      "insurance_premium_increase_pct": 22
+    }
+  ]
+}

@@ -1,18 +1,24 @@
 {
-  "name": "polyinnovae-ai-hackathon-foundation",
-  "version": "1.0.0",
-  "description": "Polyinnovae AI Hackathon solution foundation and application portfolio",
+  "name": "eon-exea-maritime-decision-network",
+  "version": "2.0.0",
+  "description": "AI Maritime Decision Network — supply chain optimization for energy companies",
   "main": "server.py",
   "scripts": {
     "start": "python server.py",
-    "dev": "python server.py"
+    "dev": "python server.py",
+    "dev:vercel": "npx vercel dev"
   },
   "keywords": [
-    "polyinnovae",
-    "hackathon",
+    "maritime",
+    "supply-chain",
+    "optimization",
     "ai",
+    "energy",
     "eon-exea"
   ],
   "author": "Naaga Sumukh B S",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  }
 }

@@ -1,1 +1,2 @@
-# Package initializer for lib
+# lib/__init__.py
+# Maritime Decision Network library

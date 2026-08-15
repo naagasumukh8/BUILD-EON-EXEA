@@ -3,295 +3,476 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Polyinnovae AI Hackathon — Solution Platform & Portfolio</title>
-  <meta name="description" content="Polyinnovae AI Hackathon solution foundation and application portfolio for Naaga Sumukh B S." />
-  
+  <title>EON EXEA — AI Maritime Decision Network</title>
+  <meta name="description" content="When a supply route breaks, find the best way forward. AI-powered maritime supply chain optimization for energy companies." />
+  <link rel="icon" href="data:," />
+
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Display serif: Ogg Medium (used for hero + panel headlines) -->
+  <style>
+    @font-face {
+      font-family: "Ogg Medium";
+      src: url("https://dcym8fthxf5uu.cloudfront.net/fonts/247a073c-29f5-4a89-aa3a-741020f346fc/OggText-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+
+  <!-- Leaflet map (open-source, no API key) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- App Header & Navigation -->
-  <header class="app-header">
-    <div class="header-container">
-      <div class="brand-group">
-        <div class="logo-icon">⚡</div>
-        <div>
-          <h1 class="brand-title">POLYINNOVAE HACKATHON</h1>
-          <p class="brand-sub">AI Application Foundation</p>
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 1: CINEMATIC LANDING PAGE
+     Mostar scroll architecture adapted for maritime
+     ═══════════════════════════════════════════════════════════ -->
+<main class="site-shell">
+
+  <section class="cinema-scroll" id="cinema" aria-label="Maritime cinematic scroll story">
+    <div class="stage">
+      <div class="world">
+
+        <!-- Sky / ocean horizon layer (z-index 0) -->
+        <img class="scene-img sky-img" src="https://raft-blast-61784561.figma.site/_assets/v11/16b5007d9c93971e26ffe4e0e3e37946f6bd538c.png" alt="" />
+
+        <!-- Header Navigation (z 10) -->
+        <header class="site-header" aria-label="Primary navigation">
+          <a class="site-logo" href="#cinema">EON EXEA</a>
+          <nav class="site-nav" aria-label="Main menu">
+            <a href="#cinema">Overview</a>
+            <a href="#disruption-anchor">Disruption</a>
+            <a href="#strategy-anchor">Strategy</a>
+            <a href="#command-center">Command Center</a>
+          </nav>
+          <button class="language-switcher" aria-label="Open command center" id="btn-open-command">
+            <span>Start Analysis</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </header>
+
+        <!-- Back stack: route glow + vessel opportunities + port layer (z 1) -->
+        <div class="back-stack">
+          <img class="scene-img back-img back-four" src="https://raft-blast-61784561.figma.site/_assets/v11/8a7f8af50e0ce92ec2e228e7b0b4112178c51cf1.png" alt="" />
+
+          <!-- Vessel Opportunity Slider (equivalent of sights-slider) -->
+          <section class="sights-slider" aria-label="Vessel opportunities slider">
+            <div class="sights-track" id="sights-track">
+              <!-- Cards injected by JS -->
+            </div>
+          </section>
+
+          <img class="scene-img back-img back-bazaar" src="https://raft-blast-61784561.figma.site/_assets/v11/864afe00e41e2fa20a5aa546e15cb807e0f81384.png" alt="" />
         </div>
-      </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="nav-tabs" role="tablist">
-        <button id="tab-btn-hackathon" class="nav-btn active" role="tab" aria-selected="true" aria-controls="tab-hackathon" onclick="switchTab('hackathon')">
-          <span class="nav-icon">🚀</span> Hackathon Solution Platform
-        </button>
-        <button id="tab-btn-portfolio" class="nav-btn" role="tab" aria-selected="false" aria-controls="tab-portfolio" onclick="switchTab('portfolio')">
-          <span class="nav-icon">👤</span> Application Portfolio
-        </button>
-      </nav>
+        <!-- Slider Controls -->
+        <div class="sights-controls" id="sights-controls" aria-label="Slider controls">
+          <button class="sight-nav sight-prev" aria-label="Previous vessel" id="sight-prev">←</button>
+          <button class="sight-nav sight-next" aria-label="Next vessel" id="sight-next">→</button>
+        </div>
 
-      <!-- Status Indicator -->
-      <div class="status-badge" id="api-status-badge">
-        <span class="pulse-dot status-offline" id="status-dot"></span>
-        <span id="status-text">Checking API...</span>
+        <!-- Hero Title -->
+        <h1 class="hero-title">MARITIME</h1>
+
+        <!-- Splitframe LEFT / RIGHT (corridor halves, open on scroll) -->
+        <img class="scene-img splitframe-img splitframe-left"  src="https://raft-blast-61784561.figma.site/_assets/v11/7536d7b60a1fce482cf6edf3f0bffd3bad5d0f8a.png" alt="" />
+        <img class="scene-img splitframe-img splitframe-right" src="https://raft-blast-61784561.figma.site/_assets/v11/392db6a6a6b98e868bd7f8d3f55bb719d51e5028.png" alt="" />
+
+        <!-- Foreground vessel / bridge layer (z 4) -->
+        <img class="scene-img bridge-img" src="https://raft-blast-61784561.figma.site/_assets/v11/c6a6d8ef49bca43f708aa852692942c45ec950d4.png" alt="" />
+
+        <!-- Frame-two: strategy reveal close-up (z 5) -->
+        <img class="scene-img frame-two-img" src="https://raft-blast-61784561.figma.site/_assets/v11/ba75252bab2b1c510987b74837770f7bc8a6b2d4.png" alt="" />
+
+        <!-- Shade / gradient overlay -->
+        <div class="shade"></div>
+
+      </div><!-- /.world -->
+
+      <!-- Intro copy (z 9) -->
+      <section class="intro-copy" aria-label="Maritime Decision Network overview">
+        <p>When a supply route breaks, find the cheapest, fastest, and safest way forward — in minutes.</p>
+        <div class="hero-tags" aria-label="Platform capabilities">
+          <span>Route Disruption</span>
+          <span>Hybrid Optimization</span>
+          <span>AI Decision Support</span>
+        </div>
+      </section>
+
+      <!-- Story Panel 2: Disruption (appears at ~900px scroll) -->
+      <section class="story-panel story-panel-bridge" aria-label="Disruption analysis" id="disruption-anchor">
+        <h2>The route is disrupted.<br/>The clock is running.</h2>
+        <p>Every hour of indecision has a cost. The system evaluates every feasible option — vessels, pipelines, alternate routes, and hybrid combinations — simultaneously.</p>
+        <dl class="facts">
+          <div>
+            <dt>21%</dt>
+            <dd>of global oil trade through Strait of Hormuz</dd>
+          </div>
+          <div>
+            <dt>2.5M</dt>
+            <dd>barrels per day on the IPSA bypass pipeline</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Story Panel 3: Strategy reveal (appears at ~2000px scroll) -->
+      <section class="story-panel story-panel-bazaar" aria-label="Strategy optimization" id="strategy-anchor">
+        <h2>The optimal path is rarely one route.</h2>
+        <p>Split your supply across a vessel opportunity, a pipeline bypass, and an alternate supplier. The optimizer finds the combination that minimizes cost, time, and risk.</p>
+        <button class="note-button" id="btn-open-command-2">
+          <span aria-hidden="true">↗</span>
+          <span>Open Command Center</span>
+        </button>
+      </section>
+
+    </div><!-- /.stage -->
+  </section><!-- /.cinema-scroll -->
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 2: COMMAND CENTER (below scroll, revealed on CTA)
+     ═══════════════════════════════════════════════════════════ -->
+<div id="command-center" class="command-center hidden">
+
+  <!-- Top Bar -->
+  <header class="cc-header">
+    <div class="cc-brand">
+      <span class="cc-logo-icon">⚡</span>
+      <span class="cc-title">EON EXEA — Maritime Decision Network</span>
+    </div>
+    <div class="cc-status-row">
+      <div class="cc-status-badge" id="cc-api-status">
+        <span class="pulse-dot" id="cc-status-dot"></span>
+        <span id="cc-status-text">Checking API...</span>
       </div>
+      <button class="cc-close-btn" id="btn-close-command" aria-label="Back to overview">← Back</button>
     </div>
   </header>
 
-  <!-- Main Content Container -->
-  <main class="main-content">
-
-    <!-- TAB 1: POLYINNOVAE HACKATHON SOLUTION PLATFORM -->
-    <section id="tab-hackathon" class="tab-pane active" role="tabpanel">
-
-      <!-- Problem Statement Banner Card -->
-      <div class="card problem-card">
-        <div class="card-header border-purple">
-          <div class="badge badge-purple">POLYINNOVAE HACKATHON PROBLEM</div>
-          <span class="timestamp-badge">Release Window: 9:00 PM IST</span>
-        </div>
-        <div class="card-body">
-          <h2 class="problem-title" id="problem-title">POLYINNOVAE HACKATHON PROBLEM</h2>
-          <p class="problem-desc" id="problem-description">
-            Problem statement will be inserted here.
-          </p>
-          <div class="problem-meta-grid">
-            <div class="meta-item">
-              <span class="meta-label">Status</span>
-              <span class="meta-val highlight-green">Foundation Ready &bull; Awaiting Live Prompt</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Core Pipeline</span>
-              <span class="meta-val">Modular API &bull; AI Service &bull; Database Service</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Target Engine</span>
-              <span class="meta-val">Python / Node.js Serverless Microservice</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Solution Overview & Config Panel -->
-      <div class="card solution-card">
-        <div class="card-header border-blue">
-          <div class="badge badge-blue">PLACEHOLDER SOLUTION</div>
-          <span class="solution-status">Module: <code>lib/solution_logic.py</code></span>
-        </div>
-        <div class="card-body">
-          <h3 class="solution-heading">PLACEHOLDER SOLUTION</h3>
-          <p class="solution-body">
-            The actual solution logic will be implemented here after the problem statement is released.
-          </p>
-        </div>
-      </div>
-
-      <!-- Interactive Input Section (INPUT) -->
-      <div class="card input-card">
-        <div class="card-header border-amber">
-          <div class="badge badge-amber">INPUT</div>
-          <div class="input-controls-header">
-            <span class="input-label-text">Select Input Mode:</span>
-            <div class="mode-selector">
-              <button class="mode-btn active" id="mode-text" onclick="setInputMode('text')">Text Prompt</button>
-              <button class="mode-btn" id="mode-json" onclick="setInputMode('json')">JSON Payload</button>
-              <button class="mode-btn" id="mode-file" onclick="setInputMode('file')">File Upload</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <form id="solution-form" onsubmit="handleFormSubmit(event)">
-            
-            <!-- Text Mode Input -->
-            <div id="input-container-text" class="input-group">
-              <label for="input-text-area" class="field-label">INPUT DATA</label>
-              <textarea 
-                id="input-text-area" 
-                class="form-control text-area" 
-                rows="4" 
-                placeholder="Placeholder input"
-              >Placeholder input</textarea>
-            </div>
-
-            <!-- JSON Mode Input (Hidden by default) -->
-            <div id="input-container-json" class="input-group hidden">
-              <label for="input-json-area" class="field-label">JSON CONFIGURATION & PARAMS</label>
-              <textarea 
-                id="input-json-area" 
-                class="form-control text-area code-font" 
-                rows="4" 
-                placeholder='{ "input": "Placeholder input", "mode": "analysis" }'
-              >{
-  "input": "Placeholder input",
-  "mode": "standard",
-  "parameters": {
-    "temperature": 0.7,
-    "max_tokens": 1000
-  }
-}</textarea>
-            </div>
-
-            <!-- File Upload Input (Hidden by default) -->
-            <div id="input-container-file" class="input-group hidden">
-              <label class="field-label">ATTACH FILE OR IMAGE</label>
-              <div class="file-dropzone" onclick="document.getElementById('file-input').click()">
-                <div class="drop-icon">📁</div>
-                <div class="drop-title">Click or drag file here to attach</div>
-                <div class="drop-sub" id="file-name-display">Supports PDF, PNG, JPG, CSV, JSON (Placeholder upload handler)</div>
-                <input type="file" id="file-input" class="hidden" onchange="handleFileSelected(event)" />
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="form-actions">
-              <button type="submit" id="btn-submit" class="btn btn-primary">
-                <span class="btn-icon">⚡</span> Run Solution API
-              </button>
-              <button type="button" class="btn btn-secondary" onclick="loadSampleInput()">
-                <span>📄</span> Load Sample Input
-              </button>
-              <button type="button" class="btn btn-tertiary" onclick="clearInput()">
-                <span>🗑️</span> Clear
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Results & Output Section (OUTPUT) -->
-      <div class="card output-card" id="output-section">
-        <div class="card-header border-green">
-          <div class="badge badge-green">OUTPUT</div>
-          <div id="output-meta-header" class="output-meta hidden">
-            <span id="output-timer-badge" class="meta-tag">0 ms</span>
-            <span id="output-status-tag" class="meta-tag tag-success">200 OK</span>
-          </div>
-        </div>
-
-        <div class="card-body">
-
-          <!-- 1. EMPTY STATE -->
-          <div id="state-empty" class="state-container">
-            <div class="state-icon">📥</div>
-            <h4 class="state-title">OUTPUT</h4>
-            <p class="state-desc">Placeholder output. Submit input above to test end-to-end execution.</p>
-          </div>
-
-          <!-- 2. LOADING STATE -->
-          <div id="state-loading" class="state-container hidden">
-            <div class="spinner"></div>
-            <h4 class="state-title">Processing Hackathon Solution...</h4>
-            <p class="state-desc">Sending request to backend serverless pipeline...</p>
-            <div class="loading-progress">
-              <div class="progress-step active" id="step-1">1. Validating Input</div>
-              <div class="progress-step" id="step-2">2. Executing Core Solution</div>
-              <div class="progress-step" id="step-3">3. Formatting Output</div>
-            </div>
-          </div>
-
-          <!-- 3. ERROR STATE -->
-          <div id="state-error" class="state-container hidden">
-            <div class="state-icon error-icon">⚠️</div>
-            <h4 class="state-title text-red">Execution Error</h4>
-            <p id="error-message-text" class="state-desc text-red-sub">Failed to communicate with API server.</p>
-            <button class="btn btn-secondary mt-12" onclick="handleFormSubmit(event)">🔄 Retry Request</button>
-          </div>
-
-          <!-- 4. SUCCESS RESULT STATE -->
-          <div id="state-success" class="state-container align-left hidden">
-            <div class="output-banner">
-              <div class="banner-title">
-                <span class="check-icon">✓</span>
-                <span id="result-title">PLACEHOLDER SOLUTION</span>
-              </div>
-              <button class="btn-copy" onclick="copyOutputToClipboard()">📋 Copy Output</button>
-            </div>
-
-            <div class="result-message-box">
-              <p id="result-message-text">The actual solution logic will be implemented here after the problem statement is released.</p>
-            </div>
-
-            <!-- Formatted Output Details -->
-            <div class="output-json-box">
-              <div class="code-box-header">
-                <span>STRUCTURED RESPONSE JSON</span>
-                <span class="code-lang">json</span>
-              </div>
-              <pre id="output-json-display">Placeholder output</pre>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </section>
-
-    <!-- TAB 2: EXISTING APPLICATION PORTFOLIO -->
-    <section id="tab-portfolio" class="tab-pane" role="tabpanel">
-
-      <!-- Hero Section -->
-      <div class="hero">
-        <img src="assets/photo.jpg" alt="Naaga Sumukh B S" class="profile-img" />
-        <div class="hero-text">
-          <h1>Naaga Sumukh B S</h1>
-          <p class="sub">Builder &bull; Innovator &bull; Polymath</p>
-          <p class="bio">Founder of SachhAI &amp; EasyHospital. Leader at Adwaitha. I connect AI, product, marketing, and leadership to build things that actually matter.</p>
-          <a href="https://naagasumukh.engineer" target="_blank" rel="noopener" class="portfolio-link">🔗 naagasumukh.engineer &rarr;</a>
-        </div>
-      </div>
-
-      <!-- Intro Video -->
-      <div class="portfolio-card" id="video">
-        <div class="section-label">Intro Video</div>
-        <div class="video-wrap">
-          <video controls preload="metadata" playsinline>
-            <source src="assets/intro.mp4" type="video/mp4" />
-            Your browser does not support HTML5 video.
-          </video>
-        </div>
-      </div>
-
-      <!-- Resume Section -->
-      <div class="portfolio-card" id="resume">
-        <div class="section-label">Resume</div>
-        <div class="btn-row">
-          <a id="view-resume" class="btn btn-purple" href="assets/resume.pdf" target="_blank" rel="noopener">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            View Resume
-          </a>
-          <a id="download-resume" class="btn btn-outline" href="assets/resume.pdf" download="Naaga_Sumukh_Resume.pdf">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Download Resume
-          </a>
-        </div>
-      </div>
-
-      <!-- Why EON EXEA Section -->
-      <div class="portfolio-card" id="why-eon">
-        <div class="section-label">Why I Want to Join EON EXEA</div>
-        <div class="writeup">
-          <p>I want to join EON EXEA because it is built for people like me who never fit into just one box. I have spent the last two years building things across AI, product, marketing, leadership and community. SachhAI, EasyHospital, Adwaitha, events, collabs, digital marketing, LinkedIn growth. None of it was planned. I just kept saying yes to problems and figuring it out. Losing my father made me realise time is not something you wait with. EON EXEA feels like the right room to be in, full of people who build wide and think deep, and that is exactly who I am trying to become.</p>
-        </div>
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="app-footer">
-    <div class="footer-container">
-      <span>&copy; 2026 Naaga Sumukh B S &mdash; Polyinnovae AI Hackathon App &amp; EON EXEA Application</span>
+  <!-- Disruption Banner -->
+  <div class="disruption-banner" id="disruption-banner">
+    <div class="disruption-icon">⚠</div>
+    <div class="disruption-info">
+      <div class="disruption-label">ACTIVE DISRUPTION</div>
+      <div class="disruption-name" id="disruption-name">Strait of Hormuz — Elevated Passage Risk</div>
+      <div class="disruption-meta" id="disruption-meta">Risk score: 0.87 · ~21M bbl/day affected · Insurance premium +45%</div>
     </div>
-  </footer>
+    <div class="disruption-actions">
+      <select class="scenario-select" id="disruption-select" aria-label="Select disruption scenario">
+        <option value="hormuz-blockage">Hormuz Blockage (Critical)</option>
+        <option value="suez-closure">Suez Canal Closure (High)</option>
+        <option value="malacca-restriction">Malacca Restriction (Medium)</option>
+      </select>
+    </div>
+  </div>
 
-  <script src="app.js"></script>
+  <!-- Main Grid: Map + Side Panel -->
+  <div class="cc-grid">
+
+    <!-- Left: Interactive Map -->
+    <div class="cc-map-panel">
+      <div class="cc-panel-label">ROUTE MAP</div>
+      <div id="map" class="map-container" aria-label="Interactive maritime route map"></div>
+      <div class="map-legend">
+        <span class="legend-item legend-disrupted">● Disrupted route</span>
+        <span class="legend-item legend-vessel">● Vessel</span>
+        <span class="legend-item legend-pipeline">● Pipeline</span>
+        <span class="legend-item legend-altroute">● Alternate route</span>
+      </div>
+    </div>
+
+    <!-- Right: Intake + Analysis -->
+    <div class="cc-side-panel">
+
+      <!-- Step Indicator -->
+      <div class="step-indicator" id="step-indicator">
+        <div class="step-dot active" data-step="1">1</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="2">2</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="3">3</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="4">4</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="5">5</div>
+      </div>
+
+      <!-- INTAKE FORM (Steps 1–5) -->
+      <div id="intake-section">
+
+        <!-- Step 1: Demand -->
+        <div class="intake-step active" id="step-1">
+          <div class="intake-label">STEP 1 OF 5 — DEMAND</div>
+          <h3 class="intake-heading">What do you need to secure?</h3>
+
+          <div class="field-group">
+            <label class="field-label" for="f-product">Product Type</label>
+            <select class="form-ctrl" id="f-product">
+              <option value="crude">Crude Oil</option>
+              <option value="diesel">Diesel</option>
+              <option value="gasoline">Gasoline</option>
+              <option value="refined">Refined Products (general)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="f-volume">Required Volume</label>
+            <div class="input-with-unit">
+              <input class="form-ctrl" type="number" id="f-volume" value="2000" min="1" max="5000000" step="100" />
+              <select class="form-ctrl unit-sel" id="f-volume-unit">
+                <option value="mbbl">Thousand Barrels (Mbbl)</option>
+                <option value="mmt">Million Metric Tonnes</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="f-dest">Destination Port</label>
+            <select class="form-ctrl" id="f-dest">
+              <option value="MUM">Mumbai (JNPT), India</option>
+              <option value="CHN">Chennai, India</option>
+              <option value="SIN">Singapore</option>
+              <option value="SHG">Shanghai, China</option>
+              <option value="RDM">Rotterdam, Netherlands</option>
+              <option value="HPT">Houston, USA</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="f-deadline">Required Delivery (days)</label>
+            <input class="form-ctrl" type="number" id="f-deadline" value="14" min="1" max="90" />
+          </div>
+
+          <button class="btn-next" onclick="nextStep(1)">Continue →</button>
+        </div>
+
+        <!-- Step 2: Current Supply -->
+        <div class="intake-step" id="step-2">
+          <div class="intake-label">STEP 2 OF 5 — CURRENT SUPPLY</div>
+          <h3 class="intake-heading">Where is your supply coming from?</h3>
+
+          <div class="field-group">
+            <label class="field-label" for="f-origin">Origin / Supplier Port</label>
+            <select class="form-ctrl" id="f-origin">
+              <option value="RAS">Ras Tanura, Saudi Arabia</option>
+              <option value="KHO">Kharg Island, Iran</option>
+              <option value="AUH">Abu Dhabi, UAE</option>
+              <option value="FUJ">Fujairah, UAE</option>
+              <option value="MUS">Muscat, Oman</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="f-price">Purchase Price (USD/bbl, optional)</label>
+            <input class="form-ctrl" type="number" id="f-price" placeholder="e.g. 82.50" step="0.01" />
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="prevStep(2)">← Back</button>
+            <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Vessel Situation -->
+        <div class="intake-step" id="step-3">
+          <div class="intake-label">STEP 3 OF 5 — VESSEL SITUATION</div>
+          <h3 class="intake-heading">What is your vessel status?</h3>
+
+          <div class="field-group">
+            <label class="field-label">Vessel Ownership Mode</label>
+            <div class="radio-group" id="vessel-mode-group">
+              <label class="radio-option">
+                <input type="radio" name="vessel-mode" value="own" id="vm-own" /> Own vessel
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="vessel-mode" value="chartered" id="vm-chartered" /> Chartered / Rented
+              </label>
+              <label class="radio-option selected">
+                <input type="radio" name="vessel-mode" value="seeking" id="vm-seeking" checked /> Need to find a vessel
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group" id="own-vessel-fields" style="display:none">
+            <label class="field-label" for="f-vessel-type">Vessel Type</label>
+            <select class="form-ctrl" id="f-vessel-type">
+              <option value="VLCC">VLCC (300,000+ DWT)</option>
+              <option value="Suezmax">Suezmax (120,000–200,000 DWT)</option>
+              <option value="Aframax">Aframax (80,000–120,000 DWT)</option>
+              <option value="MR Tanker">MR Tanker (25,000–55,000 DWT)</option>
+            </select>
+            <label class="field-label" for="f-vessel-cap" style="margin-top:12px">Available Capacity (Mbbl)</label>
+            <input class="form-ctrl" type="number" id="f-vessel-cap" placeholder="e.g. 500" />
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="prevStep(3)">← Back</button>
+            <button class="btn-next" onclick="nextStep(3)">Continue →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Disruption + Alternatives -->
+        <div class="intake-step" id="step-4">
+          <div class="intake-label">STEP 4 OF 5 — DISRUPTION & ALTERNATIVES</div>
+          <h3 class="intake-heading">What disruption are you facing?</h3>
+
+          <div class="field-group">
+            <label class="field-label" for="f-disruption">Disruption Scenario</label>
+            <select class="form-ctrl" id="f-disruption">
+              <option value="hormuz-blockage">Strait of Hormuz — Elevated Risk</option>
+              <option value="suez-closure">Suez Canal — Closed</option>
+              <option value="malacca-restriction">Strait of Malacca — Restricted</option>
+              <option value="">No active disruption (normal operations)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Known Alternatives (check all you have access to)</label>
+            <div class="check-group">
+              <label class="check-option"><input type="checkbox" id="alt-pipeline" checked /> Pipeline bypass routes</label>
+              <label class="check-option"><input type="checkbox" id="alt-altsupplier" /> Alternate supplier</label>
+              <label class="check-option"><input type="checkbox" id="alt-vessels" checked /> Available vessel capacity (from market)</label>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="prevStep(4)">← Back</button>
+            <button class="btn-next" onclick="nextStep(4)">Continue →</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Objective + Weights -->
+        <div class="intake-step" id="step-5">
+          <div class="intake-label">STEP 5 OF 5 — OBJECTIVE</div>
+          <h3 class="intake-heading">How should we prioritize?</h3>
+
+          <p class="intake-desc">Drag the sliders to set the relative importance of each factor. The optimizer will weight strategies accordingly.</p>
+
+          <div class="weight-sliders" id="weight-sliders">
+            <div class="weight-row">
+              <label class="weight-label">💰 Minimize Cost</label>
+              <input type="range" class="weight-slider" id="w-cost" min="0" max="100" value="40" oninput="updateWeights()" />
+              <span class="weight-val" id="wv-cost">40%</span>
+            </div>
+            <div class="weight-row">
+              <label class="weight-label">⏱ Minimize Time</label>
+              <input type="range" class="weight-slider" id="w-time" min="0" max="100" value="35" oninput="updateWeights()" />
+              <span class="weight-val" id="wv-time">35%</span>
+            </div>
+            <div class="weight-row">
+              <label class="weight-label">🛡 Minimize Risk</label>
+              <input type="range" class="weight-slider" id="w-risk" min="0" max="100" value="25" oninput="updateWeights()" />
+              <span class="weight-val" id="wv-risk">25%</span>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn-back" onclick="prevStep(5)">← Back</button>
+            <button class="btn-primary-action" id="btn-analyze" onclick="runAnalysis()">
+              <span class="btn-spinner hidden" id="analyze-spinner">⟳</span>
+              Run AI Analysis →
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /#intake-section -->
+
+      <!-- RESULTS SECTION (revealed after analysis) -->
+      <div id="results-section" class="hidden">
+
+        <!-- Confidence Banner -->
+        <div class="confidence-banner" id="confidence-banner">
+          <span class="conf-icon">ℹ</span>
+          <span id="conf-text">Estimates based on vessel specs and voyage signals. Not confirmed booking data.</span>
+        </div>
+
+        <!-- Strategy Board -->
+        <div class="results-panel">
+          <div class="panel-header">
+            <span class="panel-label">STRATEGY BOARD</span>
+            <button class="btn-sm" onclick="backToIntake()">← New Analysis</button>
+          </div>
+
+          <div id="strategy-board">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- AI Explanation -->
+        <div class="ai-panel" id="ai-panel">
+          <div class="ai-panel-header">
+            <span class="ai-badge">AI ANALYSIS</span>
+            <span class="ai-provider-badge" id="ai-provider-badge"></span>
+          </div>
+          <div class="ai-text" id="ai-text">
+            Analyzing strategies...
+          </div>
+        </div>
+
+        <!-- What-If Simulator -->
+        <div class="whatif-panel">
+          <div class="panel-label">WHAT-IF SIMULATOR</div>
+          <p class="whatif-desc">Adjust weights and re-run to compare strategies.</p>
+          <div class="weight-sliders whatif-sliders">
+            <div class="weight-row">
+              <label class="weight-label">💰 Cost</label>
+              <input type="range" class="weight-slider" id="wi-cost" min="0" max="100" value="40" oninput="updateWhatIfWeights()" />
+              <span class="weight-val" id="wiv-cost">40%</span>
+            </div>
+            <div class="weight-row">
+              <label class="weight-label">⏱ Time</label>
+              <input type="range" class="weight-slider" id="wi-time" min="0" max="100" value="35" oninput="updateWhatIfWeights()" />
+              <span class="weight-val" id="wiv-time">35%</span>
+            </div>
+            <div class="weight-row">
+              <label class="weight-label">🛡 Risk</label>
+              <input type="range" class="weight-slider" id="wi-risk" min="0" max="100" value="25" oninput="updateWhatIfWeights()" />
+              <span class="weight-val" id="wiv-risk">25%</span>
+            </div>
+          </div>
+          <button class="btn-sm btn-whatif" id="btn-whatif" onclick="runWhatIf()">Re-run with new weights →</button>
+        </div>
+
+        <!-- Report -->
+        <div class="report-panel">
+          <div class="panel-label">DECISION REPORT</div>
+          <div id="report-text" class="report-text">
+            <span class="report-placeholder">Click "Generate Report" to produce the executive decision report.</span>
+          </div>
+          <button class="btn-primary-action" id="btn-report" onclick="generateReport()">
+            Generate Decision Report →
+          </button>
+        </div>
+
+      </div><!-- /#results-section -->
+
+    </div><!-- /.cc-side-panel -->
+
+  </div><!-- /.cc-grid -->
+
+  <!-- Vessel Opportunities List (below map) -->
+  <div class="vessel-opportunities" id="vessel-opportunities">
+    <div class="cc-section-header">
+      <span class="panel-label">VESSEL OPPORTUNITIES</span>
+      <span class="data-badge" id="vessel-data-badge">⚠ Dev fallback data — not real AIS</span>
+    </div>
+    <div class="vessel-cards-row" id="vessel-cards-row">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+</div><!-- /#command-center -->
+
+<!-- Leaflet + scripts -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js" defer></script>
 </body>
 </html>
