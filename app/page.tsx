@@ -31,7 +31,7 @@ export default function LandingPage() {
             <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor"/>
           </svg>
           <span className="font-['Instrument_Serif'] text-3xl font-bold tracking-tight text-[#18181B]">
-            POLY EXEA
+            EON EXEA
           </span>
         </div>
 
@@ -54,7 +54,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-[#18181B]/80 max-w-2xl mx-auto font-light leading-relaxed">
-          POLY EXEA evaluates vessels, pipelines, alternate routes, and spot suppliers simultaneously to determine the most economically viable strategy for your energy supply requirements.
+          EON EXEA evaluates vessels, pipelines, alternate routes, and spot suppliers simultaneously to determine the most economically viable strategy for your energy supply requirements.
         </p>
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -69,7 +69,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="relative z-10 max-w-6xl w-full mx-auto px-6 py-6 text-center text-xs text-[#18181B]/60 border-t border-[#18181B]/10">
-        <div>POLY EXEA &copy; 2026. AI Maritime Decision Platform. All rights reserved.</div>
+        <div>EON EXEA &copy; 2026. AI Maritime Decision Platform. All rights reserved.</div>
       </footer>
     </div>
   )
