@@ -9,16 +9,16 @@ import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
 
 const DEAL_TYPES = [
-  { value: 'vessel', label: '🚢 Vessel Charter', desc: 'Commercial ship charter quote' },
-  { value: 'pipeline', label: '🔧 Pipeline Capacity', desc: 'Pipeline throughput agreement' },
-  { value: 'alternate_route', label: '🗺️ Alternate Route', desc: 'Bypass or alternate sea lane' },
-  { value: 'supplier', label: '🏭 Spot Supplier', desc: 'Direct supplier commercial offer' },
+  { value: 'vessel', label: 'Vessel Charter', desc: 'Commercial ship charter quote' },
+  { value: 'pipeline', label: 'Pipeline Capacity', desc: 'Pipeline throughput agreement' },
+  { value: 'alternate_route', label: 'Alternate Route', desc: 'Bypass or alternate sea lane' },
+  { value: 'supplier', label: 'Spot Supplier', desc: 'Direct supplier commercial offer' },
 ]
 
 function NewDealContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const scenarioId = searchParams.get('scenario_id') || ''
+  const scenarioId = searchParams.get('scenario_id') || 'scen-demo-001'
   const vesselId = searchParams.get('vessel_id') || ''
   const vesselName = searchParams.get('vessel_name') || ''
 
@@ -47,7 +47,7 @@ function NewDealContent() {
     setError(null)
     try {
       const payload: Record<string, any> = {
-        scenario_id: scenarioId || 'scen-demo-001',
+        scenario_id: scenarioId,
         vessel_candidate_id: vesselId || undefined,
         deal_type: form.deal_type,
         counterparty: form.counterparty || undefined,
@@ -67,16 +67,16 @@ function NewDealContent() {
       }
 
       const deal = await api.createDeal(payload)
-      router.push(`/deals/${deal.id || 'deal-001'}?scenario_id=${scenarioId || 'scen-demo-001'}`)
+      router.push(`/deals/${deal.id || 'deal-001'}?scenario_id=${scenarioId}`)
     } catch (e: any) {
-      setError(e.message)
+      setError(e.message || 'Error submitting commercial quote.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans">
       <Navbar scenarioId={scenarioId} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-10 space-y-8">
@@ -84,28 +84,28 @@ function NewDealContent() {
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#18181B]/10 text-xs font-semibold uppercase tracking-wider text-[#18181B] shadow-2xs">
-            Step 3 &middot; Deal Verification
+            Commercial Deal Verification
           </div>
           <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#18181B]">
-            Commercial Quote Verification
+            Is this deal worth taking?
           </h1>
           <p className="text-sm text-[#18181B]/70 max-w-xl mx-auto font-light">
-            Enter counterparty freight terms to compute deterministic landed cost, margin, and negotiation target ceiling.
+            Enter quoted freight terms to evaluate landed cost, expected margin, and maximum acceptable ceiling price.
           </p>
         </div>
 
         {error && (
           <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-800 font-medium">
-            ⚠️ {error}
+            {error}
           </div>
         )}
 
         <GlassPanel className="space-y-6">
           
-          {/* Deal Type Selection */}
+          {/* Deal Category Selection */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#18181B]/70 mb-3">
-              1. Deal Category
+              1. Opportunity Category
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {DEAL_TYPES.map((t) => (
@@ -130,7 +130,7 @@ function NewDealContent() {
           {/* Form Fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#18181B]/10">
             <div>
-              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Counterparty / Vessel Name</label>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Counterparty / Shipowner Broker</label>
               <input
                 type="text"
                 value={form.counterparty}
@@ -147,7 +147,7 @@ function NewDealContent() {
                 onChange={(e) => set('product', e.target.value)}
                 className="w-full p-3 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] focus:outline-none focus:ring-2 focus:ring-[#18181B]"
               >
-                <option value="crude">CRUDE</option>
+                <option value="crude">CRUDE OIL</option>
                 <option value="diesel">DIESEL</option>
                 <option value="gasoline">GASOLINE</option>
                 <option value="lng">LNG</option>
@@ -165,7 +165,7 @@ function NewDealContent() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Quoted Freight Price ($ Total / Lump Sum)</label>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Quoted Freight Price ($ Total)</label>
               <input
                 type="number"
                 value={form.quoted_price}
@@ -175,7 +175,7 @@ function NewDealContent() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Broker Reference / Contract Ref</label>
+              <label className="block text-xs font-semibold text-[#18181B]/70 mb-1">Broker Reference</label>
               <input
                 type="text"
                 value={form.contact_reference}
@@ -198,7 +198,7 @@ function NewDealContent() {
           <div className="pt-6 border-t border-[#18181B]/10 flex items-center justify-between">
             <button
               onClick={() => router.back()}
-              className="btn-ghost-glass"
+              className="text-xs font-medium text-[#18181B]/70 hover:text-[#18181B]"
             >
               ← Cancel
             </button>
@@ -206,9 +206,9 @@ function NewDealContent() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="btn-paper text-base px-8"
+              className="rounded-full bg-[#18181B] px-8 py-3.5 text-sm font-semibold text-white hover:bg-black transition-all shadow-md"
             >
-              {loading ? 'Evaluating Quote...' : '⚖️ Compute Deterministic P&L Verdict →'}
+              {loading ? 'Evaluating Quote...' : 'Evaluate Commercial Verdict →'}
             </button>
           </div>
 
@@ -220,7 +220,7 @@ function NewDealContent() {
 
 export default function NewDealPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">Loading Quote Evaluator...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">Loading Commercial Quote Evaluator...</div>}>
       <NewDealContent />
     </Suspense>
   )

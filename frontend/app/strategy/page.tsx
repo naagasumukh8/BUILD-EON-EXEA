@@ -24,7 +24,7 @@ function StrategyContent() {
       const res = await api.optimize({ scenario_id: scenarioId })
       setResult(res)
     } catch (e: any) {
-      setError(e.message)
+      setError(e.message || 'Error running strategy optimization.')
     } finally {
       setLoading(false)
     }
@@ -37,7 +37,7 @@ function StrategyContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center text-[#18181B]/70">
-        Solving Continuous Linear Allocation with OR-Tools...
+        Solving Multi-Modal Allocation Strategy...
       </div>
     )
   }
@@ -46,7 +46,7 @@ function StrategyContent() {
   const baseline = result?.baseline_strategy
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans">
       <Navbar scenarioId={scenarioId} />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-10 space-y-8">
@@ -54,19 +54,19 @@ function StrategyContent() {
         {/* Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#18181B]/10 text-xs font-semibold uppercase tracking-wider text-[#18181B] shadow-2xs">
-            Step 4 &middot; OR-Tools Strategy Solver
+            Multi-Modal Strategy Solver
           </div>
           <h1 className="font-['Instrument_Serif'] text-4xl sm:text-5xl text-[#18181B]">
-            Multi-Modal Hybrid Strategy Allocation
+            Recommended Strategy
           </h1>
           <p className="text-sm text-[#18181B]/70 max-w-xl mx-auto font-light">
-            Continuous linear programming solver output. Excludes unverified candidate vessels automatically.
+            Continuous linear allocation optimization combining vessels, pipeline bypasses, and alternate routes.
           </p>
         </div>
 
         {error && (
           <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-800 font-medium">
-            ⚠️ {error}
+            {error}
           </div>
         )}
 
@@ -76,8 +76,8 @@ function StrategyContent() {
             <div className="p-8 sm:p-10 rounded-3xl bg-white border border-[#18181B]/10 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 text-xs font-bold uppercase tracking-wider">
-                    ⭐ RANK 1 RECOMMENDED
+                  <span className="px-3 py-1 rounded-full bg-[#18181B] text-white text-[10px] font-bold uppercase tracking-wider">
+                    RECOMMENDED STRATEGY
                   </span>
                   <h2 className="font-['Instrument_Serif'] text-3xl sm:text-4xl text-[#18181B] mt-2">
                     {recommended.name}
@@ -85,7 +85,7 @@ function StrategyContent() {
                 </div>
 
                 <div className="text-right sm:text-right">
-                  <div className="text-xs text-[#18181B]/60 uppercase font-semibold">Weighted Cost / bbl</div>
+                  <div className="text-xs text-[#18181B]/60 uppercase font-semibold">Cost per Barrel</div>
                   <div className="font-['Instrument_Serif'] text-3xl font-bold text-[#18181B]">
                     ${recommended.cost_per_bbl?.toFixed(2)}
                   </div>
@@ -94,10 +94,10 @@ function StrategyContent() {
 
               {/* Progress Bar Allocation Breakdown */}
               <div className="space-y-2">
-                <div className="text-xs font-semibold text-[#18181B]/70">Allocation Breakdown:</div>
+                <div className="text-xs font-semibold text-[#18181B]/70 uppercase tracking-wider">Multi-Modal Allocation Breakdown</div>
                 <div className="w-full bg-[#18181B]/10 h-4 rounded-full overflow-hidden flex">
                   {recommended.allocations?.map((a: any, i: number) => {
-                    const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500']
+                    const colors = ['bg-[#18181B]', 'bg-[#3F3F46]', 'bg-[#71717A]', 'bg-[#A1A1AA]']
                     return (
                       <div
                         key={a.option_id}
@@ -110,7 +110,7 @@ function StrategyContent() {
                 </div>
               </div>
 
-              {/* Allocations Table */}
+              {/* Allocations Breakdown List */}
               <div className="space-y-3 pt-4 border-t border-[#18181B]/10">
                 {recommended.allocations?.map((a: any) => (
                   <div
@@ -120,7 +120,7 @@ function StrategyContent() {
                     <div>
                       <div className="font-semibold text-[#18181B]">{a.option_name}</div>
                       <div className="text-xs text-[#18181B]/60">
-                        {Number(a.allocated_volume).toLocaleString()} bbl ({a.allocated_pct}%) · ETA {a.eta_days} days
+                        {Number(a.allocated_volume).toLocaleString()} bbl ({a.allocated_pct}%) &middot; ETA {a.eta_days} days
                       </div>
                     </div>
 
@@ -128,8 +128,8 @@ function StrategyContent() {
                       <span className="text-sm font-bold text-[#18181B]">
                         ${(a.cost_usd / 1e6).toFixed(2)}M
                       </span>
-                      <span className="px-3 py-1 rounded-full bg-[#18181B] text-white text-[10px] font-bold uppercase">
-                        {a.provenance_status}
+                      <span className="px-3 py-1 rounded-full bg-[#18181B]/10 text-[#18181B] text-[10px] font-bold uppercase">
+                        {a.provenance_status || 'CONFIRMED'}
                       </span>
                     </div>
                   </div>
@@ -137,22 +137,26 @@ function StrategyContent() {
               </div>
             </div>
 
-            {/* Baseline Comparison Card */}
+            {/* Current Plan vs EON EXEA Recommendation Comparison */}
             {baseline && (
               <GlassPanel className="space-y-4">
-                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Baseline Comparison</h3>
+                <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">
+                  Current Plan vs EON EXEA Recommendation
+                </h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-5 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
-                    <div className="text-xs text-[#18181B]/60">Single Route Fallback ({baseline.name})</div>
+                    <div className="text-xs font-semibold text-[#18181B]/60 uppercase">Current Baseline Plan</div>
                     <div className="text-2xl font-bold text-[#18181B]">${(baseline.total_cost_usd / 1e6).toFixed(2)}M</div>
+                    <div className="text-xs text-[#18181B]/50 mt-1">Single Route Direct Fallback</div>
                   </div>
 
                   <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
-                    <div className="text-xs text-emerald-800 font-semibold">Recommended Hybrid Savings</div>
+                    <div className="text-xs font-semibold text-emerald-800 uppercase">EON EXEA Recommended Hybrid</div>
                     <div className="text-2xl font-bold text-emerald-700">
-                      +${((baseline.total_cost_usd - recommended.total_cost_usd) / 1e6).toFixed(2)}M Savings
+                      +${((baseline.total_cost_usd - recommended.total_cost_usd) / 1e6).toFixed(2)}M Economic Savings
                     </div>
+                    <div className="text-xs text-emerald-800 mt-1">Multi-Modal Risk Diversified Strategy</div>
                   </div>
                 </div>
               </GlassPanel>
@@ -162,16 +166,16 @@ function StrategyContent() {
             <div className="flex items-center justify-between pt-4">
               <button
                 onClick={() => router.push(`/intake?scenario_id=${scenarioId}`)}
-                className="btn-ghost-glass"
+                className="text-xs font-medium text-[#18181B]/70 hover:text-[#18181B]"
               >
-                ← Adjust Intake Weights
+                ← Adjust Specification Requirements
               </button>
 
               <button
                 onClick={() => router.push(`/report?scenario_id=${scenarioId}`)}
-                className="btn-paper text-base px-8"
+                className="rounded-full bg-[#18181B] px-8 py-3.5 text-sm font-semibold text-white hover:bg-black transition-all shadow-md"
               >
-                📄 Generate Executive Decision Report →
+                Generate Executive Decision Report →
               </button>
             </div>
           </>

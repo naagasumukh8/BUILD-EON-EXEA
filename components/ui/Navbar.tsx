@@ -1,78 +1,65 @@
 'use client'
 
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-interface NavbarProps {
-  scenarioId?: string
-}
-
-export function Navbar({ scenarioId }: NavbarProps) {
+export function Navbar({ scenarioId }: { scenarioId?: string }) {
   const pathname = usePathname()
-  const querySuffix = scenarioId ? `?scenario_id=${scenarioId}` : ''
+  const sid = scenarioId || 'scen-demo-001'
 
-  const navLinks = [
-    { label: 'Intake', href: `/intake${querySuffix}`, pathKey: '/intake' },
-    { label: 'Network Map', href: `/map${querySuffix}`, pathKey: '/map' },
-    { label: 'Deal Evaluator', href: `/deals/new${querySuffix}`, pathKey: '/deals' },
-    { label: 'Strategy Solver', href: `/strategy${querySuffix}`, pathKey: '/strategy' },
-    { label: 'Briefing Report', href: `/report${querySuffix}`, pathKey: '/report' },
+  const navItems = [
+    { label: 'Network', href: `/map?scenario_id=${sid}` },
+    { label: 'Intake', href: `/intake?scenario_id=${sid}` },
+    { label: 'Deals', href: `/deals/new?scenario_id=${sid}` },
+    { label: 'Strategies', href: `/strategy?scenario_id=${sid}` },
+    { label: 'Reports', href: `/report?scenario_id=${sid}` },
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#FAFAF8]/90 backdrop-blur-xl border-b border-[#1B133C]/10 px-4 md:px-8 py-3.5 flex items-center justify-between transition-all duration-300 shadow-xs">
-      
-      {/* Brand Logo */}
-      <div className="flex items-center gap-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 group"
-        >
-          <svg className="w-6 h-6 text-[#1B133C] transition-transform group-hover:scale-105" viewBox="0 0 256 256" fill="none">
+    <header className="w-full pt-4 px-4 flex justify-center sticky top-0 z-50 pointer-events-auto">
+      <div className="w-full max-w-5xl bg-white/90 backdrop-blur-xl rounded-full px-6 py-3 shadow-sm border border-[#18181B]/10 flex items-center justify-between gap-4">
+        
+        {/* Brand Logo */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <svg className="w-5 h-5 text-[#18181B] transition-transform group-hover:scale-105" viewBox="0 0 256 256" fill="none">
             <path d="M 256 256 L 128 256 L 0 128 L 128 128 Z" fill="currentColor" />
             <path d="M 256 128 L 128 128 L 0 0 L 128 0 Z" fill="currentColor" opacity="0.55" />
           </svg>
-          <span className="font-['Instrument_Serif'] text-2xl font-normal tracking-wide text-[#1B133C]">
+          <span className="font-['Instrument_Serif'] text-2xl font-normal tracking-wide text-[#18181B]">
             EON EXEA
           </span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full bg-[#1B133C]/5 border border-[#1B133C]/10 text-xs text-[#1B133C]/70 font-medium">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>AI MARITIME DECISION PLATFORM</span>
-        </div>
-      </div>
+        {/* Navigation Items */}
+        <nav className="hidden sm:flex items-center gap-6 text-sm font-medium">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href.split('?')[0]
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`transition-colors py-1 ${
+                  isActive
+                    ? 'text-[#18181B] font-semibold border-b-2 border-[#18181B]'
+                    : 'text-[#18181B]/70 hover:text-[#18181B]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
 
-      {/* Navigation Pills */}
-      <nav className="flex items-center gap-1 sm:gap-1.5 bg-white/80 p-1.5 rounded-full border border-[#1B133C]/10 shadow-xs">
-        {navLinks.map((link) => {
-          const isActive = pathname?.startsWith(link.pathKey)
-          return (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
-                isActive
-                  ? 'bg-[#1B133C] text-white shadow-sm'
-                  : 'text-[#1B133C]/70 hover:text-[#1B133C] hover:bg-[#1B133C]/5'
-              }`}
-            >
-              {link.label}
-            </Link>
-          )
-        })}
-      </nav>
-
-      {/* Landing Link */}
-      <div className="flex items-center gap-3">
+        {/* Navigation Action */}
         <Link
-          href="/"
-          className="text-xs sm:text-sm font-medium text-[#1B133C]/70 hover:text-[#1B133C] transition-colors"
+          href={`/intake?scenario_id=${sid}`}
+          className="rounded-full bg-[#18181B] px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-black transition-all"
         >
-          ← Back to Landing
+          Start Analysis &rarr;
         </Link>
-      </div>
 
+      </div>
     </header>
   )
 }
