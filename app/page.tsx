@@ -16,9 +16,12 @@ function LandingContent() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-[130%] object-cover object-top opacity-30"
         >
-          <source src="/bg_video.mp4" type="video/mp4" />
+          <source
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260714_113715_c7e0daa0-8bdd-4486-a2da-040901f8f0ea.mp4"
+            type="video/mp4"
+          />
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-[#FAFAF8]/70 via-[#FAFAF8]/90 to-[#FAFAF8]" />
       </div>

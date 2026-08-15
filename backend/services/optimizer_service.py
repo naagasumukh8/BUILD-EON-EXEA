@@ -100,6 +100,7 @@ def _ortools_optimize(
       - 'time': minimize weighted transit ETA
       - 'balanced': minimize cost + 10*ETA + 1000*Risk
       - 'diversified': cap any single option at max_cap_pct of required volume
+      - 'risk': minimize risk_score * 10000 + cost
     """
     if not _ORTOOLS_AVAILABLE:
         return _greedy_allocate(options, required_volume, mode=mode, max_cap_pct=max_cap_pct)
@@ -113,7 +114,6 @@ def _ortools_optimize(
     x = []
     for opt in options:
         upper = min(opt.max_volume, target_vol * max_cap_pct)
-        # Ensure upper is at least 0
         upper = max(0.0, float(upper))
         x.append(solver.NumVar(0.0, upper, f"x_{opt.id}"))
 
@@ -124,7 +124,7 @@ def _ortools_optimize(
     elif mode == "time":
         solver.Minimize(solver.Sum((opt.eta_days * 100.0 + opt.cost_per_bbl) * x[i] for i, opt in enumerate(options)))
     elif mode == "risk":
-        solver.Minimize(solver.Sum((opt.risk_score * 1000.0 + opt.cost_per_bbl) * x[i] for i, opt in enumerate(options)))
+        solver.Minimize(solver.Sum((opt.risk_score * 10000.0 + opt.cost_per_bbl) * x[i] for i, opt in enumerate(options)))
     elif mode == "balanced":
         solver.Minimize(solver.Sum((opt.cost_per_bbl + opt.eta_days * 20.0 + opt.risk_score * 500.0) * x[i] for i, opt in enumerate(options)))
     else:
@@ -227,7 +227,7 @@ def solve_optimization(
 ) -> OptimizationOutput:
     """
     Solves capacity allocation with strict provenance filtering & feasibility checks.
-    Dynamically generates up to 5 genuinely distinct feasible strategies.
+    Dynamically generates up to 5 genuinely distinct feasible strategies based on priority weights.
     """
     if config.required_volume <= 0:
         raise ValueError("Required volume must be strictly positive (> 0)")
@@ -260,7 +260,6 @@ def solve_optimization(
             f"Only {fulfilled:,.0f} barrels could be allocated on-time. Consider deadline relaxation."
         )
 
-        # Allocate max possible on-time
         if on_time_options:
             vols = _greedy_allocate(on_time_options, fulfilled)
             strat = _build_strategy(on_time_options, vols, config, rank=1, is_recommended=True)
@@ -278,24 +277,31 @@ def solve_optimization(
             message=msg,
         )
 
-    # FULLY FEASIBLE OPTIMIZATION — DYNAMICALLY GENERATE UP TO 5 GENUINELY DIFFERENT STRATEGIES
+    # FULLY FEASIBLE OPTIMIZATION — Determine primary objective mode based on user weights
+    if config.risk_weight > config.cost_weight and config.risk_weight > config.time_weight:
+        primary_mode = "risk"
+    elif config.time_weight > config.cost_weight and config.time_weight > config.risk_weight:
+        primary_mode = "time"
+    else:
+        primary_mode = "cost"
+
     candidate_profiles = [
-        ("cost", 1.0, 1, True, "Lowest Cost Strategy"),
-        ("time", 1.0, 2, False, "Fastest Delivery Strategy"),
-        ("balanced", 1.0, 3, False, "Balanced Cost/Time Strategy"),
-        ("diversified", 0.60, 4, False, "Diversified Resilience Strategy"),
-        ("risk", 1.0, 5, False, "Low Risk Profile Strategy")
+        (primary_mode, 1.0, "Top Recommended Strategy"),
+        ("cost", 1.0, "Lowest Cost Strategy"),
+        ("time", 1.0, "Fastest Delivery Strategy"),
+        ("balanced", 1.0, "Balanced Cost/Time Strategy"),
+        ("diversified", 0.60, "Diversified Resilience Strategy"),
+        ("risk", 1.0, "Low Risk Profile Strategy")
     ]
 
     strategies: list[StrategyResult] = []
     seen_signatures = set()
 
-    for mode, max_cap_pct, rank_num, is_rec, label in candidate_profiles:
+    for mode, max_cap_pct, label in candidate_profiles:
         vols = _ortools_optimize(on_time_options, config.required_volume, mode=mode, max_cap_pct=max_cap_pct)
         strat = _build_strategy(on_time_options, vols, config, rank=len(strategies) + 1, is_recommended=(len(strategies) == 0))
         
         if strat:
-            # Signature check to prevent duplicate identical strategy allocations
             sig = tuple(sorted((a.option_id, a.allocated_volume) for a in strat.allocations))
             if sig not in seen_signatures:
                 seen_signatures.add(sig)
