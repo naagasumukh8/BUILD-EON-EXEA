@@ -850,4 +850,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (track) setupSightSlider();
   checkApiStatus();
   if (section) requestTick();
+
+  // CTA navigation listeners
+  const ctaIds = ["btn-open-command", "btn-hero-start", "btn-open-command-2", "btn-open-workspace"];
+  ctaIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        (window.top || window).location.href = "/intake";
+      });
+    }
+  });
 });
