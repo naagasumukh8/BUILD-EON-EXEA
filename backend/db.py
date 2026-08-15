@@ -92,33 +92,45 @@ class DBClient:
     # ── INSERT ─────────────────────────────────────────────────────────
     def insert(self, table: str, data: dict) -> dict:
         if self._supabase:
-            res = self._supabase.table(table).insert(data).execute()
-            return res.data[0] if res.data else data
+            try:
+                res = self._supabase.table(table).insert(data).execute()
+                return res.data[0] if res.data else data
+            except Exception as e:
+                print(f"[DB] Supabase insert error on {table}, using memory fallback: {e}")
         return _mem_store.insert(table, data)
 
     # ── SELECT MANY ────────────────────────────────────────────────────
     def select(self, table: str, filters: dict | None = None, limit: int = 200) -> list[dict]:
         if self._supabase:
-            q = self._supabase.table(table).select("*")
-            if filters:
-                for k, v in filters.items():
-                    q = q.eq(k, v)
-            res = q.limit(limit).execute()
-            return res.data or []
+            try:
+                q = self._supabase.table(table).select("*")
+                if filters:
+                    for k, v in filters.items():
+                        q = q.eq(k, v)
+                res = q.limit(limit).execute()
+                return res.data or []
+            except Exception as e:
+                print(f"[DB] Supabase select error on {table}, using memory fallback: {e}")
         return _mem_store.select(table, filters)
 
     # ── SELECT ONE ─────────────────────────────────────────────────────
     def select_one(self, table: str, id: str) -> dict | None:
         if self._supabase:
-            res = self._supabase.table(table).select("*").eq("id", id).single().execute()
-            return res.data
+            try:
+                res = self._supabase.table(table).select("*").eq("id", id).single().execute()
+                return res.data
+            except Exception as e:
+                print(f"[DB] Supabase select_one error on {table}, using memory fallback: {e}")
         return _mem_store.select_one(table, id)
 
     # ── UPDATE ─────────────────────────────────────────────────────────
     def update(self, table: str, id: str, data: dict) -> dict | None:
         if self._supabase:
-            res = self._supabase.table(table).update(data).eq("id", id).execute()
-            return res.data[0] if res.data else None
+            try:
+                res = self._supabase.table(table).update(data).eq("id", id).execute()
+                return res.data[0] if res.data else None
+            except Exception as e:
+                print(f"[DB] Supabase update error on {table}, using memory fallback: {e}")
         return _mem_store.update(table, id, data)
 
     # ── RAW QUERY (Supabase only) ───────────────────────────────────────

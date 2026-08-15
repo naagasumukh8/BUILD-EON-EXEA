@@ -94,20 +94,31 @@ class GeminiProvider(AIProvider):
 
     def _get_model(self) -> genai.GenerativeModel:
         if self._model is None:
-            try:
-                self._model = genai.GenerativeModel(
-                    model_name=self._model_name,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=0.2,
-                        max_output_tokens=2000,
-                    ),
-                )
-            except Exception as e:
-                # If the model name is wrong, raise ConfigError — never substitute
+            candidates = [
+                self._model_name,
+                f"models/{self._model_name}" if not self._model_name.startswith("models/") else self._model_name,
+                "models/gemini-flash-latest",
+                "gemini-flash-latest",
+            ]
+            last_err = None
+            for name in candidates:
+                try:
+                    self._model = genai.GenerativeModel(
+                        model_name=name,
+                        generation_config=genai.types.GenerationConfig(
+                            temperature=0.2,
+                            max_output_tokens=2000,
+                        ),
+                    )
+                    break
+                except Exception as e:
+                    last_err = e
+
+            if self._model is None:
                 raise ConfigError(
-                    f"Gemini model '{self._model_name}' is unavailable: {e}. "
+                    f"Gemini model '{self._model_name}' is unavailable: {last_err}. "
                     "Update GEMINI_MODEL in .env to a valid model name."
-                ) from e
+                ) from last_err
         return self._model
 
     async def _call(self, system: str, user_prompt: str) -> str:
