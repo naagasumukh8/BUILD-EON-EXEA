@@ -21,7 +21,7 @@ function NewDealContent() {
   const scenarioId = searchParams.get('scenario_id') || 'scen-demo-001'
   const vesselId = searchParams.get('vessel_id') || ''
   const vesselName = searchParams.get('vessel_name') || ''
-  const journeyParam = searchParams.get('journey') || 'Australia → Japan via India'
+  const journeyParam = searchParams.get('journey') || 'Arabian Sea (18.96°N, 58.20°E) → Mumbai Port, India'
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

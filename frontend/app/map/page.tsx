@@ -259,9 +259,9 @@ function MapContent() {
                             <div><b>ETA:</b> {v.eta_days} Days ({v.eta_source})</div>
                             <div><b>Source:</b> {v.data_source}</div>
                           </div>
-                          <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${v.id}&vessel_name=${encodeURIComponent(v.vessel_name)}&journey=${encodeURIComponent(`[${v.lat},${v.lon}] ? ${v.current_destination}`)}`)}
-                            className="w-full py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
-                            Verify Opportunity ?
+                          <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${v.id}&vessel_name=${encodeURIComponent(v.vessel_name)}&journey=${encodeURIComponent(`[${v.lat},${v.lon}] -> ${v.current_destination}`)}`)}
+                            className="w-full py-1.5 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black shadow">
+                            🤝 Negotiate Cargo Space & Verify Deal →
                           </button>
                         </div>
                       </Popup>
