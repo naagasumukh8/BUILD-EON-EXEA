@@ -1090,7 +1090,7 @@ function computeDynamicStrategies(scen: any) {
       eta_days: 6,
       risk_score: 0.10,
       transport_provider: 'Stena Bulk (Shipowner)',
-      data_source: 'AIS Stream Provider',
+      data_source: 'DEMO DATA (AIS API Offline / Key Invalid)',
       commercial_verification_status: 'HUMAN VERIFIED',
       provenance_status: 'CONFIRMED'
     },
@@ -1161,7 +1161,7 @@ function computeDynamicStrategies(scen: any) {
         eta_days: 6,
         risk_score: 0.10,
         transport_provider: 'Stena Bulk',
-        data_source: 'AIS Live Stream',
+        data_source: 'DEMO DATA (AIS API Offline / Key Invalid)',
         commercial_verification_status: 'HUMAN VERIFIED',
         provenance_status: 'CONFIRMED'
       })
@@ -1230,7 +1230,7 @@ function computeDynamicStrategies(scen: any) {
       eta_days: 6,
       risk_score: 0.10,
       transport_provider: 'Stena Bulk',
-      data_source: 'AIS Live Stream',
+      data_source: 'DEMO DATA (AIS API Offline / Key Invalid)',
       commercial_verification_status: 'HUMAN VERIFIED',
       provenance_status: 'CONFIRMED'
     }
@@ -1310,7 +1310,7 @@ function computeDynamicStrategies(scen: any) {
       eta_days: 5,
       risk_score: 0.12,
       transport_provider: 'Stena Bulk',
-      data_source: 'AIS Live Stream',
+      data_source: 'DEMO DATA (AIS API Offline / Key Invalid)',
       commercial_verification_status: 'HUMAN VERIFIED',
       provenance_status: 'CONFIRMED'
     }
@@ -1359,7 +1359,7 @@ function computeDynamicStrategies(scen: any) {
       eta_days: 6,
       risk_score: 0.10,
       transport_provider: 'Stena Bulk',
-      data_source: 'AIS Live Stream',
+      data_source: 'DEMO DATA (AIS API Offline / Key Invalid)',
       commercial_verification_status: 'HUMAN VERIFIED',
       provenance_status: 'CONFIRMED'
     },

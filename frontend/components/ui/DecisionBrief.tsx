@@ -109,17 +109,20 @@ export function DecisionBrief({
                 <th className="py-2.5 px-3">Landed Cost / bbl</th>
                 <th className="py-2.5 px-3">ETA</th>
                 <th className="py-2.5 px-3">Risk</th>
+                <th className="py-2.5 px-3">Data Source</th>
                 <th className="py-2.5 px-3">Provenance</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#18181B]/5">
               {(optionsEvaluated?.length ? optionsEvaluated : [
-                { option_name: 'Stena Bulk Charter (VLCC)', option_type: 'vessel', capacity_bbls: 400000, cost_usd_per_bbl: 92.30, eta_days: 6, risk_score: 0.1, provenance_status: 'CONFIRMED' },
-                { option_name: 'Yanbu IPSA Pipeline Bypass', option_type: 'pipeline', capacity_bbls: 2500000, cost_usd_per_bbl: 89.50, eta_days: 3, risk_score: 0.05, provenance_status: 'REAL_REFERENCE' },
-                { option_name: 'Cape Bypass Alternate Sea Lane', option_type: 'alternate_route', capacity_bbls: 3000000, cost_usd_per_bbl: 97.20, eta_days: 11, risk_score: 0.15, provenance_status: 'REAL_REFERENCE' },
+                { option_name: 'Stena Bulk Charter (VLCC)', option_type: 'vessel', capacity_bbls: 400000, cost_usd_per_bbl: 92.30, eta_days: 6, risk_score: 0.1, data_source: 'DEMO DATA (AIS API Offline)', provenance_status: 'CONFIRMED' },
+                { option_name: 'Yanbu IPSA Pipeline Bypass', option_type: 'pipeline', capacity_bbls: 2500000, cost_usd_per_bbl: 89.50, eta_days: 3, risk_score: 0.05, data_source: 'Aramco Telemetry Feed', provenance_status: 'REAL_REFERENCE' },
+                { option_name: 'Cape Bypass Alternate Sea Lane', option_type: 'alternate_route', capacity_bbls: 3000000, cost_usd_per_bbl: 97.20, eta_days: 11, risk_score: 0.15, data_source: 'Routing Engine', provenance_status: 'REAL_REFERENCE' },
               ]).map((opt: any, i: number) => {
                 const cost = opt.landed_cost_per_bbl || opt.cost_usd_per_bbl || opt.cost_per_bbl || (opt.quoted_price_usd ? (opt.quoted_price_usd / (opt.capacity_bbls || 400000) + 87.30) : 92.30)
                 const cap = opt.max_volume || opt.capacity_bbls || opt.capacity || 400000
+                const dataSourceStr = opt.data_source || 'DEMO DATA (SIMULATED)'
+                const isDemo = dataSourceStr.includes('DEMO DATA') || dataSourceStr.includes('SIMULATED')
                 return (
                   <tr key={i} className="hover:bg-[#FAFAF8]">
                     <td className="py-3 px-3 font-semibold text-[#18181B]">{opt.vessel_name || opt.option_name || opt.name}</td>
@@ -128,6 +131,11 @@ export function DecisionBrief({
                     <td className="py-3 px-3 font-bold">${Number(cost).toFixed(2)}</td>
                     <td className="py-3 px-3">{opt.eta_days} Days</td>
                     <td className="py-3 px-3">{(opt.risk_score * 100).toFixed(0)}%</td>
+                    <td className="py-3 px-3">
+                      <span className={`px-2 py-0.5 rounded font-bold text-[10px] uppercase ${isDemo ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'}`}>
+                        {dataSourceStr}
+                      </span>
+                    </td>
                     <td className="py-3 px-3 font-semibold text-[10px] uppercase text-[#18181B]/80">{opt.provenance_status}</td>
                   </tr>
                 )
