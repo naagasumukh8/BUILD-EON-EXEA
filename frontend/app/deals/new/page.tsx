@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
@@ -14,7 +14,7 @@ const DEAL_TYPES = [
   { value: 'supplier', label: '🏭 Spot Supplier' },
 ]
 
-export default function NewDealPage() {
+function NewDealContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const scenarioId = searchParams.get('scenario_id') || ''
@@ -100,7 +100,6 @@ export default function NewDealPage() {
 
         <GlassPanel>
           <div className="space-y-5">
-            {/* Deal Type Selection */}
             <div>
               <label className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold block mb-2">
                 Supply Deal Category *
@@ -151,7 +150,6 @@ export default function NewDealPage() {
               </div>
             </div>
 
-            {/* Capacity Input */}
             <div className="p-4 rounded-xl bg-[#0a121c]/60 border border-[rgba(30,80,120,0.3)] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
@@ -185,7 +183,6 @@ export default function NewDealPage() {
               </div>
             </div>
 
-            {/* Quoted Price */}
             <div className="p-4 rounded-xl bg-[#0a121c]/60 border border-[rgba(30,80,120,0.3)] space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
@@ -269,5 +266,13 @@ export default function NewDealPage() {
         </GlassPanel>
       </main>
     </div>
+  )
+}
+
+export default function NewDealPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Deal Form...</div>}>
+      <NewDealContent />
+    </Suspense>
   )
 }

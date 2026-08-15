@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
@@ -22,7 +22,7 @@ const VESSEL_SITUATIONS = [
   { value: 'seeking', label: 'I need to find a vessel' },
 ]
 
-export default function IntakePage() {
+function IntakeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentScenarioId = searchParams.get('scenario_id') || ''
@@ -52,7 +52,6 @@ export default function IntakePage() {
 
   const set = (k: string, v: any) => setFields((f) => ({ ...f, [k]: v }))
 
-  // AI free-text parse
   const handleAIParse = async () => {
     if (!aiText.trim()) return
     setAiLoading(true)
@@ -72,7 +71,6 @@ export default function IntakePage() {
     }
   }
 
-  // Save & Proceed to Map
   const handleSave = async () => {
     setLoading(true)
     setError(null)
@@ -105,7 +103,6 @@ export default function IntakePage() {
       <Navbar scenarioId={currentScenarioId} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        {/* Hero title section - matching Mostar Ogg typography */}
         <div className="text-center max-w-3xl mx-auto pt-4 pb-2 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1e6faa]/15 border border-[#1e6faa]/40 text-xs text-[#2a9aff]">
             <span>AI Supply Chain Consultation</span>
@@ -118,7 +115,6 @@ export default function IntakePage() {
           </p>
         </div>
 
-        {/* Natural Language Prompt Panel */}
         <GlassPanel className="relative overflow-hidden border-[#1e6faa]/40 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
           <div className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
@@ -153,7 +149,6 @@ export default function IntakePage() {
               </div>
             )}
 
-            {/* Extracted Glass Chips */}
             <div className="pt-2 border-t border-[rgba(30,90,140,0.25)] flex flex-wrap items-center gap-2 text-xs">
               <span className="text-[#6b8499] mr-2">Parsed Chips:</span>
               {fields.volume_required && (
@@ -184,7 +179,6 @@ export default function IntakePage() {
           </div>
         </GlassPanel>
 
-        {/* Step Navigation Pills */}
         <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
           {STEPS.map((s) => (
             <button
@@ -208,7 +202,6 @@ export default function IntakePage() {
           </div>
         )}
 
-        {/* Step Content Container */}
         <GlassPanel>
           {step === 1 && <StepDemand fields={fields} set={set} />}
           {step === 2 && <StepSupply fields={fields} set={set} />}
@@ -216,7 +209,6 @@ export default function IntakePage() {
           {step === 4 && <StepAlternatives fields={fields} set={set} />}
           {step === 5 && <StepPriorities fields={fields} set={set} totalWeight={totalWeight} />}
 
-          {/* Action buttons */}
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-[rgba(30,90,140,0.3)]">
             <button
               className="btn-ghost-glass"
@@ -239,6 +231,14 @@ export default function IntakePage() {
         </GlassPanel>
       </main>
     </div>
+  )
+}
+
+export default function IntakePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Intake...</div>}>
+      <IntakeContent />
+    </Suspense>
   )
 }
 

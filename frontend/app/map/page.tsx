@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
@@ -21,7 +21,7 @@ const PORT_COORDS: Record<string, [number, number]> = {
   'Shanghai': [31.23, 121.47],
 }
 
-export default function MapPage() {
+function MapContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const scenarioId = searchParams.get('scenario_id') || ''
@@ -36,7 +36,6 @@ export default function MapPage() {
   const [sourceLabel, setSourceLabel] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Load Scenario Data
   useEffect(() => {
     if (!scenarioId) return
     api.getScenario(scenarioId)
@@ -44,7 +43,6 @@ export default function MapPage() {
       .catch(() => {})
   }, [scenarioId])
 
-  // Initialize Leaflet Dark Canvas Map
   useEffect(() => {
     if (typeof window === 'undefined' || mapInstanceRef.current) return
     import('leaflet').then((leaflet) => {
@@ -72,7 +70,6 @@ export default function MapPage() {
     })
   }, [])
 
-  // Render Markers
   useEffect(() => {
     if (!mapInstanceRef.current || !L || vessels.length === 0) return
     const map = mapInstanceRef.current
@@ -106,7 +103,6 @@ export default function MapPage() {
       `, { permanent: false, direction: 'top' })
     })
 
-    // Render Ports
     Object.entries(PORT_COORDS).forEach(([name, coords]) => {
       const portIcon = L.divIcon({
         className: '',
@@ -143,17 +139,12 @@ export default function MapPage() {
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-[#080e14]">
       <Navbar scenarioId={scenarioId} />
 
-      {/* Fullscreen Map Canvas */}
       <div className="absolute inset-0 z-0 top-[60px]">
         <div ref={mapRef} className="w-full h-full" />
       </div>
 
-      {/* Floating UI Overlays */}
       <div className="relative z-10 p-4 sm:p-6 flex-1 flex flex-col justify-between pointer-events-none">
-        
-        {/* Top Floating Glass Summary & Action */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-auto">
-          {/* Scenario Floating Card */}
           <GlassPanel className="p-4 sm:p-5 border-[#1e6faa]/40 shadow-[0_16px_40px_rgba(0,0,0,0.7)] backdrop-blur-3xl">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">Active Supply Scenario</span>
@@ -179,7 +170,6 @@ export default function MapPage() {
             )}
           </GlassPanel>
 
-          {/* Discover Button Floating Card */}
           <div className="flex items-center gap-3">
             <button
               onClick={handleDiscover}
@@ -191,9 +181,7 @@ export default function MapPage() {
           </div>
         </div>
 
-        {/* Bottom Floating Vessel Candidate Drawer / Side Glass */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pointer-events-auto items-end">
-          {/* Candidate Vessel List Panel */}
           <GlassPanel className="col-span-1 md:col-span-1 p-5 max-h-[380px] overflow-y-auto space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold">
@@ -237,7 +225,6 @@ export default function MapPage() {
             </div>
           </GlassPanel>
 
-          {/* Selected Vessel Detail Floating Panel */}
           {selected && (
             <GlassPanel className="col-span-1 md:col-span-2 p-6 animate-slide-up border-[#2a9aff]/50 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
               <div className="flex items-start justify-between mb-4">
@@ -259,19 +246,19 @@ export default function MapPage() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-xs">
-                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,90,140,0.3)]">
                   <div className="text-[#6b8499]">Destination</div>
                   <div className="font-semibold text-[#fdf1e1] mt-1">{selected.current_destination || 'En route'}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,90,140,0.3)]">
                   <div className="text-[#6b8499]">Speed</div>
                   <div className="font-semibold text-[#fdf1e1] mt-1">{selected.speed_knots || 13} knots</div>
                 </div>
-                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,90,140,0.3)]">
                   <div className="text-[#6b8499]">Coordinates</div>
                   <div className="font-semibold text-[#fdf1e1] mt-1">{selected.current_lat?.toFixed(2)}, {selected.current_lon?.toFixed(2)}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,80,120,0.3)]">
+                <div className="p-3 rounded-xl bg-[#0a121c]/70 border border-[rgba(30,90,140,0.3)]">
                   <div className="text-[#6b8499]">AIS Source</div>
                   <div className="font-semibold text-[#2a9aff] mt-1">{selected.source}</div>
                 </div>
@@ -298,5 +285,13 @@ export default function MapPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Map...</div>}>
+      <MapContent />
+    </Suspense>
   )
 }

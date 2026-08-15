@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
@@ -19,7 +19,6 @@ function AllocationVisualizer({ allocations }: { allocations: any[] }) {
 
   return (
     <div className="space-y-4">
-      {/* Visual Bar */}
       <div className="flex h-5 rounded-full overflow-hidden p-0.5 bg-[#0a121c] border border-[rgba(30,90,140,0.3)]">
         {allocations.map((a, idx) => {
           const col = colorPalette[idx % colorPalette.length]
@@ -34,7 +33,6 @@ function AllocationVisualizer({ allocations }: { allocations: any[] }) {
         })}
       </div>
 
-      {/* Allocation Flow Chips */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {allocations.map((a, idx) => {
           const col = colorPalette[idx % colorPalette.length]
@@ -78,7 +76,6 @@ function ComparisonPanel({ baseline, recommended }: { baseline: any; recommended
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {/* Baseline Card */}
         <div className="p-5 rounded-2xl bg-[#0a121c]/70 border border-[rgba(30,90,140,0.3)] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase text-[#6b8499]">Baseline (Single Option)</span>
@@ -93,7 +90,6 @@ function ComparisonPanel({ baseline, recommended }: { baseline: any; recommended
           </div>
         </div>
 
-        {/* AI Recommended Card */}
         <div className="p-5 rounded-2xl bg-[#1e6faa]/15 border border-[#2a9aff]/50 shadow-[0_0_30px_rgba(42,154,255,0.2)] space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase text-[#2a9aff]">★ Recommended Strategy</span>
@@ -123,7 +119,7 @@ function ComparisonPanel({ baseline, recommended }: { baseline: any; recommended
   )
 }
 
-export default function StrategyPage() {
+function StrategyContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const scenarioId = searchParams.get('scenario_id') || ''
@@ -178,7 +174,6 @@ export default function StrategyPage() {
       <Navbar scenarioId={scenarioId} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        {/* Top Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -217,7 +212,6 @@ export default function StrategyPage() {
           </div>
         )}
 
-        {/* Priority Controls */}
         <GlassPanel className="p-5">
           <div className="text-xs uppercase tracking-widest text-[#8aacca] font-semibold mb-3">
             Optimizer Weight Parameters
@@ -251,7 +245,6 @@ export default function StrategyPage() {
 
         {result && (
           <div className="space-y-8">
-            {/* Allocation Visualizer for Recommended Strategy */}
             <GlassPanel className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -265,10 +258,8 @@ export default function StrategyPage() {
               <AllocationVisualizer allocations={result.recommended?.allocations || []} />
             </GlassPanel>
 
-            {/* Baseline Comparison */}
             <ComparisonPanel baseline={result.baseline} recommended={result.recommended} />
 
-            {/* Ranked Strategy Cards List */}
             <div className="space-y-4">
               <h3 className="title-ogg text-2xl text-[#fdf1e1]">Evaluated Supply Combinations</h3>
               <div className="grid grid-cols-1 gap-4">
@@ -315,7 +306,6 @@ export default function StrategyPage() {
               </div>
             </div>
 
-            {/* Gemini Explanation Panel */}
             <GlassPanel className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -328,7 +318,7 @@ export default function StrategyPage() {
               </div>
 
               {explanation ? (
-                <div className="p-4 rounded-2xl bg-[#0a121c]/80 border border-[rgba(30,80,120,0.3)] text-sm text-[#e2eaf4] leading-relaxed whitespace-pre-wrap">
+                <div className="p-4 rounded-2xl bg-[#0a121c]/80 border border-[rgba(30,90,140,0.3)] text-sm text-[#e2eaf4] leading-relaxed whitespace-pre-wrap">
                   {explanation}
                 </div>
               ) : (
@@ -341,5 +331,13 @@ export default function StrategyPage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function StrategyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Optimizer...</div>}>
+      <StrategyContent />
+    </Suspense>
   )
 }

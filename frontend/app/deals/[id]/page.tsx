@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel, GlassCard } from '@/components/ui/GlassPanel'
@@ -33,7 +33,7 @@ function VerdictHeroCard({ verdict, reason }: { verdict: string; reason: string 
   )
 }
 
-export default function DealEvaluatorPage() {
+function EvaluatorContent() {
   const params = useParams()
   const dealId = params?.id as string
   const searchParams = useSearchParams()
@@ -46,7 +46,6 @@ export default function DealEvaluatorPage() {
   const [evalLoading, setEvalLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Interactive What-If Simulator state
   const [whatIfPrice, setWhatIfPrice] = useState<number>(0)
   const [whatIfResult, setWhatIfResult] = useState<any>(null)
   const [whatIfLoading, setWhatIfLoading] = useState(false)
@@ -73,7 +72,6 @@ export default function DealEvaluatorPage() {
     loadAndEvaluate()
   }, [loadAndEvaluate])
 
-  // Recalculate What-If
   const handleWhatIfChange = async (newPrice: number) => {
     setWhatIfPrice(newPrice)
     setWhatIfLoading(true)
@@ -108,7 +106,6 @@ export default function DealEvaluatorPage() {
       <Navbar scenarioId={scenarioId} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -137,10 +134,8 @@ export default function DealEvaluatorPage() {
           </div>
         )}
 
-        {/* Hero Verdict Banner */}
         {ev && <VerdictHeroCard verdict={ev.deal_verdict} reason={ev.verdict_reason} />}
 
-        {/* Metric Cards Row */}
         {ev && (
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <GlassCard>
@@ -186,7 +181,6 @@ export default function DealEvaluatorPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Interactive What-If Simulator */}
           <GlassPanel className="lg:col-span-1 space-y-6">
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -247,7 +241,6 @@ export default function DealEvaluatorPage() {
             </div>
           </GlassPanel>
 
-          {/* Right Column: Full P&L Breakdown Table with Provenance Badges */}
           <GlassPanel className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between border-b border-[rgba(30,90,140,0.3)] pb-4">
               <div>
@@ -291,5 +284,13 @@ export default function DealEvaluatorPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default function DealEvaluatorPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Evaluator...</div>}>
+      <EvaluatorContent />
+    </Suspense>
   )
 }

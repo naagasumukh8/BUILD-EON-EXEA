@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel } from '@/components/ui/GlassPanel'
 import { GlassBadge } from '@/components/ui/GlassBadge'
 import { api } from '@/lib/api'
 
-export default function ReportPage() {
+function ReportContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const scenarioId = searchParams.get('scenario_id') || ''
@@ -35,7 +35,6 @@ export default function ReportPage() {
       <Navbar scenarioId={scenarioId} />
 
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8 animate-fade-in">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
@@ -126,7 +125,6 @@ export default function ReportPage() {
               </div>
             </div>
 
-            {/* Formatted Markdown Content */}
             <div
               className="prose prose-invert max-w-none space-y-4
                 prose-headings:title-ogg prose-headings:text-[#fdf1e1]
@@ -156,6 +154,14 @@ export default function ReportPage() {
   )
 }
 
+export default function ReportPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#080e14] flex items-center justify-center text-[#8aacca]">Loading Report...</div>}>
+      <ReportContent />
+    </Suspense>
+  )
+}
+
 function markdownToHtml(md: string): string {
   return md
     .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-normal text-[#fdf1e1] mb-4">$1</h1>')
@@ -169,7 +175,7 @@ function markdownToHtml(md: string): string {
       if (isSep) return ''
       return `<tr>${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`
     })
-    .replace(/(<tr.*<\/tr>)/gs, '<table class="w-full my-4"><tbody>$1</tbody></table>')
+    .replace(/(<tr[\s\S]*<\/tr>)/g, '<table class="w-full my-4"><tbody>$1</tbody></table>')
     .replace(/^(?!<[h|t|u|o])(.+)$/gm, '<p class="text-sm text-[#e2eaf4] leading-relaxed mb-3">$1</p>')
     .replace(/---/g, '<hr class="border-[rgba(30,90,140,0.3)] my-6" />')
 }
