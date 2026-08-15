@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamicImport from 'next/dynamic'
 import { Navbar } from '@/components/ui/Navbar'
-import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
 
 // Dynamically import Leaflet Map components to avoid SSR window errors
@@ -285,7 +284,7 @@ function MapContent() {
         </div>
 
         {/* LAYER TOGGLES — top right */}
-        <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-1 bg-white/90 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-[#18181B]/10 shadow-md">
+        <div className="absolute top-2 right-2 z-20 flex flex-wrap gap-1 bg-white/96 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-[#18181B]/15 shadow-md">
           {[
             { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
             { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
@@ -301,7 +300,7 @@ function MapContent() {
 
         {/* ROUTE SWITCHER — top center */}
         {!loading && routes.length > 0 && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center bg-white/92 backdrop-blur-md px-1 py-1 rounded-full border border-[#18181B]/10 shadow-xl">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 flex items-center bg-white/96 backdrop-blur-md px-2 py-1 rounded-full border border-[#18181B]/15 shadow-xl">
             <button onClick={() => setActiveRouteIndex((p) => (p > 0 ? p - 1 : routes.length - 1))}
               className="px-2 text-base font-bold hover:text-blue-600 leading-none">‹</button>
             <div className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#18181B] whitespace-nowrap">
@@ -312,98 +311,101 @@ function MapContent() {
           </div>
         )}
 
-        {/* OVERLAY PANELS */}
-        <div className="absolute inset-0 z-10 pointer-events-none">
+        {/* ── LEFT SIDEBAR OVERLAY (STACKED & OPAQUE TO PREVENT OVERLAP) ── */}
+        <div className="absolute top-12 left-3 bottom-3 z-20 w-[280px] sm:w-[320px] pointer-events-none flex flex-col gap-3 max-h-[calc(100vh-80px)] overflow-y-auto pr-1">
 
-          {/* Scenario info — top left */}
-          <div className="absolute top-12 left-2 pointer-events-auto max-w-[260px] sm:max-w-sm">
-            <GlassPanel className="p-4 space-y-3 shadow-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#18181B]/50">POLY EXEA NETWORK</span>
-                {destCfg.showHormuz && (
-                  <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold border border-red-200">DISRUPTED</span>
-                )}
+          {/* Panel 1: Scenario Info */}
+          <div className="pointer-events-auto bg-white/96 backdrop-blur-md p-4 rounded-3xl border border-gray-200 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#18181B]/50">POLY EXEA NETWORK</span>
+              {destCfg.showHormuz && (
+                <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold border border-red-200">DISRUPTED</span>
+              )}
+            </div>
+            <div>
+              <h3 className="font-['Instrument_Serif'] text-xl text-[#18181B]">Transport Opportunities</h3>
+              <p className="text-[11px] text-[#18181B]/70 mt-0.5">Sea lanes for <strong>{destCfg.destLabel}</strong>.</p>
+            </div>
+            <div className="pt-2 border-t border-gray-100 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-semibold">Product</div>
+                <div className="font-bold uppercase text-[#18181B]">{scenario?.product || 'DIESEL'}</div>
               </div>
               <div>
-                <h3 className="font-['Instrument_Serif'] text-xl text-[#18181B]">Transport Opportunities</h3>
-                <p className="text-[11px] text-[#18181B]/70 mt-0.5">Sea lanes for <strong>{destCfg.destLabel}</strong>.</p>
+                <div className="text-[10px] text-gray-400 uppercase font-semibold">Volume</div>
+                <div className="font-bold text-[#18181B]">{Number(scenario?.volume_required || 2000000).toLocaleString()} bbl</div>
               </div>
-              <div className="pt-2 border-t border-[#18181B]/10 grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <div className="text-[10px] text-[#18181B]/50 uppercase font-semibold">Product</div>
-                  <div className="font-bold uppercase">{scenario?.product || 'DIESEL'}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-[#18181B]/50 uppercase font-semibold">Volume</div>
-                  <div className="font-bold">{Number(scenario?.volume_required || 2000000).toLocaleString()} bbl</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-[#18181B]/50 uppercase font-semibold">Origin</div>
-                  <div className="font-bold text-[11px]">Ras Tanura, Persian Gulf</div>
-                </div>
-                <div>
-                  <div className="text-[10px] text-[#18181B]/50 uppercase font-semibold">Destination</div>
-                  <div className="font-bold text-[11px]">{destCfg.destLabel}</div>
-                </div>
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-semibold">Origin</div>
+                <div className="font-bold text-[11px] text-[#18181B]">Ras Tanura, Persian Gulf</div>
               </div>
-            </GlassPanel>
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-semibold">Destination</div>
+                <div className="font-bold text-[11px] text-[#18181B]">{destCfg.destLabel}</div>
+              </div>
+            </div>
           </div>
 
-          {/* Active route info — left, below scenario */}
+          {/* Panel 2: Active Selected Route Info */}
           {activeRoute && (
-            <div className="absolute left-2 pointer-events-auto max-w-[260px] sm:max-w-sm" style={{ top: '215px' }}>
-              <GlassPanel className="p-3 space-y-2 shadow-lg">
-                <div className="flex justify-between items-start gap-2">
-                  <h4 className="font-bold text-xs text-[#18181B] leading-snug flex-1">{activeRoute.name}</h4>
-                  <button onClick={() => setShowComparison(!showComparison)}
-                    className="text-[10px] uppercase font-bold text-blue-600 hover:underline whitespace-nowrap flex-shrink-0">
-                    Compare
-                  </button>
-                </div>
-                {activeRoute.description && (
-                  <p className="text-[11px] text-gray-500 italic leading-snug">{activeRoute.description}</p>
-                )}
-                <div className="text-xs text-gray-600 space-y-1">
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                    {[
-                      ['Origin', activeRoute.origin],
-                      ['Destination', activeRoute.destination],
-                      ['Distance', `${activeRoute.distance_nm?.toLocaleString()} nm`],
-                      ['ETA', `${activeRoute.eta_days} days`],
-                      ['Cost', `$${activeRoute.cost_per_bbl?.toFixed(2)}/bbl`],
-                    ].map(([label, value]) => (
-                      <div key={label}>
-                        <span className="block text-[10px] text-gray-400 uppercase">{label}</span>
-                        <span className="font-semibold">{value}</span>
-                      </div>
-                    ))}
-                    <div>
-                      <span className="block text-[10px] text-gray-400 uppercase">Risk</span>
-                      <span className={`font-bold ${activeRoute.risk === 'HIGH' ? 'text-red-600' : activeRoute.risk === 'MEDIUM' ? 'text-amber-600' : 'text-emerald-600'}`}>
-                        {activeRoute.risk}
-                      </span>
+            <div className="pointer-events-auto bg-white/96 backdrop-blur-md p-4 rounded-3xl border border-gray-200 shadow-xl space-y-2">
+              <div className="flex justify-between items-start gap-2">
+                <h4 className="font-bold text-xs text-[#18181B] leading-snug flex-1">{activeRoute.name}</h4>
+                <button
+                  onClick={() => setShowComparison(!showComparison)}
+                  className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-all flex-shrink-0"
+                >
+                  Compare 3 Routes
+                </button>
+              </div>
+              {activeRoute.description && (
+                <p className="text-[11px] text-gray-500 italic leading-snug">{activeRoute.description}</p>
+              )}
+              <div className="text-xs text-gray-600 space-y-1">
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 pt-1 border-t border-gray-100">
+                  {[
+                    ['Origin', activeRoute.origin],
+                    ['Destination', activeRoute.destination],
+                    ['Distance', `${activeRoute.distance_nm?.toLocaleString()} nm`],
+                    ['ETA', `${activeRoute.eta_days} days`],
+                    ['Cost', `$${activeRoute.cost_per_bbl?.toFixed(2)}/bbl`],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <span className="block text-[10px] text-gray-400 uppercase">{label}</span>
+                      <span className="font-semibold text-[#18181B]">{value}</span>
                     </div>
+                  ))}
+                  <div>
+                    <span className="block text-[10px] text-gray-400 uppercase">Risk</span>
+                    <span className={`font-bold ${activeRoute.risk === 'HIGH' ? 'text-red-600' : activeRoute.risk === 'MEDIUM' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                      {activeRoute.risk}
+                    </span>
                   </div>
-                  <div className="text-[10px] text-gray-400 border-t pt-1">{activeRoute.data_source} · {activeRoute.provenance}</div>
                 </div>
-              </GlassPanel>
+                <div className="text-[10px] text-gray-400 border-t pt-1 mt-1">{activeRoute.data_source} · {activeRoute.provenance}</div>
+              </div>
             </div>
           )}
+        </div>
 
-          {/* Route comparison table — bottom */}
-          {showComparison && (
-            <div className="absolute bottom-4 left-2 z-20 pointer-events-auto" style={{ maxWidth: 'calc(100vw - 16px)' }}>
-              <GlassPanel className="p-4 shadow-2xl border border-[#18181B]/20 overflow-x-auto">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-['Instrument_Serif'] text-xl">Route Comparison</h3>
-                  <button onClick={() => setShowComparison(false)} className="font-bold text-lg hover:text-red-500 leading-none ml-4">×</button>
+        {/* ── ROUTE COMPARISON MODAL (CENTERED OVERLAY) ── */}
+        {showComparison && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pointer-events-auto">
+            <div className="bg-white/98 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-gray-200 max-w-2xl w-full space-y-4">
+              <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">POLY EXEA DECISION COMPARISON</span>
+                  <h3 className="font-['Instrument_Serif'] text-2xl text-[#18181B]">Alternative Route Comparison</h3>
                 </div>
-                <table className="text-xs text-left w-full min-w-[380px]">
+                <button onClick={() => setShowComparison(false)} className="text-gray-400 hover:text-black font-bold text-xl leading-none">×</button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="text-xs text-left w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="py-1.5 text-gray-400 uppercase text-[10px] pr-3">Metric</th>
+                      <th className="py-2 text-gray-400 uppercase text-[10px] pr-3">Metric</th>
                       {routes.map((r, i) => (
-                        <th key={r.id} className={`py-1.5 font-bold pr-3 ${i === activeRouteIndex ? 'text-blue-600' : 'text-[#18181B]'}`}>
+                        <th key={r.id} className={`py-2 font-bold pr-3 ${i === activeRouteIndex ? 'text-blue-600' : 'text-[#18181B]'}`}>
                           {r.type}<br /><span className="text-[10px] font-normal text-gray-400">{r.distance_nm?.toLocaleString()} nm</span>
                         </th>
                       ))}
@@ -413,64 +415,72 @@ function MapContent() {
                     {[
                       { label: 'ETA', fn: (r: any) => `${r.eta_days} days` },
                       { label: 'Cost/bbl', fn: (r: any) => `$${r.cost_per_bbl?.toFixed(2)}` },
-                      { label: 'Risk', fn: (r: any) => <span className={`font-bold ${r.risk === 'HIGH' ? 'text-red-600' : r.risk === 'MEDIUM' ? 'text-amber-600' : 'text-emerald-600'}`}>{r.risk}</span> },
+                      { label: 'Risk Level', fn: (r: any) => <span className={`font-bold ${r.risk === 'HIGH' ? 'text-red-600' : r.risk === 'MEDIUM' ? 'text-amber-600' : 'text-emerald-600'}`}>{r.risk}</span> },
                       { label: 'Origin', fn: (r: any) => r.origin },
-                      { label: 'Source', fn: (r: any) => <span className="text-gray-400">{r.provenance}</span> },
+                      { label: 'Destination', fn: (r: any) => r.destination },
+                      { label: 'Data Source', fn: (r: any) => <span className="text-gray-400">{r.provenance}</span> },
                     ].map(({ label, fn }) => (
                       <tr key={label} className="border-b border-gray-100">
-                        <td className="py-1.5 font-semibold text-gray-500 pr-3 whitespace-nowrap">{label}</td>
-                        {routes.map((r) => <td key={r.id} className="py-1.5 pr-3">{fn(r)}</td>)}
+                        <td className="py-2 font-semibold text-gray-500 pr-3 whitespace-nowrap">{label}</td>
+                        {routes.map((r) => <td key={r.id} className="py-2 pr-3">{fn(r)}</td>)}
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </GlassPanel>
+              </div>
+              <div className="flex justify-end pt-2">
+                <button
+                  onClick={() => setShowComparison(false)}
+                  className="px-6 py-2 rounded-full bg-[#18181B] text-white text-xs font-semibold hover:bg-black transition-all"
+                >
+                  Close Comparison
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Selected vessel detail — bottom center */}
-          {selectedVessel && (
-            <div className="absolute bottom-4 left-2 right-2 sm:left-auto sm:right-4 sm:max-w-sm pointer-events-auto z-30">
-              <GlassPanel className="p-4 space-y-3 shadow-xl border border-[#18181B]/15">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#18181B]/50 block mb-0.5">
-                      VESSEL OPPORTUNITY · {selectedVessel.commercial_verification_status || 'CANDIDATE — UNVERIFIED'}
-                    </span>
-                    <h3 className="font-['Instrument_Serif'] text-xl text-[#18181B] truncate">{selectedVessel.vessel_name}</h3>
-                    <p className="text-[11px] text-blue-700 font-medium mt-0.5 leading-snug">{selectedVessel.relevance_reason}</p>
-                  </div>
-                  <button onClick={() => setSelectedVessel(null)} className="text-[#18181B]/40 hover:text-[#18181B] text-xl font-bold ml-2 flex-shrink-0">×</button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {[
-                    ['Position', `[${selectedVessel.lat?.toFixed(1)}, ${selectedVessel.lon?.toFixed(1)}]`],
-                    ['AIS Destination', selectedVessel.current_destination],
-                    ['Transit ETA', `${selectedVessel.eta_days} Days (${selectedVessel.eta_source || 'CALCULATED'})`],
-                    ['Distance to Target', `${selectedVessel.distance_nm || 'N/A'} nm`],
-                    ['Route Relevance', selectedVessel.route_relevance || 'N/A'],
-                    ['Vessel Type', selectedVessel.vessel_type],
-                    ['Data Source', selectedVessel.data_source],
-                    ['Status', selectedVessel.status_label || 'DEMO DATA'],
-                  ].map(([label, value]) => (
-                    <div key={label} className="p-2 rounded-xl bg-white border border-[#18181B]/10">
-                      <div className="text-[10px] text-[#18181B]/50 uppercase">{label}</div>
-                      <div className="font-bold text-[11px] text-[#18181B] leading-snug mt-0.5">{value}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex justify-end">
-                  <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selectedVessel.id}&vessel_name=${encodeURIComponent(selectedVessel.vessel_name)}&journey=${encodeURIComponent(`[${selectedVessel.lat},${selectedVessel.lon}] → ${selectedVessel.current_destination}`)}`)}
-                    className="rounded-full bg-[#18181B] px-5 py-2.5 text-xs font-semibold text-white hover:bg-black shadow-md">
-                    Verify Commercial Opportunity &amp; Enter Quote →
-                  </button>
-                </div>
-              </GlassPanel>
+        {/* ── SELECTED VESSEL DETAIL DRAWER (RIGHT SIDE) ── */}
+        {selectedVessel && (
+          <div className="absolute bottom-3 right-3 z-30 pointer-events-auto w-[calc(100vw-24px)] sm:w-[360px] bg-white/96 backdrop-blur-md rounded-3xl p-5 shadow-2xl border border-gray-200 space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-0.5">
+                  VESSEL OPPORTUNITY · {selectedVessel.commercial_verification_status || 'CANDIDATE — UNVERIFIED'}
+                </span>
+                <h3 className="font-['Instrument_Serif'] text-xl text-[#18181B] truncate">{selectedVessel.vessel_name}</h3>
+                <p className="text-[11px] text-blue-700 font-medium mt-0.5 leading-snug">{selectedVessel.relevance_reason}</p>
+              </div>
+              <button onClick={() => setSelectedVessel(null)} className="text-gray-400 hover:text-black text-xl font-bold ml-2 flex-shrink-0">×</button>
             </div>
-          )}
-        </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                ['Position', `[${selectedVessel.lat?.toFixed(1)}, ${selectedVessel.lon?.toFixed(1)}]`],
+                ['AIS Destination', selectedVessel.current_destination],
+                ['Transit ETA', `${selectedVessel.eta_days} Days (${selectedVessel.eta_source || 'CALCULATED'})`],
+                ['Distance to Target', `${selectedVessel.distance_nm || 'N/A'} nm`],
+                ['Route Relevance', selectedVessel.route_relevance || 'N/A'],
+                ['Vessel Type', selectedVessel.vessel_type],
+                ['Data Source', selectedVessel.data_source],
+                ['Status', selectedVessel.status_label || 'DEMO DATA'],
+              ].map(([label, value]) => (
+                <div key={label} className="p-2 rounded-xl bg-gray-50 border border-gray-100">
+                  <div className="text-[10px] text-gray-400 uppercase">{label}</div>
+                  <div className="font-bold text-[11px] text-[#18181B] leading-snug mt-0.5">{value}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selectedVessel.id}&vessel_name=${encodeURIComponent(selectedVessel.vessel_name)}&journey=${encodeURIComponent(`[${selectedVessel.lat},${selectedVessel.lon}] → ${selectedVessel.current_destination}`)}`)}
+                className="w-full rounded-full bg-[#18181B] px-5 py-2.5 text-xs font-semibold text-white hover:bg-black shadow-md transition-all text-center">
+                Verify Commercial Opportunity &amp; Enter Quote →
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
