@@ -173,7 +173,7 @@ export default function Home() {
                 <div className="font-['Instrument_Serif'] text-3xl sm:text-4xl text-[#1B133C]">21%</div>
                 <div className="text-xs text-[#1B133C]/60 mt-1">of global oil trade passes through Strait of Hormuz</div>
               </div>
-              <div class="bg-white p-5 rounded-2xl border border-[#1B133C]/10 shadow-sm">
+              <div className="bg-white p-5 rounded-2xl border border-[#1B133C]/10 shadow-sm">
                 <div className="font-['Instrument_Serif'] text-3xl sm:text-4xl text-[#1B133C]">2.5M</div>
                 <div className="text-xs text-[#1B133C]/60 mt-1">bbl/day capacity on IPSA bypass pipeline</div>
               </div>
