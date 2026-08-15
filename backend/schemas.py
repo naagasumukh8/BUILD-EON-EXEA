@@ -262,6 +262,8 @@ class StrategyResult(BaseModel):
     cost_per_bbl: float
     expected_profit_usd: float
     expected_margin_pct: float
+    savings_vs_baseline_usd: Optional[float] = 0.0
+    savings_vs_baseline_per_bbl: Optional[float] = 0.0
     eta_days: int
     risk_score: float
     coverage_pct: float

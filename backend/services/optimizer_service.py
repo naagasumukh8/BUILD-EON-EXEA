@@ -179,6 +179,11 @@ def _build_strategy(
     if not active:
         return None
 
+    # HARD ENFORCE INVARIANT: allocation <= option.capacity
+    for o, v in active:
+        if v > o.max_volume + 1e-3:
+            raise ValueError(f"HARD SOLVER CONSTRAINT VIOLATION: Allocation of {v:,.0f} bbl to '{o.name}' exceeds option capacity of {o.max_volume:,.0f} bbl.")
+
     total_vol = sum(v for _, v in active)
     total_cost, cost_per_bbl, profit, margin, eta, risk = _score_strategy(
         [o for o, _ in active], [v for _, v in active], config
@@ -213,6 +218,8 @@ def _build_strategy(
         cost_per_bbl=round(cost_per_bbl, 4),
         expected_profit_usd=round(profit, 2),
         expected_margin_pct=round(margin, 2),
+        savings_vs_baseline_usd=0.0,
+        savings_vs_baseline_per_bbl=0.0,
         eta_days=int(math.ceil(eta)),
         risk_score=round(risk, 4),
         coverage_pct=round(total_vol / config.required_volume * 100, 1),
@@ -315,6 +322,14 @@ def solve_optimization(
         baseline = _build_strategy([baseline_opt], [config.required_volume], config, rank=0, is_baseline=True)
     else:
         baseline = None
+
+    # Populate savings vs baseline dynamically for each strategy
+    if baseline:
+        b_cost = baseline.total_cost_usd
+        b_per_bbl = baseline.cost_per_bbl
+        for s in strategies:
+            s.savings_vs_baseline_usd = round(max(0.0, b_cost - s.total_cost_usd), 2)
+            s.savings_vs_baseline_per_bbl = round(max(0.0, b_per_bbl - s.cost_per_bbl), 4)
 
     recommended = strategies[0] if strategies else None
 

@@ -13,14 +13,16 @@ PORT_COORDS: dict[str, tuple[float, float]] = {
     "Mumbai": (18.95, 72.83), "JNPT": (18.95, 72.83),
     "Chennai": (13.08, 80.27),
     "Singapore": (1.29, 103.85),
-    "Shanghai": (31.23, 121.47),
-    "Rotterdam": (51.92, 4.48),
-    "Houston": (29.76, -95.37),
+    "Shanghai": (31.23, 121.47), "China": (31.23, 121.47),
+    "Rotterdam": (51.92, 4.48), "Europe": (51.92, 4.48),
+    "Tokyo": (35.44, 139.64), "Japan": (35.44, 139.64),
+    "Colombo": (6.92, 79.86), "Sri Lanka": (6.92, 79.86),
+    "Houston": (29.76, -95.37), "USA": (29.76, -95.37),
     "Ras Tanura": (26.64, 50.16),
     "Abu Dhabi": (24.45, 54.38),
     "Fujairah": (25.13, 56.33),
     "Yanbu": (24.08, 38.05),
-    "India": (20.59, 78.96),  # center of India fallback
+    "India": (18.95, 72.83),
 }
 
 

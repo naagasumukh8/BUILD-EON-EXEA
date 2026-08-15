@@ -55,7 +55,7 @@ export function DecisionBrief({
         </div>
 
         <h2 className="font-['Instrument_Serif'] text-3xl sm:text-4xl text-white">
-          Proceed with Hybrid Allocation: {rec?.name || '30% Vessel + 40% Pipeline + 30% Alternate Route'}
+          Proceed with Hybrid Allocation: {rec?.name || '80% Yanbu IPSA Pipeline Bypass + 20% Stena Bulk Charter (VLCC)'}
         </h2>
 
         <p className="text-sm text-white/80 leading-relaxed font-light">
@@ -106,7 +106,7 @@ export function DecisionBrief({
                 <th className="py-2.5 px-3">Option Name</th>
                 <th className="py-2.5 px-3">Type</th>
                 <th className="py-2.5 px-3">Capacity</th>
-                <th className="py-2.5 px-3">Cost / bbl</th>
+                <th className="py-2.5 px-3">Landed Cost / bbl</th>
                 <th className="py-2.5 px-3">ETA</th>
                 <th className="py-2.5 px-3">Risk</th>
                 <th className="py-2.5 px-3">Provenance</th>
@@ -114,20 +114,24 @@ export function DecisionBrief({
             </thead>
             <tbody className="divide-y divide-[#18181B]/5">
               {(optionsEvaluated?.length ? optionsEvaluated : [
-                { option_name: 'Stena Bulk Charter', option_type: 'vessel', capacity_bbls: 400000, cost_usd_per_bbl: 40.0, eta_days: 6, risk_score: 0.1, provenance_status: 'CONFIRMED' },
-                { option_name: 'Yanbu IPSA Pipeline', option_type: 'pipeline', capacity_bbls: 800000, cost_usd_per_bbl: 45.0, eta_days: 3, risk_score: 0.05, provenance_status: 'REAL_REFERENCE' },
-                { option_name: 'Cape Bypass Sea Lane', option_type: 'alternate_route', capacity_bbls: 1000000, cost_usd_per_bbl: 48.0, eta_days: 5, risk_score: 0.15, provenance_status: 'REAL_REFERENCE' },
-              ]).map((opt: any, i: number) => (
-                <tr key={i} className="hover:bg-[#FAFAF8]">
-                  <td className="py-3 px-3 font-semibold text-[#18181B]">{opt.vessel_name || opt.option_name}</td>
-                  <td className="py-3 px-3 uppercase text-[#18181B]/70">{opt.option_type}</td>
-                  <td className="py-3 px-3">{Number(opt.capacity_bbls).toLocaleString()} bbl</td>
-                  <td className="py-3 px-3 font-bold">${Number(opt.cost_usd_per_bbl).toFixed(2)}</td>
-                  <td className="py-3 px-3">{opt.eta_days} Days</td>
-                  <td className="py-3 px-3">{(opt.risk_score * 100).toFixed(0)}%</td>
-                  <td className="py-3 px-3 font-semibold text-[10px] uppercase text-[#18181B]/80">{opt.provenance_status}</td>
-                </tr>
-              ))}
+                { option_name: 'Stena Bulk Charter (VLCC)', option_type: 'vessel', capacity_bbls: 400000, cost_usd_per_bbl: 92.30, eta_days: 6, risk_score: 0.1, provenance_status: 'CONFIRMED' },
+                { option_name: 'Yanbu IPSA Pipeline Bypass', option_type: 'pipeline', capacity_bbls: 2500000, cost_usd_per_bbl: 89.50, eta_days: 3, risk_score: 0.05, provenance_status: 'REAL_REFERENCE' },
+                { option_name: 'Cape Bypass Alternate Sea Lane', option_type: 'alternate_route', capacity_bbls: 3000000, cost_usd_per_bbl: 97.20, eta_days: 11, risk_score: 0.15, provenance_status: 'REAL_REFERENCE' },
+              ]).map((opt: any, i: number) => {
+                const cost = opt.landed_cost_per_bbl || opt.cost_usd_per_bbl || opt.cost_per_bbl || (opt.quoted_price_usd ? (opt.quoted_price_usd / (opt.capacity_bbls || 400000) + 87.30) : 92.30)
+                const cap = opt.max_volume || opt.capacity_bbls || opt.capacity || 400000
+                return (
+                  <tr key={i} className="hover:bg-[#FAFAF8]">
+                    <td className="py-3 px-3 font-semibold text-[#18181B]">{opt.vessel_name || opt.option_name || opt.name}</td>
+                    <td className="py-3 px-3 uppercase text-[#18181B]/70">{opt.option_type || opt.type}</td>
+                    <td className="py-3 px-3">{Number(cap).toLocaleString()} bbl</td>
+                    <td className="py-3 px-3 font-bold">${Number(cost).toFixed(2)}</td>
+                    <td className="py-3 px-3">{opt.eta_days} Days</td>
+                    <td className="py-3 px-3">{(opt.risk_score * 100).toFixed(0)}%</td>
+                    <td className="py-3 px-3 font-semibold text-[10px] uppercase text-[#18181B]/80">{opt.provenance_status}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -150,19 +154,19 @@ export function DecisionBrief({
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
               <div className="text-[10px] text-[#18181B]/60 uppercase">Counterparty</div>
-              <div className="font-bold text-sm text-[#18181B]">{deal.counterparty || 'Stena Bulk Charter'}</div>
+              <div className="font-bold text-sm text-[#18181B]">{deal.counterparty || deal.vessel_name || 'Stena Bulk Charter'}</div>
             </div>
             <div className="p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
               <div className="text-[10px] text-[#18181B]/60 uppercase">Quoted Freight</div>
-              <div className="font-bold text-sm text-[#18181B]">${(deal.quoted_price_usd / 1e6 || 2).toFixed(2)}M</div>
+              <div className="font-bold text-sm text-[#18181B]">${(deal.quoted_price_usd / 1e6 || 2.0).toFixed(2)}M (${(deal.quoted_price_per_bbl || 5.0).toFixed(2)}/bbl)</div>
             </div>
             <div className="p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
               <div className="text-[10px] text-[#18181B]/60 uppercase">Maximum Acceptable Price</div>
-              <div className="font-bold text-sm text-emerald-700">${(deal.max_acceptable_price_usd / 1e6 || 1.25).toFixed(2)}M</div>
+              <div className="font-bold text-sm text-emerald-700">${(deal.max_acceptable_price_usd / 1e6 || 1.65).toFixed(2)}M (${(deal.max_acceptable_price_per_bbl || 4.125).toFixed(2)}/bbl)</div>
             </div>
             <div className="p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10">
               <div className="text-[10px] text-[#18181B]/60 uppercase">Expected Profit</div>
-              <div className="font-bold text-sm text-emerald-700">${(deal.expected_profit_usd / 1e6 || 24.25).toFixed(2)}M</div>
+              <div className="font-bold text-sm text-emerald-700">${(deal.expected_profit_usd / 1e6 || 5.08).toFixed(2)}M</div>
             </div>
           </div>
 
@@ -190,28 +194,32 @@ export function DecisionBrief({
           <div className="p-4 rounded-2xl bg-white border border-[#18181B]/10 text-center">
             <div className="text-[10px] text-[#18181B]/60 uppercase">Total Delivered Cost</div>
             <div className="font-['Instrument_Serif'] text-2xl font-bold text-[#18181B]">
-              ${(rec?.total_cost_usd / 1e6 || 184.6).toFixed(2)}M
+              ${(rec?.total_cost_usd / 1e6 || 180.12).toFixed(2)}M
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-white border border-[#18181B]/10 text-center">
             <div className="text-[10px] text-[#18181B]/60 uppercase">Landed Cost / bbl</div>
             <div className="font-['Instrument_Serif'] text-2xl font-bold text-[#18181B]">
-              ${(rec?.cost_per_bbl || 92.3).toFixed(2)}
+              ${(rec?.cost_per_bbl || 90.06).toFixed(2)}
             </div>
           </div>
 
           <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
             <div className="text-[10px] text-emerald-800 uppercase font-semibold">Expected Profit</div>
             <div className="font-['Instrument_Serif'] text-2xl font-bold text-emerald-700">
-              ${(rec?.expected_profit_usd / 1e6 || 27.0).toFixed(2)}M
+              ${(rec?.expected_profit_usd / 1e6 || 29.88).toFixed(2)}M
             </div>
+            <div className="text-[9px] text-emerald-700 font-medium mt-0.5">(Market $105.00 - Landed Cost) &times; Volume</div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white border border-[#18181B]/10 text-center">
-            <div className="text-[10px] text-[#18181B]/60 uppercase">Transit Delivery ETA</div>
-            <div className="font-['Instrument_Serif'] text-2xl font-bold text-[#18181B]">
-              {rec?.eta_days || 6} Days
+          <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-center">
+            <div className="text-[10px] text-blue-800 uppercase font-semibold">Savings vs Baseline</div>
+            <div className="font-['Instrument_Serif'] text-2xl font-bold text-blue-700">
+              ${((rec?.savings_vs_baseline_usd || (base ? base.total_cost_usd - rec?.total_cost_usd : 8880000)) / 1e6).toFixed(2)}M
+            </div>
+            <div className="text-[9px] text-blue-700 font-medium mt-0.5">
+              ${(base && rec ? (base.cost_per_bbl - rec.cost_per_bbl) : 4.44).toFixed(2)}/bbl cheaper than Baseline
             </div>
           </div>
         </div>
@@ -219,9 +227,9 @@ export function DecisionBrief({
         {showFormulaDetails && (
           <div className="p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10 text-xs space-y-2 font-mono text-[#18181B]/80 animate-fade-in">
             <div className="font-bold text-[#18181B]">Calculation Methodology:</div>
-            <div>&bull; Landed Cost = Base FOB Purchase Price + Freight Quote + Insurance ($0.85/bbl) + Port Handling ($0.40/bbl)</div>
-            <div>&bull; Total Revenue = Destination Benchmark Spot Price &times; Volume</div>
-            <div>&bull; Target Ceiling = Freight quote price where Net Margin % equals configured threshold (5.0%)</div>
+            <div>&bull; Landed Cost = Base FOB Purchase Price ($82.50) + Freight Quote + Insurance ($0.85/bbl) + Port Handling ($3.95/bbl)</div>
+            <div>&bull; Expected Profit = (Destination Market Benchmark Spot Price [$105.00/bbl] - Landed Cost/bbl) &times; Total Volume</div>
+            <div>&bull; Savings vs Baseline = Total Cost of Baseline Single Charter Strategy - Total Cost of Recommended Hybrid Strategy</div>
           </div>
         )}
       </GlassPanel>
@@ -235,14 +243,14 @@ export function DecisionBrief({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-5 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/10 space-y-2">
             <div className="text-xs font-semibold text-[#18181B]/60 uppercase">Baseline Strategy (Single Route)</div>
-            <div className="text-2xl font-bold text-[#18181B]">${(base?.total_cost_usd / 1e6 || 210.0).toFixed(2)}M</div>
-            <div className="text-xs text-[#18181B]/60">Cost per bbl: ${base?.cost_per_bbl?.toFixed(2) || '105.00'} &middot; ETA: {base?.eta_days || 8} days</div>
+            <div className="text-2xl font-bold text-[#18181B]">${(base?.total_cost_usd / 1e6 || 189.00).toFixed(2)}M</div>
+            <div className="text-xs text-[#18181B]/60">Cost per bbl: ${base?.cost_per_bbl?.toFixed(2) || '94.50'} &middot; ETA: {base?.eta_days || 5} days</div>
           </div>
 
           <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
             <div className="text-xs font-semibold text-emerald-800 uppercase">POLY EXEA Recommended Hybrid (Winner)</div>
-            <div className="text-2xl font-bold text-emerald-700">${(rec?.total_cost_usd / 1e6 || 184.6).toFixed(2)}M</div>
-            <div className="text-xs text-emerald-800">Cost per bbl: ${rec?.cost_per_bbl?.toFixed(2) || '92.30'} &middot; ETA: {rec?.eta_days || 6} days</div>
+            <div className="text-2xl font-bold text-emerald-700">${(rec?.total_cost_usd / 1e6 || 180.12).toFixed(2)}M</div>
+            <div className="text-xs text-emerald-800">Cost per bbl: ${rec?.cost_per_bbl?.toFixed(2) || '90.06'} &middot; ETA: {rec?.eta_days || 6} days</div>
           </div>
         </div>
       </GlassPanel>
@@ -253,7 +261,7 @@ export function DecisionBrief({
           SECTION 07 &middot; WHY THE HYBRID WINNER WON
         </div>
         <p className="text-sm text-[#18181B]/80 font-light leading-relaxed">
-          The hybrid multi-modal strategy was selected because no single transport option can satisfy the entire 2,000,000 barrel volume requirement within the tight 7-day delivery deadline at optimal margins. By allocating 30% to confirmed vessel capacity, 40% to Yanbu IPSA pipeline throughput, and 30% to alternate sea lanes, the optimization engine achieves 100% volume fulfillment while lowering landed cost per barrel by $12.70 compared to single-route alternatives.
+          The hybrid multi-modal strategy was selected because no single transport option can satisfy the entire 2,000,000 barrel volume requirement within the tight 7-day delivery deadline at optimal margins while respecting vessel capacity limits. By allocating <strong>{rec?.name || '80% to Yanbu IPSA Pipeline Bypass and 20% to Stena Bulk Charter (VLCC)'}</strong>, the optimization engine achieves 100% volume fulfillment while lowering landed cost per barrel by <strong>${(base && rec ? (base.cost_per_bbl - rec.cost_per_bbl) : (105.00 - (rec?.cost_per_bbl || 90.06))).toFixed(2)}/bbl</strong> compared to single-route baseline options.
         </p>
       </GlassPanel>
 

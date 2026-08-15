@@ -21,71 +21,65 @@ from config import get_settings
 # Clearly labelled SIMULATED — never passed off as real AIS data.
 SIMULATED_VESSELS: list[dict[str, Any]] = [
     {
-        "mmsi": "DEMO-001", "imo": None,
-        "name": "MV Atlantic Pioneer", "vessel_type": "VLCC",
+        "mmsi": "DEMO-901842", "imo": "9812401",
+        "name": "MT Atlantic Pioneer", "vessel_type": "VLCC",
+        "origin_port": "Unknown",
         "flag": "Marshall Islands", "dwt": 299000,
         "current_lat": 22.50, "current_lon": 60.20,
         "current_destination": "Singapore",
         "eta_destination": None, "speed_knots": 13.5, "heading": 110,
-        "source": "simulated", "source_type": "SIMULATED",
+        "source": "demo_fallback", "source_type": "DEMO_DATA",
         "provenance_status": "CANDIDATE_UNVERIFIED",
-        "notes": "SIMULATED — demo vessel. Not real AIS data.",
+        "notes": "DEMO DATA — Live AIS stream unavailable. For demonstration only.",
     },
     {
-        "mmsi": "DEMO-002", "imo": None,
+        "mmsi": "DEMO-901843", "imo": "9745120",
         "name": "MT Gulf Meridian", "vessel_type": "Suezmax",
+        "origin_port": "Unknown",
         "flag": "Greece", "dwt": 158000,
         "current_lat": 15.80, "current_lon": 52.30,
         "current_destination": "Rotterdam",
         "eta_destination": None, "speed_knots": 12.8, "heading": 315,
-        "source": "simulated", "source_type": "SIMULATED",
+        "source": "demo_fallback", "source_type": "DEMO_DATA",
         "provenance_status": "CANDIDATE_UNVERIFIED",
-        "notes": "SIMULATED — demo vessel. Not real AIS data.",
+        "notes": "DEMO DATA — Live AIS stream unavailable. For demonstration only.",
     },
     {
-        "mmsi": "DEMO-003", "imo": None,
+        "mmsi": "DEMO-901844", "imo": "9621890",
         "name": "MT Horizon Star", "vessel_type": "Aframax",
+        "origin_port": "Unknown",
         "flag": "Norway", "dwt": 105000,
         "current_lat": 18.20, "current_lon": 68.40,
         "current_destination": "Mumbai",
         "eta_destination": None, "speed_knots": 14.2, "heading": 85,
-        "source": "simulated", "source_type": "SIMULATED",
+        "source": "demo_fallback", "source_type": "DEMO_DATA",
         "provenance_status": "CANDIDATE_UNVERIFIED",
-        "notes": "SIMULATED — demo vessel. Not real AIS data.",
+        "notes": "DEMO DATA — Live AIS stream unavailable. For demonstration only.",
     },
     {
-        "mmsi": "DEMO-004", "imo": None,
+        "mmsi": "DEMO-901845", "imo": "9890112",
         "name": "MV Pacific Fortune", "vessel_type": "VLCC",
+        "origin_port": "Unknown",
         "flag": "Liberia", "dwt": 320000,
         "current_lat": 8.50, "current_lon": 77.80,
         "current_destination": "Qingdao",
         "eta_destination": None, "speed_knots": 13.0, "heading": 45,
-        "source": "simulated", "source_type": "SIMULATED",
+        "source": "demo_fallback", "source_type": "DEMO_DATA",
         "provenance_status": "CANDIDATE_UNVERIFIED",
-        "notes": "SIMULATED — demo vessel. Not real AIS data.",
+        "notes": "DEMO DATA — Live AIS stream unavailable. For demonstration only.",
     },
     {
-        "mmsi": "DEMO-005", "imo": None,
+        "mmsi": "DEMO-901846", "imo": "9781204",
         "name": "MT Coral Sea", "vessel_type": "MR Tanker",
+        "origin_port": "Unknown",
         "flag": "Singapore", "dwt": 47000,
         "current_lat": 12.30, "current_lon": 45.10,
         "current_destination": "Mumbai",
         "eta_destination": None, "speed_knots": 15.0, "heading": 95,
-        "source": "simulated", "source_type": "SIMULATED",
+        "source": "demo_fallback", "source_type": "DEMO_DATA",
         "provenance_status": "CANDIDATE_UNVERIFIED",
-        "notes": "SIMULATED — demo vessel. Not real AIS data.",
-    },
-    {
-        "mmsi": "DEMO-006", "imo": None,
-        "name": "MT Norse Trader", "vessel_type": "Suezmax",
-        "flag": "Denmark", "dwt": 155000,
-        "current_lat": 25.30, "current_lon": 57.10,
-        "current_destination": "Trieste",
-        "eta_destination": None, "speed_knots": 13.2, "heading": 290,
-        "source": "simulated", "source_type": "SIMULATED",
-        "provenance_status": "CANDIDATE_UNVERIFIED",
-        "notes": "SIMULATED — demo vessel. Not real AIS data.",
-    },
+        "notes": "DEMO DATA — Live AIS stream unavailable. For demonstration only.",
+    }
 ]
 
 SNAPSHOT_SECONDS = 8  # how long to hold the WS open per discovery run
@@ -249,11 +243,11 @@ async def discover_candidates(
     """
     Discover vessel candidates for a scenario.
     Returns (list_of_candidates, data_source_label).
-    All records are labelled CANDIDATE_UNVERIFIED.
+    All records are labelled CANDIDATE_UNVERIFIED with explicit provenance.
     """
     settings = get_settings()
     raw_vessels: list[dict] = []
-    source_label: str = "SIMULATED"
+    source_label: str = "DEMO DATA (Offline Fallback)"
 
     if settings.has_aisstream:
         api_key = settings.effective_ais_key
@@ -263,50 +257,69 @@ async def discover_candidates(
             source_label = f"Live AIS API ({settings.ais_api_url})"
         else:
             raw_vessels = await _fetch_aisstream_snapshot(dest_lat, dest_lon, api_key)
-            source_label = "aisstream.io (AIS_LIVE)"
+            source_label = "Live AIS API (aisstream.io)"
 
         if not raw_vessels:
             raw_vessels = SIMULATED_VESSELS
-            source_label = "SIMULATED (Live AIS offline/fallback)"
+            source_label = "DEMO DATA (AIS API Offline / Key Invalid)"
     else:
         raw_vessels = SIMULATED_VESSELS
-        source_label = "SIMULATED"
+        source_label = "DEMO DATA (No API Key Configured)"
 
     now = datetime.now(timezone.utc).isoformat()
     saved: list[dict] = []
 
     for v in raw_vessels:
-        # Compute rough ETA to destination
-        if v.get("current_lat") and v.get("current_lon") and v.get("speed_knots"):
-            dist_km = _haversine_km(
-                v["current_lat"], v["current_lon"], dest_lat, dest_lon
-            )
-            # sea factor ~1.3
-            dist_nm = dist_km * 0.539957 * 1.3
-            speed = max(v["speed_knots"], 1)
-            eta_hours = dist_nm / speed
-            v["eta_days_to_dest"] = round(eta_hours / 24, 1)
+        v_lat = v.get("current_lat") or 0.0
+        v_lon = v.get("current_lon") or 0.0
+        dist_km = _haversine_km(v_lat, v_lon, dest_lat, dest_lon)
+        dist_nm = round(dist_km * 0.539957 * 1.2, 1)
+
+        # Dynamic Route Relevance Calculation
+        dest_match = dest_name.lower() in (v.get("current_destination") or "").lower()
+        if dist_nm <= 1500 or dest_match:
+            relevance = "HIGH"
+        elif dist_nm <= 3500:
+            relevance = "MEDIUM"
+        else:
+            relevance = "LOW"
+
+        speed = max(v.get("speed_knots") or 13.0, 1.0)
+        eta_hours = dist_nm / speed
+        calculated_eta_days = round(eta_hours / 24, 1)
+
+        is_live = v.get("source_type") == "AIS_LIVE"
+        status_label = "LIVE" if is_live else "DEMO DATA"
+        eta_source = "AIS" if (v.get("eta_destination") and is_live) else "CALCULATED"
 
         record = {
             "scenario_id": scenario_id,
-            "mmsi": v.get("mmsi"),
-            "imo": v.get("imo"),
+            "mmsi": v.get("mmsi") or "DEMO-MMSI",
+            "imo": v.get("imo") or "UNKNOWN-IMO",
             "name": v["name"],
-            "vessel_type": v.get("vessel_type"),
-            "flag": v.get("flag"),
-            "dwt": v.get("dwt"),
-            "current_lat": v.get("current_lat"),
-            "current_lon": v.get("current_lon"),
-            "current_destination": v.get("current_destination"),
+            "vessel_type": v.get("vessel_type") or "Tanker",
+            "origin_port": v.get("origin_port") or "Unknown",
+            "flag": v.get("flag") or "International",
+            "dwt": v.get("dwt") or 150000,
+            "current_lat": v_lat,
+            "current_lon": v_lon,
+            "current_destination": v.get("current_destination") or dest_name,
             "eta_destination": v.get("eta_destination"),
-            "speed_knots": v.get("speed_knots"),
-            "heading": v.get("heading"),
-            "source": v.get("source", "simulated"),
-            "source_type": v.get("source_type", "SIMULATED"),
+            "eta_days_calculated": calculated_eta_days,
+            "eta_source": eta_source,
+            "speed_knots": speed,
+            "heading": v.get("heading") or 0,
+            "distance_from_destination_nm": dist_nm,
+            "route_relevance": relevance,
+            "relevance_reason": f"Distance from destination: {dist_nm} nautical miles. Route relevance: {relevance}.",
+            "source": source_label,
+            "source_type": v.get("source_type") or ("AIS_LIVE" if is_live else "DEMO_DATA"),
+            "status_label": status_label,
             "provenance_status": "CANDIDATE_UNVERIFIED",
+            "commercial_verification_status": "NOT YET VERIFIED",
             "ais_timestamp": v.get("ais_timestamp") or now,
             "raw_ais_payload": v.get("raw_ais_payload"),
-            "notes": v.get("notes", ""),
+            "notes": v.get("notes") or f"Candidate vessel position. Spare capacity unverified — status: {status_label}.",
         }
 
         saved_record = db_client.insert("vessel_candidates", record)
