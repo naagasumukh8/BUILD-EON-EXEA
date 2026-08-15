@@ -3,25 +3,15 @@
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 
-const STAGES = [
-  { id: 'intake', step: '01', label: 'Intake', href: '/intake' },
-  { id: 'map', step: '02', label: 'Network', href: '/map' },
-  { id: 'deals', step: '03', label: 'Deal', href: '/deals/new' },
-  { id: 'strategy', step: '04', label: 'Strategy', href: '/strategy' },
-  { id: 'report', step: '05', label: 'Briefing', href: '/report' },
-]
-
 export function Navbar({ scenarioId }: { scenarioId?: string }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentScenarioId = scenarioId || searchParams.get('scenario_id') || 'scen-demo-001'
 
-  const activeStageIndex = STAGES.findIndex((s) => pathname.includes(s.id))
-
   return (
     <header className="sticky top-0 z-50 bg-[#FAFAF8]/90 backdrop-blur-md border-b border-[#18181B]/10">
       {/* Main Nav Container */}
-      <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -34,30 +24,33 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
           </span>
         </Link>
 
-        {/* Continuous Stage Progress Indicator */}
-        <div className="flex items-center gap-1 sm:gap-2 bg-white p-1.5 rounded-full border border-[#18181B]/10 shadow-2xs text-xs">
-          {STAGES.map((s, idx) => {
-            const isActive = pathname.includes(s.id) || (s.id === 'intake' && pathname === '/intake')
-            const isPassed = activeStageIndex > idx
-
-            return (
-              <Link
-                key={s.id}
-                href={`${s.href}?scenario_id=${currentScenarioId}`}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-xs ${
-                  isActive
-                    ? 'bg-[#18181B] text-white font-semibold shadow-xs'
-                    : isPassed
-                    ? 'bg-[#18181B]/5 text-[#18181B] font-medium hover:bg-[#18181B]/10'
-                    : 'text-[#18181B]/50 hover:text-[#18181B]'
-                }`}
-              >
-                <span className="font-mono text-[10px] opacity-70">{s.step}</span>
-                <span>{s.label}</span>
-              </Link>
-            )
-          })}
-        </div>
+        {/* Clean Navigation Links */}
+        <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-[#18181B]/80">
+          <Link
+            href={`/?scenario_id=${currentScenarioId}`}
+            className={`hover:text-[#18181B] transition-opacity ${pathname === '/' ? 'text-[#18181B] font-semibold' : ''}`}
+          >
+            Overview
+          </Link>
+          <Link
+            href={`/intake?scenario_id=${currentScenarioId}`}
+            className={`hover:text-[#18181B] transition-opacity ${pathname.includes('intake') ? 'text-[#18181B] font-semibold' : ''}`}
+          >
+            Capabilities
+          </Link>
+          <Link
+            href={`/map?scenario_id=${currentScenarioId}`}
+            className={`hover:text-[#18181B] transition-opacity ${pathname.includes('map') ? 'text-[#18181B] font-semibold' : ''}`}
+          >
+            Map Network
+          </Link>
+          <Link
+            href={`/report?scenario_id=${currentScenarioId}`}
+            className={`hover:text-[#18181B] transition-opacity ${pathname.includes('report') ? 'text-[#18181B] font-semibold' : ''}`}
+          >
+            AI Briefing
+          </Link>
+        </nav>
 
         {/* New Analysis Action */}
         <Link
