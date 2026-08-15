@@ -37,7 +37,15 @@ function IntakeContent() {
     setError(null)
     try {
       const res = await api.parseIntake(prompt)
-      setParsed(res)
+      const fields = res.parsed_fields || res
+      setParsed({
+        product_type: fields.product || fields.product_type || 'diesel',
+        volume_bbls: fields.volume_required || fields.volume_bbls || 2000000,
+        destination_port: fields.destination_port_name || fields.destination_port || 'Mumbai, India',
+        deadline_days: fields.deadline_days || 7,
+        max_acceptable_landed_cost_usd_bbl: fields.max_acceptable_landed_cost_usd_bbl || 95.0,
+        priority: fields.priority || 'cost',
+      })
       setStep('parsed')
     } catch (e: any) {
       setError(e.message || 'Error parsing supply requirement.')
@@ -52,14 +60,17 @@ function IntakeContent() {
     try {
       const res = await api.saveScenario({
         natural_language_prompt: prompt,
+        product: parsed.product_type || 'diesel',
         product_type: parsed.product_type || 'diesel',
+        volume_required: parseFloat(parsed.volume_bbls) || 2000000,
         volume_bbls: parseFloat(parsed.volume_bbls) || 2000000,
+        destination_port_name: parsed.destination_port || 'Mumbai, India',
         destination_port: parsed.destination_port || 'Mumbai, India',
         deadline_days: parseInt(parsed.deadline_days) || 7,
         max_acceptable_landed_cost_usd_bbl: parseFloat(parsed.max_acceptable_landed_cost_usd_bbl) || 95.0,
         priority: parsed.priority || 'cost',
       })
-      const scenarioId = res.scenario_id || existingScenarioId || 'scen-demo-001'
+      const scenarioId = res.scenario_id || res.id || existingScenarioId || 'scen-demo-001'
       router.push(`/map?scenario_id=${scenarioId}`)
     } catch (e: any) {
       setError(e.message || 'Error saving supply requirement.')
@@ -104,7 +115,7 @@ function IntakeContent() {
               rows={3}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. I need 2 million barrels of diesel delivered to India within 7 days."
+              placeholder="e.g. I need 25 million barrels of diesel delivered to India within 70 days."
               className="w-full p-4 rounded-2xl bg-[#FAFAF8] border border-[#18181B]/15 text-sm text-[#18181B] placeholder-[#18181B]/40 focus:outline-none focus:ring-2 focus:ring-[#18181B] resize-none"
             />
 

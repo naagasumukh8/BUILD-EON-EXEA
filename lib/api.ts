@@ -21,6 +21,74 @@ const scenarioStore: Record<string, any> = {
 
 const dealStore: Record<string, any> = {}
 
+function parsePromptText(text: string) {
+  const lower = (text || '').toLowerCase()
+
+  // 1. Volume Parsing (e.g. "25 million", "25m", "500k", "500,000", "2,500,000", "2500000")
+  let vol = 2000000
+  const millionMatch = lower.match(/(\d+(?:\.\d+)?)\s*(?:million|m\b)/)
+  const thousandMatch = lower.match(/(\d+(?:\.\d+)?)\s*(?:thousand|k\b)/)
+  const commaNumMatch = lower.match(/(\d{1,3}(?:,\d{3})+)/)
+  const rawNumMatch = lower.match(/(\d+)\s*(?:barrels|bbl)/)
+
+  if (millionMatch) {
+    vol = parseFloat(millionMatch[1]) * 1000000
+  } else if (thousandMatch) {
+    vol = parseFloat(thousandMatch[1]) * 1000
+  } else if (commaNumMatch) {
+    vol = parseFloat(commaNumMatch[1].replace(/,/g, ''))
+  } else if (rawNumMatch) {
+    vol = parseFloat(rawNumMatch[1])
+  } else {
+    const numbers = lower.match(/\b\d+\b/g)
+    if (numbers) {
+      const largeNum = numbers.map(Number).find((n) => n >= 1000)
+      if (largeNum) vol = largeNum
+    }
+  }
+
+  // 2. Deadline Parsing (e.g. "70 days", "70d", "20 days", "3 weeks")
+  let deadline = 7
+  const dayMatch = lower.match(/(\d+)\s*(?:days|day|d\b)/)
+  const weekMatch = lower.match(/(\d+)\s*(?:weeks|week|w\b)/)
+  if (dayMatch) {
+    deadline = parseInt(dayMatch[1], 10)
+  } else if (weekMatch) {
+    deadline = parseInt(weekMatch[1], 10) * 7
+  }
+
+  // 3. Product Parsing
+  let prod = 'diesel'
+  if (lower.includes('crude')) prod = 'crude'
+  else if (lower.includes('lng') || lower.includes('gas')) prod = 'lng'
+  else if (lower.includes('gasoline')) prod = 'gasoline'
+
+  // 4. Destination Parsing
+  let dest = 'Mumbai, India'
+  if (lower.includes('japan') || lower.includes('tokyo') || lower.includes('yokohama')) dest = 'Yokohama, Japan'
+  else if (lower.includes('singapore')) dest = 'Jurong, Singapore'
+  else if (lower.includes('rotterdam') || lower.includes('europe')) dest = 'Rotterdam, Netherlands'
+  else if (lower.includes('india')) dest = 'Mumbai, India'
+
+  // 5. Priority Parsing
+  let priority = 'cost'
+  if (lower.includes('time') || lower.includes('speed') || lower.includes('urgent')) priority = 'speed'
+  else if (lower.includes('risk') || lower.includes('safe')) priority = 'risk'
+
+  return {
+    product: prod,
+    product_type: prod,
+    volume_required: vol,
+    volume_bbls: vol,
+    destination_port_name: dest,
+    destination_port: dest,
+    deadline_days: deadline,
+    origin_port_name: 'Ras Tanura',
+    vessel_situation: lower.includes('owned') ? 'owned' : 'seeking',
+    priority: priority
+  }
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   console.log(`[POLY EXEA API CALL] Path: ${path}`, options?.body ? JSON.parse(options.body as string) : {})
 
@@ -46,43 +114,11 @@ function getFallbackData(path: string, options?: RequestInit): any {
 
   // 1. Intake Parse
   if (path.includes('/api/intake/parse')) {
-    const text = (body.text || '').toLowerCase()
-    
-    let vol = 2000000
-    if (text.includes('500,000') || text.includes('500k') || text.includes('500 thousand')) vol = 500000
-    else if (text.includes('1 million') || text.includes('1m')) vol = 1000000
-    else if (text.includes('3 million') || text.includes('3m')) vol = 3000000
-
-    let deadline = 7
-    if (text.includes('20 days') || text.includes('20d')) deadline = 20
-    else if (text.includes('3 days') || text.includes('3d')) deadline = 3
-    else if (text.includes('14 days') || text.includes('14d')) deadline = 14
-
-    let prod = 'diesel'
-    if (text.includes('crude')) prod = 'crude'
-    else if (text.includes('lng') || text.includes('gas')) prod = 'lng'
-    else if (text.includes('gasoline')) prod = 'gasoline'
-
-    let dest = 'Mumbai, India'
-    if (text.includes('japan') || text.includes('tokyo') || text.includes('yokohama')) dest = 'Yokohama, Japan'
-    else if (text.includes('singapore')) dest = 'Jurong, Singapore'
-    else if (text.includes('rotterdam') || text.includes('europe')) dest = 'Rotterdam, Netherlands'
-
-    let priority = 'cost'
-    if (text.includes('time') || text.includes('speed') || text.includes('urgent')) priority = 'speed'
-    else if (text.includes('risk') || text.includes('safe')) priority = 'risk'
-
+    const parsedFields = parsePromptText(body.text || '')
     const parsedData = {
       complete: true,
-      parsed_fields: {
-        product: prod,
-        volume_required: vol,
-        destination_port_name: dest,
-        deadline_days: deadline,
-        origin_port_name: 'Ras Tanura',
-        vessel_situation: text.includes('owned') ? 'owned' : 'seeking',
-        priority: priority
-      },
+      parsed_fields: parsedFields,
+      ...parsedFields,
       follow_up_question: null
     }
 
@@ -97,8 +133,10 @@ function getFallbackData(path: string, options?: RequestInit): any {
       id,
       product: body.product || body.product_type || 'diesel',
       volume_required: parseFloat(body.volume_required || body.volume_bbls) || 2000000,
+      volume_bbls: parseFloat(body.volume_required || body.volume_bbls) || 2000000,
       volume_unit: 'bbls',
       destination_port_name: body.destination_port_name || body.destination_port || 'Mumbai, India',
+      destination_port: body.destination_port_name || body.destination_port || 'Mumbai, India',
       deadline_days: parseInt(body.deadline_days) || 7,
       origin_port_name: body.origin_port_name || 'Ras Tanura',
       supplier: body.supplier || 'Saudi Aramco',
@@ -128,8 +166,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
     const scen = scenarioStore[scenarioId] || scenarioStore['scen-demo-001']
 
     const isJapan = scen.destination_port_name?.toLowerCase().includes('japan')
-    const isCrude = scen.product?.toLowerCase().includes('crude')
-    const totalVol = scen.volume_required || 2000000
+    const totalVol = scen.volume_required || scen.volume_bbls || 2000000
 
     const discoveredVessels = [
       {
@@ -253,8 +290,8 @@ function getFallbackData(path: string, options?: RequestInit): any {
     const scenarioId = body.scenario_id || 'scen-demo-001'
     const scen = scenarioStore[scenarioId] || scenarioStore['scen-demo-001']
 
-    const totalVol = scen.volume_required || 2000000
-    const dest = scen.destination_port_name || 'Mumbai, India'
+    const totalVol = scen.volume_required || scen.volume_bbls || 2000000
+    const dest = scen.destination_port_name || scen.destination_port || 'Mumbai, India'
     const deadline = scen.deadline_days || 7
     const isJapan = dest.toLowerCase().includes('japan')
     const isCrude = scen.product?.toLowerCase().includes('crude')
@@ -362,8 +399,8 @@ function getFallbackData(path: string, options?: RequestInit): any {
     const scenarioId = body.scenario_id || 'scen-demo-001'
     const scen = scenarioStore[scenarioId] || scenarioStore['scen-demo-001']
 
-    const totalVol = scen.volume_required || 2000000
-    const dest = scen.destination_port_name || 'Mumbai, India'
+    const totalVol = scen.volume_required || scen.volume_bbls || 2000000
+    const dest = scen.destination_port_name || scen.destination_port || 'Mumbai, India'
     const prod = scen.product || 'diesel'
     const deadline = scen.deadline_days || 7
 
