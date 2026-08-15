@@ -10,6 +10,7 @@ import { api } from '@/lib/api'
 
 const DEAL_TYPES = [
   { value: 'vessel', label: 'Vessel Charter', desc: 'Moving ship commercial opportunity' },
+  { value: 'bicoastal_swap', label: 'Bi-Coastal Cargo Swap', desc: 'Unload West Coast (Mumbai) ⇄ Release East Coast (Vizag)' },
   { value: 'pipeline', label: 'Pipeline Capacity', desc: 'Overland pipeline throughput tariff' },
   { value: 'alternate_route', label: 'Alternate Route', desc: 'Bypass or long-haul sea lane' },
   { value: 'supplier', label: 'Spot Supplier', desc: 'Direct commercial supply offer' },
@@ -21,14 +22,16 @@ function NewDealContent() {
   const scenarioId = searchParams.get('scenario_id') || 'scen-demo-001'
   const vesselId = searchParams.get('vessel_id') || ''
   const vesselName = searchParams.get('vessel_name') || ''
+  const dealTypeParam = searchParams.get('deal_type') || 'vessel'
+  const counterpartyParam = searchParams.get('counterparty') || vesselName || 'Reliance / Jio Energy Grid'
   const journeyParam = searchParams.get('journey') || 'Arabian Sea (18.96°N, 58.20°E) → Mumbai Port, India'
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
-    deal_type: 'vessel',
-    counterparty: vesselName || 'Stena Bulk Charter (VLCC)',
+    deal_type: dealTypeParam,
+    counterparty: counterpartyParam,
     journey: journeyParam,
     product: 'diesel',
     capacity_pct: '20',

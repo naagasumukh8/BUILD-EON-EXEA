@@ -243,7 +243,36 @@ def discover_scenario_opportunities(
     # Focus: Alternative Origin, Non-Hormuz Sourcing, Domestic Exchange, Prevention
     # ═══════════════════════════════════════════════════════════════════════════
     elif scenario_type == "UNCOMMITTED_CARGO":
-        # Opp 1: Local / Domestic Refinery Exchange
+        # Opp 1: Bi-Coastal Domestic Energy Swap (Dual-Coast Reliance / IOCL Grid)
+        opportunities.append(NetworkOpportunity(
+            id="opp-s2-01-bicoastal",
+            opportunity_type="CARGO / DELIVERY SWAP",
+            title="Bi-Coastal Domestic Cargo Swap (Mumbai Unload ⇄ Vizag Release)",
+            why_relevant="Unloads incoming West Coast vessel at Mumbai/Jamnagar while releasing equivalent inventory from East Coast (Vizag/Paradip), avoiding 2,450 nm voyage around Sri Lanka.",
+            participants=["Reliance / Jio Energy Infrastructure", "IOCL / HPCL Bi-Coastal Network"],
+            origin="West Coast Terminal (Mumbai / Jamnagar)",
+            destination="East Coast Destination (Vizag / Paradip)",
+            volume_bbls=min(required_volume, 1_500_000.0),
+            transport_required="West Coast berth unload + East Coast pipeline dispatch",
+            transport_avoided="2,450 nm ocean passage around Indian Peninsula & Sri Lanka",
+            distance_avoided_nm=2_450.0,
+            estimated_cost_usd=2_700_000.0,
+            cost_per_bbl=1.80,  # Location differential swap fee ($1.80/bbl)
+            estimated_savings_usd=4_200_000.0,
+            eta_days=2,
+            risk_score=0.04,
+            required_verification="Bi-coastal refinery inventory assay & location differential confirmation",
+            feasibility_status="REAL_REFERENCE",
+            data_sources=["Bi-Coastal Energy Swap Grid", "Refinery Inventory Registry"],
+            timestamp=now_iso,
+            provenance="REAL_REFERENCE",
+            explanation="Unloads incoming vessel at West Coast hub (Mumbai/Jamnagar) and concurrently releases equivalent inventory from East Coast hub (Vizag), saving 8.5 transit days.",
+            rank=1,
+            quality_compatible=True,
+            product=product,
+        ))
+
+        # Opp 2: Local / Domestic Refinery Exchange
         opportunities.append(NetworkOpportunity(
             id="opp-s2-01",
             opportunity_type="LOCAL / REGIONAL EXCHANGE",

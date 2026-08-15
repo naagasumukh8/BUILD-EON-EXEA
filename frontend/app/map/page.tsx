@@ -112,6 +112,7 @@ function MapContent() {
   const [showVessels, setShowVessels] = useState(true)
   const [showRoutes, setShowRoutes] = useState(true)
   const [showChokepoints, setShowChokepoints] = useState(true)
+  const [showOilCompanies, setShowOilCompanies] = useState(true)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -230,6 +231,58 @@ function MapContent() {
                 </Marker>
               ))}
 
+              {/* Bi-Coastal Oil Company Hub Network (Reliance / Jio Energy Grid & IOCL) */}
+              {showOilCompanies && (
+                <>
+                  {/* Bi-Coastal Swap Connection Line */}
+                  <Polyline positions={[[18.96, 72.82], [15.0, 76.0], [17.68, 83.21]]}
+                    pathOptions={{ color: '#8B5CF6', weight: 3.5, dashArray: '6,6' }}>
+                    <Popup>
+                      <div className="p-2 space-y-1 font-sans text-xs max-w-xs">
+                        <div className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-900 font-bold text-[10px] uppercase">BI-COASTAL ENERGY CARGO SWAP</div>
+                        <div className="font-bold text-sm">Reliance / Jio Energy & IOCL Dual-Coast Swap</div>
+                        <div className="text-gray-600">Unload West Coast (Mumbai) ⇄ Release East Coast (Vizag)</div>
+                        <div className="text-emerald-700 font-semibold">Saves 2,450 nm & 8.5 transit days around Sri Lanka!</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=bicoastal_swap&counterparty=${encodeURIComponent('Reliance / Jio Energy Grid')}&journey=${encodeURIComponent('West Coast Unload (Mumbai) ⇄ East Coast Release (Vizag)')}`)}
+                          className="w-full mt-1.5 py-1 rounded bg-[#8B5CF6] text-white text-[11px] font-semibold hover:bg-purple-700 shadow">
+                          🤝 Initiate Bi-Coastal Swap Deal →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Polyline>
+
+                  {/* West Coast Hub Marker (Mumbai / Jamnagar) */}
+                  <Marker position={[18.96, 72.82]} icon={createIcon(L, '#8B5CF6', '🏢', 30)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="font-bold text-sm">Reliance / Jio Energy — West Coast Refinery Hub (Mumbai)</div>
+                        <div className="text-gray-600">Refinery / Storage Capacity: 12,500,000 bbls</div>
+                        <div className="text-purple-700 font-semibold">Dual-Coast Connected to East Hub (Vizag)</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=bicoastal_swap&counterparty=${encodeURIComponent('Reliance / Jio Energy Grid')}&journey=${encodeURIComponent('West Coast Unload (Mumbai) ⇄ East Coast Release (Vizag)')}`)}
+                          className="w-full mt-1 py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
+                          Propose Unload at Mumbai →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+
+                  {/* East Coast Hub Marker (Vizag / Paradip) */}
+                  <Marker position={[17.68, 83.21]} icon={createIcon(L, '#8B5CF6', '🏢', 30)}>
+                    <Popup>
+                      <div className="p-2 font-sans text-xs space-y-1 max-w-xs">
+                        <div className="font-bold text-sm">Reliance / Jio Energy — East Coast Terminal (Vizag)</div>
+                        <div className="text-gray-600">Inventory Capacity: 8,200,000 bbls</div>
+                        <div className="text-emerald-700 font-semibold">Instant Local Release Available (Zero Transit)</div>
+                        <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&deal_type=bicoastal_swap&counterparty=${encodeURIComponent('Reliance / Jio Energy Grid')}&journey=${encodeURIComponent('West Coast Unload (Mumbai) ⇄ East Coast Release (Vizag)')}`)}
+                          className="w-full mt-1 py-1 rounded bg-[#18181B] text-white text-[11px] font-semibold hover:bg-black">
+                          Propose Release at Vizag →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                </>
+              )}
+
               {/* Moving vessels with journey trace */}
               {showVessels && vessels.map((v) => {
                 const pos: [number, number] = [v.lat, v.lon]
@@ -276,6 +329,7 @@ function MapContent() {
         {/* LAYER TOGGLES  top right */}
         <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-1 bg-white/90 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-[#18181B]/10 shadow-md">
           {[
+            { label: 'Oil Hubs', active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
             { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
             { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
             { label: 'Vessels', active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },
@@ -283,7 +337,7 @@ function MapContent() {
           ].map(({ label, active, toggle, color }) => (
             <button key={label} onClick={toggle}
               className={`px-2.5 py-1 rounded-full font-semibold text-[11px] transition-all ${active ? `${color} text-white` : 'bg-gray-100 text-gray-500'}`}>
-              {active ? `? ${label}` : `+ ${label}`}
+              {active ? `✓ ${label}` : `+ ${label}`}
             </button>
           ))}
         </div>
