@@ -58,18 +58,29 @@ function IntakeContent() {
     setSaving(true)
     setError(null)
     try {
-      const res = await api.saveScenario({
+      const destValue = parsed.destination_port || 'Mumbai, India'
+      const scenObj = {
+        id: existingScenarioId || 'scen-demo-001',
         natural_language_prompt: prompt,
         product: parsed.product_type || 'diesel',
         product_type: parsed.product_type || 'diesel',
         volume_required: parseFloat(parsed.volume_bbls) || 2000000,
         volume_bbls: parseFloat(parsed.volume_bbls) || 2000000,
-        destination_port_name: parsed.destination_port || 'Mumbai, India',
-        destination_port: parsed.destination_port || 'Mumbai, India',
+        destination_port_name: destValue,
+        destination_port: destValue,
         deadline_days: parseInt(parsed.deadline_days) || 7,
         max_acceptable_landed_cost_usd_bbl: parseFloat(parsed.max_acceptable_landed_cost_usd_bbl) || 95.0,
         priority: parsed.priority || 'cost',
-      })
+        created_at: new Date().toISOString()
+      }
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`scen_${scenObj.id}`, JSON.stringify(scenObj))
+        localStorage.setItem('scen_scen-demo-001', JSON.stringify(scenObj))
+        localStorage.setItem('latest_scenario', JSON.stringify(scenObj))
+      }
+
+      const res = await api.saveScenario(scenObj).catch(() => scenObj)
       const scenarioId = res.scenario_id || res.id || existingScenarioId || 'scen-demo-001'
       router.push(`/map?scenario_id=${scenarioId}`)
     } catch (e: any) {

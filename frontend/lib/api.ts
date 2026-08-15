@@ -1468,7 +1468,7 @@ function getFallbackData(path: string, options?: RequestInit): any {
 
     // Check localStorage in browser
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`scen_${scenarioId}`)
+      const saved = localStorage.getItem(`scen_${scenarioId}`) || localStorage.getItem('scen_scen-demo-001') || localStorage.getItem('latest_scenario')
       if (saved) {
         try { return JSON.parse(saved) } catch (e) {}
       }
