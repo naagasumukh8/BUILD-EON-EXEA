@@ -59,15 +59,43 @@ function StrategyContent() {
   const baseline = result?.baseline_strategy
   const reqVolume = result?.fulfilled_volume || 2000000
 
+  // Find option costs and market price dynamically from result allocations to avoid hardcoding Mumbai rates
+  let vesselCost = 92.30
+  let pipelineCost = 89.50
+  let routeCost = 97.20
+
+  if (result?.strategies) {
+    for (const strat of result.strategies) {
+      if (strat.allocations) {
+        for (const alloc of strat.allocations) {
+          const unitCost = alloc.allocated_volume > 0 ? (alloc.cost_usd / alloc.allocated_volume) : 0
+          if (unitCost > 0) {
+            if (alloc.option_type === 'vessel') vesselCost = unitCost
+            if (alloc.option_type === 'pipeline') pipelineCost = unitCost
+            if (alloc.option_type === 'alternate_route') routeCost = unitCost
+          }
+        }
+      }
+    }
+  }
+
+  let marketPrice = 105.00
+  if (activeStrategy) {
+    const revenue = activeStrategy.expected_profit_usd + activeStrategy.total_cost_usd
+    if (activeStrategy.allocated_volume > 0) {
+      marketPrice = revenue / activeStrategy.allocated_volume
+    }
+  }
+
   // Interactive What-If Calculation
   const adjustedVesselVol = Math.round((reqVolume * customVesselPct) / 100)
   const adjustedPipelineVol = Math.round((reqVolume * customPipelinePct) / 100)
   const adjustedRouteVol = Math.max(0, reqVolume - adjustedVesselVol - adjustedPipelineVol)
 
-  const calcCost = Math.round((adjustedVesselVol * 92.30) + (adjustedPipelineVol * 89.50) + (adjustedRouteVol * 97.20))
+  const calcCost = Math.round((adjustedVesselVol * vesselCost) + (adjustedPipelineVol * pipelineCost) + (adjustedRouteVol * routeCost))
   const calcCostPerBbl = calcCost / reqVolume
-  const calcProfit = Math.round(reqVolume * (105.00 - calcCostPerBbl))
-  const calcMargin = (calcProfit / (reqVolume * 105.00)) * 100
+  const calcProfit = Math.round(reqVolume * (marketPrice - calcCostPerBbl))
+  const calcMargin = (calcProfit / (reqVolume * marketPrice)) * 100
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] text-[#18181B] flex flex-col font-sans">
