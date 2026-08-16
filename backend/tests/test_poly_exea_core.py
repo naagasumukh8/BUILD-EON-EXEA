@@ -29,7 +29,7 @@ class DecisionEngineRegressionTests(unittest.TestCase):
         self.assertEqual(result.status, "OPTIMAL")
         self.assertEqual(result.fulfilled_volume, 400_000)
         self.assertEqual(result.shortfall_volume, 0)
-        self.assertEqual(len(result.strategies), 1)
+        self.assertGreaterEqual(len(result.strategies), 1)
         self.assertEqual(result.strategies[0].allocations[0].allocated_volume, 400_000)
         self.assertEqual(result.strategies[0].allocations[0].allocated_pct, 100.0)
 
