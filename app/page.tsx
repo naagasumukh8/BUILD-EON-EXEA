@@ -72,9 +72,11 @@ function LandingContent() {
               className="rounded-sm bg-white px-8 py-4 text-[13px] font-semibold text-black hover:bg-white/90 transition-all">
               Start Requirement Intake
             </Link>
-            <a href="#problem"
+            <a href="https://drive.google.com/file/d/1tT0dmzhF2pGDpCeXixenK81ioJpk4CFn/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-sm border border-white/20 px-7 py-4 text-[13px] font-semibold text-white/70 hover:text-white hover:border-white/40 transition-all">
-              Understand the Problem
+              Watch Demo Video
             </a>
           </div>
         </main>
@@ -299,11 +301,17 @@ function LandingContent() {
           <h2 className="font-['Instrument_Serif'] text-[clamp(2.5rem,6vw,4.5rem)] leading-tight text-white">
             Twenty options. One answer.
           </h2>
-          <div className="pt-4">
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/intake"
               className="inline-block rounded-sm bg-white px-10 py-4 text-sm font-semibold text-black hover:bg-white/90 transition-all">
               Start Requirement Intake
             </Link>
+            <a href="https://drive.google.com/file/d/1tT0dmzhF2pGDpCeXixenK81ioJpk4CFn/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-sm border border-white/20 px-10 py-4 text-sm font-semibold text-white/70 hover:text-white hover:border-white/40 transition-all">
+              Watch Demo Video
+            </a>
           </div>
         </div>
       </section>
