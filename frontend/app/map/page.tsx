@@ -9,6 +9,41 @@ import { Navbar } from '@/components/ui/Navbar'
 import { GlassPanel } from '@/components/ui/GlassPanel'
 import { api } from '@/lib/api'
 
+// ── Draggable Panel Hook ─────────────────────────────────────────────────────
+function useDraggable(defaultPos: { x: number; y: number }) {
+  const [pos, setPos] = useState(defaultPos)
+  const dragging = useRef(false)
+  const origin = useRef({ mx: 0, my: 0, px: 0, py: 0 })
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    dragging.current = true
+    origin.current = { mx: e.clientX, my: e.clientY, px: pos.x, py: pos.y }
+    const onMove = (ev: MouseEvent) => {
+      if (!dragging.current) return
+      setPos({
+        x: origin.current.px + ev.clientX - origin.current.mx,
+        y: origin.current.py + ev.clientY - origin.current.my,
+      })
+    }
+    const onUp = () => { dragging.current = false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }, [pos.x, pos.y])
+
+  const reset = useCallback(() => setPos(defaultPos), [defaultPos.x, defaultPos.y])
+
+  const style: React.CSSProperties = {
+    position: 'absolute',
+    left: pos.x,
+    top: pos.y,
+    zIndex: 20,
+    cursor: dragging.current ? 'grabbing' : 'grab',
+    userSelect: 'none',
+  }
+  return { style, onMouseDown, reset, pos }
+}
+
 const MapContainer = dynamicImport(
   () => import('react-leaflet').then((m) => m.MapContainer),
   { ssr: false }
@@ -170,9 +205,9 @@ function getDestConfig(destName: string): DestConfig {
     showIpsaPipeline: true,
     showHormuz: true,
     westHubCoords: [18.96, 72.82],
-    westHubLabel: '{destCfg.westHubLabel}',
+    westHubLabel: 'Reliance / Jio Energy — Mumbai West Coast Terminal',
     eastHubCoords: [17.68, 83.21],
-    eastHubLabel: '{destCfg.eastHubLabel}',
+    eastHubLabel: 'IOCL — Visakhapatnam East Coast Terminal',
     bicoastalLine: [[18.96, 72.82], [15.0, 76.0], [17.68, 83.21]],
     triangulationLine: [[18.96, 72.82], [1.35, 103.80], [4.43, 7.16], [18.96, 72.82]]
   }
@@ -214,6 +249,11 @@ function MapContent() {
   const [showSTS, setShowSTS] = useState(true)
   const [showAltDest, setShowAltDest] = useState(true)
   const [showAltOrigin, setShowAltOrigin] = useState(false)
+
+  // Draggable panels
+  const dragInfo = useDraggable({ x: 8, y: 48 })
+  const dragVessel = useDraggable({ x: 8, y: 360 })
+  const dragToggles = useDraggable({ x: typeof window !== 'undefined' ? window.innerWidth - 420 : 900, y: 8 })
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -580,24 +620,39 @@ function MapContent() {
           )}
         </div>
 
-        {/* LAYER TOGGLES  top right */}
-        <div className="absolute top-2 right-2 z-10 flex flex-wrap gap-1 bg-white/90 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-[#18181B]/10 shadow-md">
-          {[
-            { label: 'Oil Hubs', active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
-            { label: 'Triangulation', active: showTriangulation, toggle: () => setShowTriangulation(!showTriangulation), color: 'bg-pink-600' },
-            { label: 'STS Zones', active: showSTS, toggle: () => setShowSTS(!showSTS), color: 'bg-teal-600' },
-            { label: 'Alt. Dest', active: showAltDest, toggle: () => setShowAltDest(!showAltDest), color: 'bg-orange-500' },
-            { label: 'Alt. Origin', active: showAltOrigin, toggle: () => setShowAltOrigin(!showAltOrigin), color: 'bg-lime-600' },
-            { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
-            { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
-            { label: 'Vessels', active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },
-            { label: 'Choke', active: showChokepoints, toggle: () => setShowChokepoints(!showChokepoints), color: 'bg-red-600' },
-          ].map(({ label, active, toggle, color }) => (
-            <button key={label} onClick={toggle}
-              className={`px-2.5 py-1 rounded-full font-semibold text-[11px] transition-all ${active ? `${color} text-white` : 'bg-gray-100 text-gray-500'}`}>
-              {active ? `✓ ${label}` : `+ ${label}`}
-            </button>
-          ))}
+        {/* LAYER TOGGLES — draggable */}
+        <div
+          style={dragToggles.style}
+          className="max-w-[420px] bg-white/93 backdrop-blur-md rounded-2xl border border-[#18181B]/10 shadow-md overflow-hidden"
+        >
+          {/* Drag handle */}
+          <div
+            onMouseDown={dragToggles.onMouseDown}
+            onDoubleClick={dragToggles.reset}
+            className="flex items-center justify-between px-3 py-1.5 bg-[#18181B]/5 border-b border-[#18181B]/10 select-none"
+            style={{ cursor: 'grab' }}
+          >
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[#18181B]/40">Layers — drag to reposition</span>
+            <span className="text-[#18181B]/30 text-xs">☷</span>
+          </div>
+          <div className="flex flex-wrap gap-1 px-2 py-1.5">
+            {[
+              { label: 'Oil Hubs', active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
+              { label: 'Triangulation', active: showTriangulation, toggle: () => setShowTriangulation(!showTriangulation), color: 'bg-pink-600' },
+              { label: 'STS Zones', active: showSTS, toggle: () => setShowSTS(!showSTS), color: 'bg-teal-600' },
+              { label: 'Alt. Dest', active: showAltDest, toggle: () => setShowAltDest(!showAltDest), color: 'bg-orange-500' },
+              { label: 'Alt. Origin', active: showAltOrigin, toggle: () => setShowAltOrigin(!showAltOrigin), color: 'bg-lime-600' },
+              { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
+              { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
+              { label: 'Vessels', active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },
+              { label: 'Choke', active: showChokepoints, toggle: () => setShowChokepoints(!showChokepoints), color: 'bg-red-600' },
+            ].map(({ label, active, toggle, color }) => (
+              <button key={label} onClick={toggle}
+                className={`px-2.5 py-1 rounded-full font-semibold text-[11px] transition-all ${active ? `${color} text-white` : 'bg-gray-100 text-gray-500'}`}>
+                {active ? `✓ ${label}` : `+ ${label}`}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ROUTE SWITCHER  top center */}
@@ -613,12 +668,25 @@ function MapContent() {
           </div>
         )}
 
-        {/* OVERLAY PANELS */}
+        {/* OVERLAY PANELS — all draggable */}
         <div className="absolute inset-0 z-10 pointer-events-none">
 
-          {/* Scenario info  top left */}
-          <div className="absolute top-12 left-2 pointer-events-auto max-w-[260px] sm:max-w-sm">
-            <GlassPanel className="p-4 space-y-3 shadow-lg">
+          {/* Scenario info panel — draggable */}
+          <div
+            style={{ ...dragInfo.style, maxWidth: 280, pointerEvents: 'auto' }}
+            className="rounded-2xl shadow-xl overflow-hidden"
+          >
+            {/* Drag handle */}
+            <div
+              onMouseDown={dragInfo.onMouseDown}
+              onDoubleClick={dragInfo.reset}
+              className="flex items-center justify-between px-3 py-2 bg-[#18181B] select-none rounded-t-2xl"
+              style={{ cursor: 'grab' }}
+            >
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">Poly Exea Network — drag</span>
+              <span className="text-white/30 text-xs">☷</span>
+            </div>
+            <GlassPanel className="p-4 space-y-3 shadow-lg rounded-t-none">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#18181B]/50">POLY EXEA NETWORK</span>
                 {destCfg.showHormuz && (
@@ -650,10 +718,24 @@ function MapContent() {
             </GlassPanel>
           </div>
 
-          {/* Active route info  left, below scenario */}
+
+          {/* Active route info — draggable */}
           {activeRoute && (
-            <div className="absolute left-2 pointer-events-auto max-w-[260px] sm:max-w-sm" style={{ top: '215px' }}>
-              <GlassPanel className="p-3 space-y-2 shadow-lg">
+            <div
+              style={{ ...dragVessel.style, maxWidth: 280, pointerEvents: 'auto' }}
+              className="rounded-2xl shadow-xl overflow-hidden"
+            >
+              {/* Drag handle */}
+              <div
+                onMouseDown={dragVessel.onMouseDown}
+                onDoubleClick={dragVessel.reset}
+                className="flex items-center justify-between px-3 py-2 bg-[#18181B] select-none rounded-t-2xl"
+                style={{ cursor: 'grab' }}
+              >
+                <span className="text-[9px] font-bold uppercase tracking-widest text-white/50">Route Detail — drag</span>
+                <span className="text-white/30 text-xs">☷</span>
+              </div>
+              <GlassPanel className="p-3 space-y-2 shadow-lg rounded-t-none">
                 <div className="flex justify-between items-start gap-2">
                   <h4 className="font-bold text-xs text-[#18181B] leading-snug flex-1">{activeRoute.name}</h4>
                   <button onClick={() => setShowComparison(!showComparison)}
