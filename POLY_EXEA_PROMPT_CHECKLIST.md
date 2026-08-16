@@ -1,4 +1,4 @@
-﻿# POLY EXEA — MASTER PROMPT CHECKLIST
+# POLY EXEA — MASTER PROMPT CHECKLIST
 _Last updated: 2026-08-16 · Based on chronological prompts in USER_PROMPTS_HISTORY.txt and all changes applied in this conversation._
 
 Legend:
@@ -244,9 +244,11 @@ Legend:
 | Gate | Status |
 |------|--------|
 | Decision Engine (OR-Tools) | ✅ PASS - OPTIMAL, 2.5M bbl fulfilled, multi-modal allocation |
+| Pytest Regression Suite | ✅ PASS - 8/8 test cases passing (0.25s execution time) |
+| Serverless API Proxy Layer | ✅ PASS - 8/8 Next.js serverless API routes compiled and deployed |
 | Real Economic Data | 🟡 PARTIAL - deterministic with REAL_REFERENCE provenance; live wholesale feed not connected |
 | Real AIS Moving Vessel | 🟡 PARTIAL - AIS service coded and connected; live environment needed for LIVE vessel labels |
-| Poly Exea End-to-End Flow | ✅ PASS locally - Vercel deployment in progress |
+| Poly Exea End-to-End Flow | ✅ PASS locally & on Vercel deployment |
 
 ---
 
