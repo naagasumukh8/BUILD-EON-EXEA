@@ -68,16 +68,16 @@ function LandingContent() {
           </p>
 
           <div className="mt-10 flex items-center gap-4">
-            <Link href="/intake"
-              className="rounded-sm bg-white px-8 py-4 text-[13px] font-semibold text-black hover:bg-white/90 transition-all">
-              Start Requirement Intake
-            </Link>
             <a href="https://drive.google.com/file/d/1tT0dmzhF2pGDpCeXixenK81ioJpk4CFn/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-sm border border-white/20 px-7 py-4 text-[13px] font-semibold text-white/70 hover:text-white hover:border-white/40 transition-all">
+              className="rounded-sm bg-sky-400 px-8 py-4 text-[13px] font-bold text-black hover:bg-sky-300 transition-all shadow-lg shadow-sky-400/30">
               Watch Demo Video
             </a>
+            <Link href="/intake"
+              className="rounded-sm border border-white/20 px-7 py-4 text-[13px] font-semibold text-white/70 hover:text-white hover:border-white/40 transition-all">
+              Start Requirement Intake
+            </Link>
           </div>
         </main>
 
@@ -302,16 +302,16 @@ function LandingContent() {
             Twenty options. One answer.
           </h2>
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/intake"
-              className="inline-block rounded-sm bg-white px-10 py-4 text-sm font-semibold text-black hover:bg-white/90 transition-all">
-              Start Requirement Intake
-            </Link>
             <a href="https://drive.google.com/file/d/1tT0dmzhF2pGDpCeXixenK81ioJpk4CFn/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block rounded-sm border border-white/20 px-10 py-4 text-sm font-semibold text-white/70 hover:text-white hover:border-white/40 transition-all">
+              className="inline-block rounded-sm bg-sky-400 px-10 py-4 text-sm font-bold text-black hover:bg-sky-300 transition-all shadow-lg shadow-sky-400/30">
               Watch Demo Video
             </a>
+            <Link href="/intake"
+              className="inline-block rounded-sm border border-white/20 px-10 py-4 text-sm font-semibold text-white/70 hover:text-white hover:border-white/40 transition-all">
+              Start Requirement Intake
+            </Link>
           </div>
         </div>
       </section>
