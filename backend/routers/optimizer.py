@@ -253,6 +253,16 @@ async def optimize(req: OptimizeRequest, db: DBClient = Depends(get_db)):
 
     recommended = next((s for s in strategies if s.is_recommended), strategies[0])
 
+    # STRICT VALIDATION: s.total_cost_usd / s.cost_per_bbl must equal s.allocated_volume exactly
+    for s in strategies:
+        if s.allocated_volume > 0:
+            derived_vol = s.total_cost_usd / s.cost_per_bbl if s.cost_per_bbl > 0 else 0
+            if abs(derived_vol - s.allocated_volume) > 2.0:
+                raise ValueError(
+                    f"Validation Error: Strategy total_cost / cost_per_bbl does not equal allocated volume. "
+                    f"Cost: {s.total_cost_usd}, Per Bbl: {s.cost_per_bbl}, Vol: {s.allocated_volume}"
+                )
+
     return OptimizationResponse(
         optimization_run_id=run_id,
         scenario_id=req.scenario_id,

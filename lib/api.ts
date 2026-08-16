@@ -747,8 +747,29 @@ function computeDynamicStrategies(scen: any) {
   const dest = (scen.destination_port_name || scen.destination_port || 'India').toLowerCase()
   const product = (scen.product || scen.product_type || 'crude').toLowerCase()
 
-  // Hard constraint check: If vessel deal has verdict REJECT, exclude vessel options
-  const isVesselRejected = scen.deal_verdict === 'REJECT' || scen.vessel_rejected === true || scen.verdict === 'REJECT'
+  // Resolve vessel rejection dynamically from localStorage to keep state fully consistent
+  let isVesselRejected = scen.deal_verdict === 'REJECT' || scen.vessel_rejected === true || scen.verdict === 'REJECT'
+  if (typeof window !== 'undefined' && scen.id) {
+    const savedDeal = localStorage.getItem(`deal_${scen.id}`)
+    if (savedDeal) {
+      try {
+        const parsedDeal = JSON.parse(savedDeal)
+        if (parsedDeal.deal_verdict === 'REJECT') {
+          isVesselRejected = true
+        }
+      } catch (e) {}
+    }
+  }
+
+  // Resolve optimization sorting mode based on priority weights, never defaulting silently to cost
+  let solverMode = 'balanced'
+  if (scen.optimization_priority === 'MINIMIZE_RISK') {
+    solverMode = 'risk'
+  } else if (scen.optimization_priority === 'MINIMIZE_TRANSIT_TIME') {
+    solverMode = 'time'
+  } else if (scen.optimization_priority === 'MINIMIZE_TOTAL_LANDED_COST') {
+    solverMode = 'cost'
+  }
 
   // Define candidate options based on destination (aligning with backend parameters)
   let rawOptions = []
@@ -1038,8 +1059,8 @@ function computeDynamicStrategies(scen: any) {
     }] : []
   }
 
-  // Strategy 1: Recommended Primary Strategy (Balanced / Cost Optimized Hybrid)
-  const strat1Alloc = allocateGreedy(onTimeOptions, fulfilledVol, 'cost')
+  // Strategy 1: Recommended Primary Strategy (Dynamic Priority-Driven Solver)
+  const strat1Alloc = allocateGreedy(onTimeOptions, fulfilledVol, solverMode)
   const strat1Cost = strat1Alloc.reduce((acc, a) => acc + a.cost_usd, 0)
   const strat1CostBbl = Math.round((strat1Cost / fulfilledVol) * 100) / 100
   const strat1SavingsBbl = Math.round((baselineCostPerBbl - strat1CostBbl) * 100) / 100
@@ -1063,8 +1084,8 @@ function computeDynamicStrategies(scen: any) {
     allocations: strat1Alloc
   }
 
-  // Strategy 2: Diversified Resilience Split (60% Single Option Cap)
-  const strat2Alloc = allocateGreedy(onTimeOptions, fulfilledVol, 'cost', 0.60)
+  // Strategy 2: Diversified Resilience Split (60% Single Option Cap, Dynamic Mode)
+  const strat2Alloc = allocateGreedy(onTimeOptions, fulfilledVol, solverMode, 0.60)
   const strat2Cost = strat2Alloc.reduce((acc, a) => acc + a.cost_usd, 0)
   const strat2CostBbl = Math.round((strat2Cost / fulfilledVol) * 100) / 100
   const strat2SavingsBbl = Math.round((baselineCostPerBbl - strat2CostBbl) * 100) / 100
@@ -1089,6 +1110,20 @@ function computeDynamicStrategies(scen: any) {
   }
 
   const strats = [strat1, strat2, baselineStrat]
+
+  // STRICT VALIDATION: s.total_cost_usd / s.cost_per_bbl must equal s.allocated_volume exactly
+  // And if fully fulfilled (not partial), check that s.allocated_volume matches scenario required volume exactly
+  for (const s of strats) {
+    if (s && s.allocated_volume > 0) {
+      const derivedVol = Math.round(s.total_cost_usd / s.cost_per_bbl)
+      if (Math.abs(derivedVol - s.allocated_volume) > 2) {
+        throw new Error(`Validation Error: Strategy total_cost / cost_per_bbl does not equal allocated volume. Cost: ${s.total_cost_usd}, Per Bbl: ${s.cost_per_bbl}, Vol: ${s.allocated_volume}`)
+      }
+      if (!isPartial && s.allocated_volume !== vol) {
+        throw new Error(`Validation Error: Strategy volume ${s.allocated_volume} does not match scenario required volume ${vol}`)
+      }
+    }
+  }
 
   return {
     status: isPartial ? 'PARTIAL' : 'OPTIMAL',
@@ -1128,21 +1163,48 @@ function getFallbackData(path: string, options?: RequestInit): any {
   // 2. Scenario Save / Requirements Intake
   if (path.includes('/api/intake/save')) {
     const scenarioId = body.id || 'scen-demo-001'
+    
+    // Map optimization_priority to weights, matching backend logic
+    let cost_w = 0.4
+    let time_w = 0.35
+    let risk_w = 0.25
+    if (body.optimization_priority === 'MINIMIZE_RISK') {
+      cost_w = 0.0; time_w = 0.0; risk_w = 1.0
+    } else if (body.optimization_priority === 'MINIMIZE_TRANSIT_TIME') {
+      cost_w = 0.0; time_w = 1.0; risk_w = 0.0
+    } else if (body.optimization_priority === 'MINIMIZE_TOTAL_LANDED_COST') {
+      cost_w = 1.0; time_w = 0.0; risk_w = 0.0
+    }
+
     const scenObj = {
       scenario_id: scenarioId,
       id: scenarioId,
-      natural_language_prompt: body.natural_language_prompt || 'I need 2 million barrels of diesel delivered to India within 7 days.',
-      product: body.product || body.product_type || 'diesel',
-      product_type: body.product || body.product_type || 'diesel',
-      volume_required: Number(body.volume_required || body.volume_bbls || 2000000),
-      volume_bbls: Number(body.volume_required || body.volume_bbls || 2000000),
-      destination_port_name: body.destination_port_name || body.destination_port || 'India',
-      destination_port: body.destination_port_name || body.destination_port || 'India',
-      deadline_days: Number(body.deadline_days || 7),
-      max_acceptable_landed_cost_usd_bbl: Number(body.max_acceptable_landed_cost_usd_bbl || 95.0),
-      priority_cost_weight: body.priority_cost_weight || 0.4,
-      priority_speed_weight: body.priority_speed_weight || 0.35,
-      priority_risk_weight: body.priority_risk_weight || 0.25,
+      natural_language_prompt: body.natural_language_prompt || '',
+      product: body.product || body.product_type || 'crude',
+      product_type: body.product || body.product_type || 'crude',
+      volume_required: Number(body.volume_required ?? body.volume_bbls ?? 1600000),
+      volume_bbls: Number(body.volume_required ?? body.volume_bbls ?? 1600000),
+      destination_port_name: body.destination_port_name || body.destination_port || 'Singapore',
+      destination_port: body.destination_port_name || body.destination_port || 'Singapore',
+      deadline_days: Number(body.deadline_days || 10),
+      max_acceptable_landed_cost_usd_bbl: body.max_acceptable_landed_cost_usd_bbl ? Number(body.max_acceptable_landed_cost_usd_bbl) : null,
+      priority_cost_weight: cost_w,
+      priority_speed_weight: time_w,
+      priority_time_weight: time_w,
+      priority_risk_weight: risk_w,
+      optimization_priority: body.optimization_priority || null,
+      sources: body.sources || [],
+      disruption_conditions: body.disruption_conditions || [],
+      constraints: body.constraints || [],
+      created_at: new Date().toISOString()
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`scen_${scenarioId}`, JSON.stringify(scenObj))
+    }
+
+    return scenObj
+  }
       created_at: new Date().toISOString()
     }
 
@@ -1214,12 +1276,24 @@ function getFallbackData(path: string, options?: RequestInit): any {
 
   // 4. Commercial Deal Evaluator
   if (path.includes('/api/evaluate')) {
-    return evaluateCommercialDeal(body)
+    const result = evaluateCommercialDeal(body)
+    if (typeof window !== 'undefined' && body.scenario_id) {
+      localStorage.setItem(`deal_${body.scenario_id}`, JSON.stringify(result))
+    }
+    return result
   }
 
   // 5. Multi-Modal Strategy Optimization Engine
   if (path.includes('/api/optimize')) {
-    return computeDynamicStrategies(body)
+    let scen = body
+    if (typeof window !== 'undefined') {
+      const scenId = body.scenario_id || 'scen-demo-001'
+      const saved = localStorage.getItem(`scen_${scenId}`) || localStorage.getItem(`scen_scen-demo-001`)
+      if (saved) {
+        try { scen = JSON.parse(saved) } catch (e) {}
+      }
+    }
+    return computeDynamicStrategies(scen)
   }
 
   // 6. Executive Decision Report Engine

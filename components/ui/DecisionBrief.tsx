@@ -88,7 +88,17 @@ export function DecisionBrief({
           </div>
           <div className="p-4 rounded-2xl bg-white border border-[#18181B]/10">
             <div className="text-[10px] text-[#18181B]/60 uppercase font-semibold">Priority</div>
-            <div className="font-bold text-sm text-[#18181B] mt-1 uppercase">{scenario?.priority || 'COST'}</div>
+            <div className="font-bold text-xs mt-1 uppercase">
+              {scenario?.optimization_priority
+                ? (scenario.optimization_priority.replace('MINIMIZE_', '').replace('TOTAL_', ''))
+                : scenario?.priority
+                ? scenario.priority
+                : (
+                  <span className="text-amber-600 font-semibold leading-relaxed block">
+                    NOT SPECIFIED (Please specify in requirement intake)
+                  </span>
+                )}
+            </div>
           </div>
         </div>
       </GlassPanel>

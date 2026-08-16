@@ -38,7 +38,13 @@ function ReportContent() {
       const vesselsRes = await api.listVessels(scenarioId).catch(() => ({ vessels: [] }))
       setOptionsEvaluated(vesselsRes.vessels || [])
 
-      const deal = await api.evaluate('deal-001').catch(() => null)
+      let deal = null
+      if (typeof window !== 'undefined') {
+        const savedDeal = localStorage.getItem(`deal_${scenarioId}`)
+        if (savedDeal) {
+          try { deal = JSON.parse(savedDeal) } catch (e) {}
+        }
+      }
       setDealEvaluation(deal)
 
       const strategy = await api.optimize({ scenario_id: scenarioId })
