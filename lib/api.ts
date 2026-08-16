@@ -1111,13 +1111,13 @@ function computeDynamicStrategies(scen: any) {
 
   const strats = [strat1, strat2, baselineStrat]
 
-  // STRICT VALIDATION: s.total_cost_usd / s.cost_per_bbl must equal s.allocated_volume exactly
+  // STRICT VALIDATION: Verify that s.cost_per_bbl is a correctly rounded representation of the actual unit rate (within 1.5 cents)
   // And if fully fulfilled (not partial), check that s.allocated_volume matches scenario required volume exactly
   for (const s of strats) {
     if (s && s.allocated_volume > 0) {
-      const derivedVol = Math.round(s.total_cost_usd / s.cost_per_bbl)
-      if (Math.abs(derivedVol - s.allocated_volume) > 2) {
-        throw new Error(`Validation Error: Strategy total_cost / cost_per_bbl does not equal allocated volume. Cost: ${s.total_cost_usd}, Per Bbl: ${s.cost_per_bbl}, Vol: ${s.allocated_volume}`)
+      const exactUnitRate = s.total_cost_usd / s.allocated_volume
+      if (Math.abs(s.cost_per_bbl - exactUnitRate) > 0.015) {
+        throw new Error(`Validation Error: Strategy unit rate does not align with total cost and volume. Cost: ${s.total_cost_usd}, Vol: ${s.allocated_volume}, Displayed Rate: ${s.cost_per_bbl}, Exact Rate: ${exactUnitRate.toFixed(4)}`)
       }
       if (!isPartial && s.allocated_volume !== vol) {
         throw new Error(`Validation Error: Strategy volume ${s.allocated_volume} does not match scenario required volume ${vol}`)
@@ -1182,11 +1182,11 @@ function getFallbackData(path: string, options?: RequestInit): any {
       natural_language_prompt: body.natural_language_prompt || '',
       product: body.product || body.product_type || 'crude',
       product_type: body.product || body.product_type || 'crude',
-      volume_required: Number(body.volume_required ?? body.volume_bbls ?? 1600000),
-      volume_bbls: Number(body.volume_required ?? body.volume_bbls ?? 1600000),
-      destination_port_name: body.destination_port_name || body.destination_port || 'Singapore',
-      destination_port: body.destination_port_name || body.destination_port || 'Singapore',
-      deadline_days: Number(body.deadline_days || 10),
+      volume_required: Number(body.volume_required ?? body.volume_bbls ?? 2000000),
+      volume_bbls: Number(body.volume_required ?? body.volume_bbls ?? 2000000),
+      destination_port_name: body.destination_port_name || body.destination_port || 'Mumbai Port, India',
+      destination_port: body.destination_port_name || body.destination_port || 'Mumbai Port, India',
+      deadline_days: Number(body.deadline_days || 25),
       max_acceptable_landed_cost_usd_bbl: body.max_acceptable_landed_cost_usd_bbl ? Number(body.max_acceptable_landed_cost_usd_bbl) : null,
       priority_cost_weight: cost_w,
       priority_speed_weight: time_w,
