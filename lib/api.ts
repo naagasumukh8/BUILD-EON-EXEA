@@ -1205,15 +1205,6 @@ function getFallbackData(path: string, options?: RequestInit): any {
 
     return scenObj
   }
-      created_at: new Date().toISOString()
-    }
-
-    if (typeof window !== 'undefined' && path.includes('/api/intake/save')) {
-      localStorage.setItem(`scen_${scenarioId}`, JSON.stringify(scenObj))
-    }
-
-    return scenObj
-  }
 
   // 2b. Scenario Fetch / Get
   if (path.includes('/api/intake/')) {
