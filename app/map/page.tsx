@@ -655,16 +655,45 @@ function MapContent() {
           </div>
         </div>
 
-        {/* ROUTE SWITCHER  top center */}
+        {/* ROUTE SWITCHER top center */}
         {!loading && routes.length > 0 && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center bg-white/92 backdrop-blur-md px-1 py-1 rounded-full border border-[#18181B]/10 shadow-xl">
-            <button onClick={() => setActiveRouteIndex((p) => (p > 0 ? p - 1 : routes.length - 1))}
-              className="px-2 text-base font-bold hover:text-blue-600 leading-none"></button>
-            <div className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#18181B] whitespace-nowrap">
-              Route {activeRouteIndex + 1}/{routes.length} <span className="font-normal text-gray-400">({activeRoute?.type})</span>
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#18181B]/15 shadow-xl">
+            <button
+              onClick={() => setActiveRouteIndex((p) => (p > 0 ? p - 1 : routes.length - 1))}
+              className="px-2.5 py-1 text-xs font-bold bg-[#18181B] text-white hover:bg-black rounded-full transition-all flex items-center gap-1"
+              title="Previous Route"
+            >
+              ← Prev
+            </button>
+
+            <div className="flex items-center gap-1 px-1">
+              {routes.map((r, idx) => (
+                <button
+                  key={r.id || idx}
+                  onClick={() => setActiveRouteIndex(idx)}
+                  className={`w-6 h-6 rounded-full text-[11px] font-bold transition-all ${
+                    idx === activeRouteIndex
+                      ? 'bg-[#18181B] text-white shadow-sm scale-105'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                  title={`Select Route ${idx + 1}: ${r.name}`}
+                >
+                  {idx + 1}
+                </button>
+              ))}
             </div>
-            <button onClick={() => setActiveRouteIndex((p) => (p < routes.length - 1 ? p + 1 : 0))}
-              className="px-2 text-base font-bold hover:text-blue-600 leading-none"></button>
+
+            <div className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#18181B] whitespace-nowrap">
+              Route {activeRouteIndex + 1}/{routes.length} <span className="font-normal text-gray-500">({routes[activeRouteIndex]?.type || 'Sea Lane'})</span>
+            </div>
+
+            <button
+              onClick={() => setActiveRouteIndex((p) => (p < routes.length - 1 ? p + 1 : 0))}
+              className="px-2.5 py-1 text-xs font-bold bg-[#18181B] text-white hover:bg-black rounded-full transition-all flex items-center gap-1"
+              title="Next Route"
+            >
+              Next →
+            </button>
           </div>
         )}
 
