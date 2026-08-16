@@ -289,9 +289,9 @@ function MapContent() {
   const showHormuzMarker = showChokepoints && destCfg.showHormuz && routePassesThroughHormuz
 
   const keyPorts = [
-    { key: 'origin', lat: SUPPLY_ORIGIN_COORDS[0], lon: SUPPLY_ORIGIN_COORDS[1], name: 'Ras Tanura Terminal  Supply Origin', color: '#7c3aed', emoji: '???' },
-    { key: 'dest', lat: destCfg.destCoords[0], lon: destCfg.destCoords[1], name: `${destCfg.destLabel}  Destination`, color: '#16a34a', emoji: '?' },
-    ...(showIpsa ? [{ key: 'yanbu', lat: 24.09, lon: 38.06, name: 'Yanbu Terminal  Pipeline Endpoint', color: '#d97706', emoji: '??' }] : []),
+    { key: 'origin', lat: SUPPLY_ORIGIN_COORDS[0], lon: SUPPLY_ORIGIN_COORDS[1], name: 'Ras Tanura Terminal — Supply Origin', color: '#7c3aed', emoji: 'S' },
+    { key: 'dest', lat: destCfg.destCoords[0], lon: destCfg.destCoords[1], name: `${destCfg.destLabel} — Destination`, color: '#16a34a', emoji: 'D' },
+    ...(showIpsa ? [{ key: 'yanbu', lat: 24.09, lon: 38.06, name: 'Yanbu Terminal — Pipeline Endpoint', color: '#d97706', emoji: 'Y' }] : []),
   ]
 
   return (
@@ -309,17 +309,17 @@ function MapContent() {
                 attribution='&copy; <a href="https://carto.com/">CARTO</a>'
               />
 
-              {/* IPSA Pipeline  scenario-conditional */}
+              {/* IPSA Pipeline — scenario-conditional */}
               {showIpsa && (
                 <Polyline positions={IPSA_PIPELINE_COORDS} pathOptions={{ color: '#D97706', weight: 4, dashArray: '8,8' }}>
                   <Popup>
                     <div className="p-2 space-y-1 font-sans text-xs">
                       <div className="font-bold text-sm">Saudi IPSA East-West Pipeline</div>
                       <div className="text-amber-700 font-semibold">ACTIVE BYPASS INFRASTRUCTURE</div>
-                      <div>Route: Ras Tanura ? Yanbu (Red Sea)</div>
+                      <div>Route: Ras Tanura → Yanbu (Red Sea)</div>
                       <div>Capacity: 2,500,000 bbl/day</div>
                       <div>Purpose: Bypasses Strait of Hormuz</div>
-                      <div>Operator: Saudi Aramco  Tariff: ~$1.40/bbl</div>
+                      <div>Operator: Saudi Aramco · Tariff: ~$1.40/bbl</div>
                     </div>
                   </Popup>
                 </Polyline>
@@ -351,7 +351,7 @@ function MapContent() {
                           <div><b>ETA:</b> {route.eta_days} days</div>
                           <div><b>Cost:</b> ${route.cost_per_bbl?.toFixed(2)}/bbl</div>
                           <div><b>Risk:</b> <span className={route.risk === 'HIGH' ? 'text-red-600 font-bold' : route.risk === 'MEDIUM' ? 'text-amber-600 font-bold' : 'text-green-600 font-bold'}>{route.risk}</span></div>
-                          <div className="text-[10px] text-gray-400">{route.data_source}  {route.provenance}</div>
+                          <div className="text-[10px] text-gray-400">{route.data_source} · {route.provenance}</div>
                         </div>
                       </div>
                     </Popup>
@@ -359,9 +359,9 @@ function MapContent() {
                 )
               })}
 
-              {/* Hormuz chokepoint  only on routes that pass through it */}
+              {/* Hormuz chokepoint — only on routes that pass through it */}
               {showHormuzMarker && (
-                <Marker position={HORMUZ_COORDS} icon={createIcon(L, '#DC2626', '??', 30)}>
+                <Marker position={HORMUZ_COORDS} icon={createIcon(L, '#DC2626', 'H', 30)}>
                   <Popup>
                     <div className="p-2 text-center font-sans text-xs space-y-1">
                       <div className="px-2 py-0.5 rounded bg-red-600 text-white font-bold text-[10px] uppercase">STABILITY RISK 94% BLOCKED</div>
@@ -845,9 +845,9 @@ function MapContent() {
                 </div>
 
                 <div className="flex justify-end">
-                  <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selectedVessel.id}&vessel_name=${encodeURIComponent(selectedVessel.vessel_name)}&journey=${encodeURIComponent(`[${selectedVessel.lat},${selectedVessel.lon}] ? ${selectedVessel.current_destination}`)}`)}
+                  <button onClick={() => router.push(`/deals/new?scenario_id=${scenarioId}&vessel_id=${selectedVessel.id}&vessel_name=${encodeURIComponent(selectedVessel.vessel_name)}&journey=${encodeURIComponent(`[${selectedVessel.lat},${selectedVessel.lon}] → ${selectedVessel.current_destination}`)}`)}
                     className="rounded-full bg-[#18181B] px-5 py-2.5 text-xs font-semibold text-white hover:bg-black shadow-md">
-                    Verify Commercial Opportunity & Enter Quote ?
+                    Verify Commercial Opportunity & Enter Quote →
                   </button>
                 </div>
               </GlassPanel>

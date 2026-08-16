@@ -630,14 +630,17 @@ function computeDynamicStrategies(scen: any) {
   const vol = Number(scen.volume_required || 2000000)
   const deadline = Number(scen.deadline_days || 7)
 
+  // Hard constraint check: If vessel deal has verdict REJECT, exclude vessel options
+  const isVesselRejected = scen.deal_verdict === 'REJECT' || scen.vessel_rejected === true || scen.verdict === 'REJECT'
+
   // Available candidate options
-  const availableOptions = [
+  const rawOptions = [
     {
       id: 'vess-001-confirmed',
       name: 'Stena Bulk Charter (VLCC)',
       option_type: 'vessel',
       max_volume: 400000, // HARD CAPACITY CONSTRAINT: Confirmed deal capacity = 400,000 bbl
-      cost_per_bbl: 92.30, // Landed cost derived from entered quote: $5.00 freight + $82.50 base + $4.80 handling
+      cost_per_bbl: 92.30,
       eta_days: 6,
       risk_score: 0.10,
       transport_provider: 'Stena Bulk (Shipowner)',
@@ -672,6 +675,11 @@ function computeDynamicStrategies(scen: any) {
       provenance_status: 'REAL_REFERENCE'
     }
   ]
+
+  // Hard constraint: REJECTED deals are structurally excluded
+  const availableOptions = isVesselRejected
+    ? rawOptions.filter(o => o.option_type !== 'vessel')
+    : rawOptions
 
   // Filter by deadline feasibility
   const onTimeOptions = availableOptions.filter(o => o.eta_days <= deadline)
@@ -800,9 +808,8 @@ function computeDynamicStrategies(scen: any) {
     ]
   }
 
-  // Strategy 1: Optimal Hybrid Strategy (e.g. 80% Yanbu IPSA Pipeline + 20% Stena Bulk VLCC)
-  // Enforces Vessel Capacity Constraint (max 400,000 bbl)
-  let v1 = Math.min(400000, vol) // EXACTLY 400,000 bbl max
+  // Enforces Vessel Capacity Constraint (max 400,000 bbl) or 0 if deal is REJECTED
+  let v1 = isVesselRejected ? 0 : Math.min(400000, vol) // 0 if rejected, else max 400k bbl
   let p1 = vol - v1
 
   const strat1Alloc = []
