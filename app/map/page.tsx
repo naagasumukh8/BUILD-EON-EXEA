@@ -282,6 +282,33 @@ function MapContent() {
   const destCfg = getDestConfig(destName)
   const activeRoute = routes[activeRouteIndex]
 
+  // Dynamic button labels based on destination config
+  const destLower = destName.toLowerCase()
+  const oilHubsLabel = destLower.includes('singapore')
+    ? 'Cross-Strait Swap'
+    : destLower.includes('rotterdam')
+    ? 'North Sea Swap'
+    : destLower.includes('china')
+    ? 'East China Sea Swap'
+    : 'Bi-Coastal Swap'
+
+  const triLabel = destLower.includes('singapore')
+    ? 'Triangulation (SG/WAF)'
+    : destLower.includes('rotterdam')
+    ? 'Triangulation (EU/WAF)'
+    : 'Triangulation (IN/SG)'
+
+  const stsLabel = destLower.includes('singapore')
+    ? 'Fujairah STS Transshipment'
+    : 'STS Transshipment'
+
+  const altDestLabel = 'Alt. Discharge Hubs'
+  const altOrigLabel = 'Alt. Origins (WAF/UK)'
+  const pipelineLabel = destLower.includes('singapore') ? 'Pipeline Bypass Pathways' : 'Pipeline Bypass'
+  const routesLabel = 'Sea Lanes'
+  const vesselsLabel = 'AIS Vessels'
+  const chokeLabel = 'Chokepoints'
+
   const showIpsa = showPipelines && destCfg.showIpsaPipeline
   const routePassesThroughHormuz = activeRoute?.path?.some(
     ([lat, lon]: [number, number]) => Math.abs(lat - HORMUZ_COORDS[0]) < 1.5 && Math.abs(lon - HORMUZ_COORDS[1]) < 2.0
@@ -637,15 +664,15 @@ function MapContent() {
           </div>
           <div className="flex flex-wrap gap-1 px-2 py-1.5">
             {[
-              { label: 'Oil Hubs', active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
-              { label: 'Triangulation', active: showTriangulation, toggle: () => setShowTriangulation(!showTriangulation), color: 'bg-pink-600' },
-              { label: 'STS Zones', active: showSTS, toggle: () => setShowSTS(!showSTS), color: 'bg-teal-600' },
-              { label: 'Alt. Dest', active: showAltDest, toggle: () => setShowAltDest(!showAltDest), color: 'bg-orange-500' },
-              { label: 'Alt. Origin', active: showAltOrigin, toggle: () => setShowAltOrigin(!showAltOrigin), color: 'bg-lime-600' },
-              { label: 'Pipeline', active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
-              { label: 'Routes', active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
-              { label: 'Vessels', active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },
-              { label: 'Choke', active: showChokepoints, toggle: () => setShowChokepoints(!showChokepoints), color: 'bg-red-600' },
+              { label: oilHubsLabel, active: showOilCompanies, toggle: () => setShowOilCompanies(!showOilCompanies), color: 'bg-purple-600' },
+              { label: triLabel, active: showTriangulation, toggle: () => setShowTriangulation(!showTriangulation), color: 'bg-pink-600' },
+              { label: stsLabel, active: showSTS, toggle: () => setShowSTS(!showSTS), color: 'bg-teal-600' },
+              { label: altDestLabel, active: showAltDest, toggle: () => setShowAltDest(!showAltDest), color: 'bg-orange-500' },
+              { label: altOrigLabel, active: showAltOrigin, toggle: () => setShowAltOrigin(!showAltOrigin), color: 'bg-lime-600' },
+              { label: pipelineLabel, active: showPipelines, toggle: () => setShowPipelines(!showPipelines), color: 'bg-amber-500' },
+              { label: routesLabel, active: showRoutes, toggle: () => setShowRoutes(!showRoutes), color: 'bg-[#18181B]' },
+              { label: vesselsLabel, active: showVessels, toggle: () => setShowVessels(!showVessels), color: 'bg-blue-600' },
+              { label: chokeLabel, active: showChokepoints, toggle: () => setShowChokepoints(!showChokepoints), color: 'bg-red-600' },
             ].map(({ label, active, toggle, color }) => (
               <button key={label} onClick={toggle}
                 className={`px-2.5 py-1 rounded-full font-semibold text-[11px] transition-all ${active ? `${color} text-white` : 'bg-gray-100 text-gray-500'}`}>
@@ -654,10 +681,10 @@ function MapContent() {
             ))}
           </div>
         </div>
-
+ 
         {/* ROUTE SWITCHER top center */}
         {!loading && routes.length > 0 && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#18181B]/15 shadow-xl">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[500] flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-[#18181B]/15 shadow-xl">
             <button
               onClick={() => setActiveRouteIndex((p) => (p > 0 ? p - 1 : routes.length - 1))}
               className="px-2.5 py-1 text-xs font-bold bg-[#18181B] text-white hover:bg-black rounded-full transition-all flex items-center gap-1"
@@ -665,7 +692,7 @@ function MapContent() {
             >
               ← Prev
             </button>
-
+ 
             <div className="flex items-center gap-1 px-1">
               {routes.map((r, idx) => (
                 <button
@@ -682,11 +709,11 @@ function MapContent() {
                 </button>
               ))}
             </div>
-
+ 
             <div className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#18181B] whitespace-nowrap">
               Route {activeRouteIndex + 1}/{routes.length} <span className="font-normal text-gray-500">({routes[activeRouteIndex]?.type || 'Sea Lane'})</span>
             </div>
-
+ 
             <button
               onClick={() => setActiveRouteIndex((p) => (p < routes.length - 1 ? p + 1 : 0))}
               className="px-2.5 py-1 text-xs font-bold bg-[#18181B] text-white hover:bg-black rounded-full transition-all flex items-center gap-1"

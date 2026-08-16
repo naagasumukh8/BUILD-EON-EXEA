@@ -497,9 +497,65 @@ function getNetworkRoutes(destName: string) {
         risk: 'LOW',
         data_source: 'WAF Spot Index',
         updated_at: nowStr,
+      }
+    ]
+  }
+
+  if (lower.includes('singapore')) {
+    return [
+      {
+        id: 'route-sg-1',
+        name: 'Primary: Yanbu Pipeline Bypass + Direct Sea Lane to Singapore',
+        type: 'Recommended',
+        origin: 'Yanbu (Red Sea Terminal)',
+        origin_coords: [24.09, 38.06],
+        destination: 'Singapore Terminal',
+        dest_coords: [1.35, 103.80],
+        distance_nm: 4400,
+        eta_days: 8,
+        cost_per_bbl: 90.20,
+        risk: 'LOW',
+        data_source: 'Saudi Aramco & SeaRoute Model',
+        updated_at: nowStr,
+        provenance: 'REAL REFERENCE',
+        description: 'Bypasses Strait of Hormuz via East-West pipeline to Yanbu, then direct sea transit to Singapore.',
+        path: [[24.09, 38.06], [12.0, 43.5], [6.0, 80.0], [1.35, 103.80]]
+      },
+      {
+        id: 'route-sg-2',
+        name: 'Alternative: West Africa Spot Cargo to Singapore (Bonny → Singapore)',
+        type: 'Alternative',
+        origin: 'Bonny Terminal (Nigeria)',
+        origin_coords: [4.43, 7.16],
+        destination: 'Singapore Terminal',
+        dest_coords: [1.35, 103.80],
+        distance_nm: 6800,
+        eta_days: 10,
+        cost_per_bbl: 94.10,
+        risk: 'LOW',
+        data_source: 'WAF Spot Index',
+        updated_at: nowStr,
         provenance: 'CALCULATED',
-        description: 'Procures replacement crude from West Africa, avoiding Hormuz chokepoint completely.',
-        path: [[4.43, 7.16], [14.9, -23.5], [36.0, -9.0], [51.92, 4.48]]
+        description: 'Procures replacement crude from West Africa, shipping via Cape of Good Hope and Sunda Strait.',
+        path: [[4.43, 7.16], [-34.8, 20.0], [-15.0, 75.0], [-5.9, 105.8], [1.35, 103.80]]
+      },
+      {
+        id: 'route-sg-3',
+        name: 'Alternative: Cape of Good Hope Long-Haul Bypass (Hormuz Disruption)',
+        type: 'Alternative',
+        origin: 'Ras Tanura (Persian Gulf)',
+        origin_coords: [26.64, 50.16],
+        destination: 'Singapore Terminal',
+        dest_coords: [1.35, 103.80],
+        distance_nm: 3800,
+        eta_days: 7,
+        cost_per_bbl: 95.50,
+        risk: 'HIGH',
+        data_source: 'Vortexa Routing Model',
+        updated_at: nowStr,
+        provenance: 'SIMULATED',
+        description: 'Direct transit from Persian Gulf through Strait of Hormuz. Subject to active disruption risk.',
+        path: [[26.64, 50.16], [26.56, 56.25], [12.0, 62.0], [1.35, 103.80]]
       }
     ]
   }
