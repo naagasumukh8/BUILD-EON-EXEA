@@ -330,40 +330,6 @@ function getVesselsForDestination(destName: string, originCountry?: string) {
 function getNetworkRoutes(destName: string) {
   const lower = (destName || '').toLowerCase()
   const nowStr = new Date().toISOString()
-  if (lower.includes('rotterdam') || lower.includes('europe') || lower.includes('netherlands')) {
-    const p1 = computeVesselProximity(36.0, -9.0, 51.92, 4.48)
-    return [
-      {
-        id: 'vess-rot-001',
-        imo: 'IMO 9812408',
-        mmsi: 'MMSI 244009876',
-        vessel_name: 'North Sea Pioneer (Suezmax)',
-        vessel_type: 'Suezmax Tanker',
-        origin_port: 'West Africa / Atlantic',
-        origin_coords: [4.43, 7.16],
-        current_destination: destName || 'Rotterdam, Netherlands',
-        dest_coords: [51.92, 4.48],
-        potential_delivery: destName || 'Rotterdam',
-        lat: 36.0,
-        lon: -9.0,
-        speed_knots: 14.8,
-        eta_days: 4,
-        eta_source: 'CALCULATED',
-        distance_nm: p1.distNm,
-        route_relevance: 'HIGH',
-        total_dwt: 158000,
-        capacity_bbls: 1000000,
-        transport_provider: 'Euronav NV',
-        data_source: 'AIS Stream Feed',
-        status_label: 'LIVE AIS TRACK',
-        data_updated_at: nowStr,
-        provenance_status: 'CANDIDATE_UNVERIFIED',
-        commercial_verification_status: 'NOT YET VERIFIED',
-        relevance_reason: `Distance to Rotterdam: ${p1.distNm} nm. Off Coast of Portugal heading North-East to English Channel & Rotterdam.`,
-      }
-    ]
-  }
-
   if (lower.includes('china') || lower.includes('shanghai')) {
     return [
       {
