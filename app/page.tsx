@@ -60,7 +60,7 @@ function LandingContent() {
           </div>
 
           <h1 className="font-['Instrument_Serif'] text-[clamp(2.5rem,6.5vw,5.5rem)] leading-[1.0] tracking-tight text-white max-w-5xl">
-            When the world&apos;s main oil route closes, most buyers know one move. POLY EXEA finds the other nineteen.
+            When the world&apos;s main oil route closes, most buyers know one move. <span className="text-sky-400">POLY EXEA</span> finds the other <span className="text-sky-400">nineteen</span>.
           </h1>
 
           <p className="mt-8 text-[15px] sm:text-base leading-relaxed text-white/55 max-w-2xl font-light">
