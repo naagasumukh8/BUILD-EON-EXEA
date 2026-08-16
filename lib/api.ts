@@ -17,7 +17,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 function parsePromptText(text: string) {
-  const lower = (text || '').toLowerCase()
+  // Replace newlines with spaces to prevent breaking regexes
+  const cleanText = (text || '').replace(/[\r\n]+/g, ' ')
+  const lower = cleanText.toLowerCase()
 
   // 1. Volume Parsing (handles "half a million", "0.2 billion", "25 million", "25m", "500k", "500,000", "2500000", "2M bbl", "2000000bbl")
   let vol = 2000000
@@ -95,6 +97,59 @@ function parsePromptText(text: string) {
     origin = rawOrigin.charAt(0).toUpperCase() + rawOrigin.slice(1)
   }
 
+  // 6. Priority Mapping
+  let priority = null
+  if (lower.includes('minimize risk') || lower.includes('risk priority') || lower.includes('priority: risk') || lower.includes('priority risk')) {
+    priority = 'MINIMIZE_RISK'
+  } else if (lower.includes('minimize time') || lower.includes('speed priority') || lower.includes('priority: speed') || lower.includes('priority speed') || lower.includes('time priority') || lower.includes('priority: time') || lower.includes('priority time') || lower.includes('fastest')) {
+    priority = 'MINIMIZE_TRANSIT_TIME'
+  } else if (lower.includes('minimize cost') || lower.includes('cost priority') || lower.includes('priority: cost') || lower.includes('priority cost') || lower.includes('lowest cost') || lower.includes('cheapest')) {
+    priority = 'MINIMIZE_TOTAL_LANDED_COST'
+  }
+
+  // 7. Multi-Origin Sources Parsing
+  const sources: { origin: string; available_volume_bbl: number | null }[] = []
+  const sourceRegex = /(\d+(?:,\d{3})*(?:\.\d+)?\s*[m|k|M|K]?\s*(?:barrels|bbls?|bbl)?)\s+(?:from|in|at)\s+([a-zA-Z\s,\-\(\)]+?)(?=\.|\;|\r|\n|and|supply:|$|\b\d+(?:,\d{3})*(?:\.\d+)?\s*[m|k|M|K]?\s*(?:barrels|bbls?|bbl)?\s+(?:from|in|at))/gi
+  let match
+  while ((match = sourceRegex.exec(cleanText)) !== null) {
+    const volStr = match[1].toLowerCase()
+    const originStr = match[2].trim()
+    
+    let sVol = null
+    const mMatch = volStr.match(/(\d+(?:\.\d+)?)\s*m/)
+    const kMatch = volStr.match(/(\d+(?:\.\d+)?)\s*k/)
+    const rawMatch = volStr.replace(/,/g, '').match(/(\d+(?:\.\d+)?)/)
+    if (mMatch) sVol = parseFloat(mMatch[1]) * 1000000
+    else if (kMatch) sVol = parseFloat(kMatch[1]) * 1000
+    else if (rawMatch) sVol = parseFloat(rawMatch[1])
+
+    let originFormatted = originStr.replace(/[\.,\s]+$/, '').trim()
+    originFormatted = originFormatted
+      .split(' ')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+
+    if (originFormatted.length > 2) {
+      sources.push({ origin: originFormatted, available_volume_bbl: sVol })
+    }
+  }
+
+  // 8. Disruption Parsing
+  const disruptions: string[] = []
+  const disruptionRegex = /([a-zA-Z\s,]+?\s+(?:is expected to remain unavailable|is unavailable|is closed|is blocked|remain unavailable)[a-zA-Z\s,]*)/gi
+  let dMatch
+  while ((dMatch = disruptionRegex.exec(cleanText)) !== null) {
+    disruptions.push(dMatch[1].replace(/[\.,\s]+$/, '').trim())
+  }
+
+  // 9. Constraints Parsing
+  const constraints: string[] = []
+  const constraintRegex = /([a-zA-Z\s,]*no\s+[a-zA-Z\s,]*more\s+than\s+\d+%\s*[a-zA-Z\s,]*)/gi
+  let cMatch
+  while ((cMatch = constraintRegex.exec(cleanText)) !== null) {
+    constraints.push(cMatch[1].replace(/[\.,\s]+$/, '').trim())
+  }
+
   return {
     product: prod,
     volume_required: vol,
@@ -103,7 +158,11 @@ function parsePromptText(text: string) {
     deadline_days: deadline,
     origin_country: origin,
     origin_port_name: origin,
-    vessel_situation: 'seeking'
+    vessel_situation: 'seeking',
+    optimization_priority: priority,
+    sources: sources,
+    disruption_conditions: disruptions,
+    constraints: constraints
   }
 }
 

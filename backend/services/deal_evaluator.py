@@ -19,6 +19,49 @@ class EconAssumptions:
     min_target_margin: float = 0.08
 
 
+def get_default_assumptions(
+    product: str = "crude",
+    override_market_price: float | None = None,
+    override_freight: float | None = None,
+    override_insurance: float | None = None,
+    override_handling: float | None = None,
+    override_margin: float | None = None,
+) -> EconAssumptions:
+    # Default values based on product type (matching platform baseline assumptions)
+    market_price = 105.00
+    if "diesel" in product.lower():
+        market_price = 115.00
+    elif "gasoline" in product.lower():
+        market_price = 110.00
+
+    freight = 0.00
+    insurance = 0.15
+    handling = 0.10
+    margin = 0.08
+
+    # Apply overrides if provided
+    if override_market_price is not None:
+        market_price = override_market_price
+    if override_freight is not None:
+        freight = override_freight
+    if override_insurance is not None:
+        insurance = override_insurance
+    if override_handling is not None:
+        handling = override_handling
+    if override_margin is not None:
+        margin = override_margin
+
+    return EconAssumptions(
+        market_price_usd_per_bbl=market_price,
+        market_price_provenance=ProvenanceStatus.REAL_REFERENCE if override_market_price is not None else ProvenanceStatus.SIMULATED,
+        origin_price_usd_per_bbl=0.0,
+        freight_usd_per_bbl=freight,
+        insurance_usd_per_bbl=insurance,
+        handling_usd_per_bbl=handling,
+        min_target_margin=margin,
+    )
+
+
 def evaluate_deal_advanced(
     volume_bbls: float,
     deal_price_quoted: float,

@@ -64,18 +64,32 @@ async def save_scenario(
     db: DBClient = Depends(get_db),
 ):
     """Validate and persist a completed scenario."""
-    # Normalise weights to sum to 1
-    total_w = req.priority_cost_weight + req.priority_time_weight + req.priority_risk_weight
+    # Resolve optimization_priority to weights if provided
+    cost_w = req.priority_cost_weight
+    time_w = req.priority_time_weight
+    risk_w = req.priority_risk_weight
+
+    if req.optimization_priority == "MINIMIZE_RISK":
+        cost_w, time_w, risk_w = 0.0, 0.0, 1.0
+    elif req.optimization_priority == "MINIMIZE_TRANSIT_TIME":
+        cost_w, time_w, risk_w = 0.0, 1.0, 0.0
+    elif req.optimization_priority == "MINIMIZE_TOTAL_LANDED_COST":
+        cost_w, time_w, risk_w = 1.0, 0.0, 0.0
+
+    total_w = cost_w + time_w + risk_w
     if total_w <= 0:
         total_w = 1.0
 
     record = req.model_dump()
-    record["priority_cost_weight"] = req.priority_cost_weight / total_w
-    record["priority_time_weight"] = req.priority_time_weight / total_w
-    record["priority_risk_weight"] = req.priority_risk_weight / total_w
+    record["priority_cost_weight"] = cost_w / total_w
+    record["priority_time_weight"] = time_w / total_w
+    record["priority_risk_weight"] = risk_w / total_w
     record["gemini_parsed"] = bool(req.raw_intake_text)
     record["status"] = "active"
     record["volume_unit"] = req.volume_unit.value
+
+    # Serialize Pydantic objects inside sources for DB client compatibility
+    record["sources"] = [s.model_dump() if hasattr(s, "model_dump") else s for s in req.sources]
 
     saved = db.insert("scenarios", record)
     return ScenarioResponse(**saved)

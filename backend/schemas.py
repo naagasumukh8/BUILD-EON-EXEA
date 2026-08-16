@@ -95,6 +95,10 @@ class ScenarioCreateRequest(BaseModel):
     priority_time_weight: float = Field(0.35, ge=0, le=1)
     priority_risk_weight: float = Field(0.25, ge=0, le=1)
     raw_intake_text: Optional[str] = None
+    optimization_priority: Optional[str] = None
+    sources: list[SupplySource] = Field(default_factory=list)
+    disruption_conditions: list[str] = Field(default_factory=list)
+    constraints: list[str] = Field(default_factory=list)
 
     @field_validator("priority_cost_weight", "priority_time_weight", "priority_risk_weight")
     @classmethod
@@ -118,6 +122,10 @@ class ScenarioResponse(BaseModel):
     priority_risk_weight: float
     status: str
     created_at: Optional[str]
+    optimization_priority: Optional[str] = None
+    sources: Optional[list[SupplySource]] = []
+    disruption_conditions: Optional[list[str]] = []
+    constraints: Optional[list[str]] = []
 
 
 # ── Vessel Schemas ─────────────────────────────────────────────────────
