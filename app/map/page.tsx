@@ -139,7 +139,7 @@ function getDestConfig(destName: string): DestConfig {
       zoom: 5,
       destCoords: [1.35, 103.8],
       destLabel: 'Singapore Terminal',
-      showIpsaPipeline: false,
+      showIpsaPipeline: true,
       showHormuz: true,
       westHubCoords: [1.35, 103.8],
       westHubLabel: 'Jio / Reliance Singapore Distribution Hub',

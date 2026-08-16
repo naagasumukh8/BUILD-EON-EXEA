@@ -38,7 +38,7 @@ export function GlassBadge({ status, label, size = 'sm' }: GlassBadgeProps) {
     displayLabel = label || 'CALCULATED'
   } else if (statusUpper === 'CANDIDATE_UNVERIFIED' || statusUpper.includes('CANDIDATE')) {
     badgeClass = 'badge-candidate'
-    displayLabel = label || 'CANDIDATE — UNVERIFIED'
+    displayLabel = label || 'CANDIDATE: UNVERIFIED'
   } else if (statusUpper === 'GO') {
     badgeClass = 'verdict-go font-bold'
     displayLabel = label || 'GO'

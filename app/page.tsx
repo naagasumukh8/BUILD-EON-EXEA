@@ -55,7 +55,7 @@ function LandingContent() {
           <div className="mb-6 inline-flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
-              Strait of Hormuz — Sustained Disruption Protocol Active
+              Strait of Hormuz: Sustained Disruption Protocol Active
             </span>
           </div>
 
@@ -64,7 +64,7 @@ function LandingContent() {
           </h1>
 
           <p className="mt-8 text-[15px] sm:text-base leading-relaxed text-white/55 max-w-2xl font-light">
-            An energy supply decision platform that calculates pipelines, ship-to-ship transfers, backhaul loops, and alternate origins — and returns mathematically verified strategies in minutes, not days.
+            An energy supply decision platform that calculates pipelines, ship-to-ship transfers, backhaul loops, and alternate origins, returning mathematically verified strategies in minutes, not days.
           </p>
 
           <div className="mt-10 flex items-center gap-4">
@@ -104,7 +104,7 @@ function LandingContent() {
             Rerouting isn&apos;t the only option. It&apos;s just the only one calculated today.
           </h2>
           <p className="text-lg text-[#18181B]/80 font-light leading-relaxed max-w-3xl mx-auto">
-            Most buyers do one thing when Hormuz closes: reroute around the Cape of Good Hope. That adds 14-20 days and $12-18/bbl. Existing infrastructure — pipelines, swaps, backhaul capacity worth 6.5M bbl/day — goes uncalculated. POLY EXEA calculates it.
+            Most buyers do one thing when Hormuz closes: reroute around the Cape of Good Hope. That adds 14-20 days and $12-18/bbl. Existing infrastructure (pipelines, swaps, and backhaul capacity worth 6.5M bbl/day) goes uncalculated. POLY EXEA calculates it.
           </p>
         </div>
       </section>
@@ -128,7 +128,7 @@ function LandingContent() {
               {
                 n: '02',
                 title: 'Live AIS Vessel Discovery',
-                body: 'Candidate vessels surfaced from real position data. Spare capacity is never assumed — only confirmed by a human.',
+                body: 'Candidate vessels surfaced from real position data. Spare capacity is never assumed, only confirmed by a human.',
               },
               {
                 n: '03',
@@ -138,7 +138,7 @@ function LandingContent() {
               {
                 n: '04',
                 title: 'Deterministic Optimization',
-                body: 'Google OR-Tools computes the exact allocation, cost, and profit. The AI explains it — it never calculates it.',
+                body: 'Google OR-Tools computes the exact allocation, cost, and profit. The AI explains it, it never calculates it.',
               },
             ].map((step) => (
               <div key={step.n} className="bg-[#0F0F0F] p-8 space-y-5 flex flex-col justify-between">
@@ -246,9 +246,9 @@ function LandingContent() {
 
             <div className="px-8 py-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { label: 'Option 1 — IPSA Pipeline Bypass', alloc: '100%', vol: '2,500,000 bbl', eta: '6 days', cost: '$89.50/bbl', risk: 'LOW', prov: 'REAL REFERENCE' },
-                { label: 'Option 2 — Stena Bulk VLCC', alloc: '0%', vol: '0 bbl (Excluded)', eta: '12 days', cost: '$92.30/bbl', risk: 'LOW', prov: 'CONFIRMED' },
-                { label: 'Option 3 — Cape Bypass', alloc: '0%', vol: '0 bbl (Baseline)', eta: '16 days', cost: '$97.20/bbl', risk: 'MEDIUM', prov: 'REAL REFERENCE' },
+                { label: 'Option 1: IPSA Pipeline Bypass', alloc: '100%', vol: '2,500,000 bbl', eta: '6 days', cost: '$89.50/bbl', risk: 'LOW', prov: 'REAL REFERENCE' },
+                { label: 'Option 2: Stena Bulk VLCC', alloc: '0%', vol: '0 bbl (Excluded)', eta: '12 days', cost: '$92.30/bbl', risk: 'LOW', prov: 'CONFIRMED' },
+                { label: 'Option 3: Cape Bypass', alloc: '0%', vol: '0 bbl (Baseline)', eta: '16 days', cost: '$97.20/bbl', risk: 'MEDIUM', prov: 'REAL REFERENCE' },
               ].map((o) => (
                 <div key={o.label} className="border border-white/10 p-5 space-y-3">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-white/60">{o.label}</div>
@@ -281,7 +281,7 @@ function LandingContent() {
               { tag: 'REAL REFERENCE', color: 'bg-sky-600', desc: 'Published tariff, pipeline rate, or route data' },
               { tag: 'HUMAN VERIFIED', color: 'bg-violet-600', desc: 'Confirmed by broker or operator' },
               { tag: 'CALCULATED', color: 'bg-amber-600', desc: 'Deterministic OR-Tools arithmetic' },
-              { tag: 'COMMERCIAL VERIFICATION REQUIRED', color: 'bg-red-600', desc: 'Candidate opportunity — not yet actionable' },
+              { tag: 'COMMERCIAL VERIFICATION REQUIRED', color: 'bg-red-600', desc: 'Candidate opportunity: not yet actionable' },
             ].map((p) => (
               <div key={p.tag} className="border border-[#18181B]/10 p-5 space-y-2 bg-[#FAFAF8]">
                 <span className={`inline-block text-[9px] font-bold uppercase tracking-wider text-white px-2 py-1 ${p.color}`}>{p.tag}</span>
