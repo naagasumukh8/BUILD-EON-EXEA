@@ -29,7 +29,9 @@ function IntakeContent() {
   const router = useRouter()
   const existingScenarioId = searchParams.get('scenario_id')
 
-  const [prompt, setPrompt] = useState('')
+  const [prompt, setPrompt] = useState(
+    'I need 2 million barrels of crude delivered to Mumbai within 15 days. I have 1 million barrels available in Saudi Arabia and 1 million barrels in West Africa. The Strait of Hormuz is expected to remain unavailable. Minimize total landed cost while keeping risk low. Do not allow more than 40% of the requirement to depend on any single transport option.'
+  )
   const [parsing, setParsing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
