@@ -198,9 +198,17 @@ function LandingContent() {
           </div>
 
           <div className="mt-8 text-left">
-            <Link href="/intake" className="text-xs font-bold text-[#18181B] hover:underline inline-flex items-center gap-1">
-              See all 20 strategies inside →
-            </Link>
+            <a
+              href="/Poly_Exea_Mumbai_Real_World_Strategy_Examples.pdf"
+              download="Poly_Exea_Mumbai_Real_World_Strategy_Examples.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-sky-50 border border-sky-300 text-sky-950 font-bold text-sm shadow-sm hover:bg-sky-100 hover:border-sky-400 hover:shadow-md transition-all duration-200 group"
+            >
+              <span className="text-base group-hover:scale-110 transition-transform">📄</span>
+              <span className="underline decoration-sky-400 underline-offset-4">See all 20 strategies inside</span>
+              <span className="transition-transform group-hover:translate-x-1 font-bold">→</span>
+            </a>
           </div>
         </div>
       </section>
