@@ -197,17 +197,24 @@ function LandingContent() {
             ))}
           </div>
 
-          <div className="mt-8 text-left">
+          <div className="mt-8">
             <a
               href="/Poly_Exea_Mumbai_Real_World_Strategy_Examples.pdf"
               download="Poly_Exea_Mumbai_Real_World_Strategy_Examples.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-sky-50 border border-sky-300 text-sky-950 font-bold text-sm shadow-sm hover:bg-sky-100 hover:border-sky-400 hover:shadow-md transition-all duration-200 group"
+              className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 sm:px-8 border border-[#18181B] bg-[#18181B] text-white hover:bg-black transition-all"
             >
-              <span className="text-base group-hover:scale-110 transition-transform">📄</span>
-              <span className="underline decoration-sky-400 underline-offset-4">See all 20 strategies inside</span>
-              <span className="transition-transform group-hover:translate-x-1 font-bold">→</span>
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky-400">Strategy Matrix & Case Studies</span>
+                <h4 className="font-['Instrument_Serif'] text-xl sm:text-2xl text-white">
+                  Real-World Strategy Examples & Case Studies (Mumbai & Global Routes)
+                </h4>
+              </div>
+              <div className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-sm bg-white px-5 py-2.5 text-[13px] font-bold text-black group-hover:bg-sky-400 transition-all shrink-0">
+                <span>See all 20 strategies inside</span>
+                <span className="transition-transform group-hover:translate-x-1">→</span>
+              </div>
             </a>
           </div>
         </div>
