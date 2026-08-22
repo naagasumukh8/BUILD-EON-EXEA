@@ -1,127 +1,163 @@
-# AI Maritime Supply Decision Platform
+# POLY EXEA — AI Maritime Supply Decision Platform
 
-> AI-powered maritime supply chain optimization for energy buyers.
+> **When a critical maritime oil supply route breaks, most buyers know one move. POLY EXEA finds the other nineteen.**
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fnaagasumukh8%2FBUILD-EON-EXEA)
-
-## 🌐 Live Vercel Deployment
-
-- **Vercel Web App URL:** [https://build-eon-exea.vercel.app](https://build-eon-exea.vercel.app)
-- **GitHub Repository:** [https://github.com/naagasumukh8/BUILD-EON-EXEA](https://github.com/naagasumukh8/BUILD-EON-EXEA)
-
----
-
-## 💻 Multi-Laptop Sync Workflow (HP & ACER)
-
-When switching between your **HP** and **ACER** laptops:
-
-1. **Pull Latest Code on ACER / HP:**
-   ```bash
-   git pull origin main
-   ```
-2. **Setup Local Environment (`.env`):**
-   - Copy `.env.example` to `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Populate `.env` with your `GEMINI_API_KEY`, `SUPABASE_SERVICE_KEY`, and `AISSTREAM_API_KEY`.
-3. **Run Local Servers:**
-   - **Backend (FastAPI):** `cd backend && python main.py` (port 8000)
-   - **Frontend (Next.js):** `cd frontend && npm run dev` (port 3001)
-   - **Landing Page:** `python server.py` (port 3000)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Google OR-Tools](https://img.shields.io/badge/Google-OR--Tools-4285F4?style=flat&logo=google)](https://developers.google.com/optimization)
+[![Google Gemini](https://img.shields.io/badge/Google-Gemini_AI-8E75C2?style=flat&logo=google)](https://aistudio.google.com/)
 
 ---
 
-## 🚀 Vercel Deployment Instructions
+## 🌐 Live Product & Resources
 
-1. Import repository `naagasumukh8/BUILD-EON-EXEA` into Vercel Dashboard.
-2. Select Framework Preset: **Next.js**.
-3. Set Root Directory to `./` or `./frontend`.
-4. Add environment variables in Vercel settings:
-   - `NEXT_PUBLIC_API_URL` = `https://your-backend-api.com` (or `http://localhost:8000` for local dev)
-
-`vercel.json` configuration is included in the repository root for automated Vercel builds.
+- 🚀 **Live Web App:** [https://build-eon-exea.vercel.app](https://build-eon-exea.vercel.app)
+- 🎬 **Watch Demo Video:** [Google Drive Demo Recording](https://drive.google.com/file/d/1tT0dmzhF2pGDpCeXixenK81ioJpk4CFn/view?usp=sharing)
+- 📄 **20-Strategy Playbook (PDF):** [Poly_Exea_Mumbai_Real_World_Strategy_Examples.pdf](./public/Poly_Exea_Mumbai_Real_World_Strategy_Examples.pdf)
+- 💻 **GitHub Repository:** [https://github.com/naagasumukh8/BUILD-EON-EXEA](https://github.com/naagasumukh8/BUILD-EON-EXEA)
 
 ---
 
-## Quick Start (Local Development)
+## 📌 The Problem
 
-### 1. Backend (FastAPI)
+When critical choke points like the **Strait of Hormuz** (which moves ~20% of global petroleum) or the **Red Sea / Bab-el-Mandeb** close, most energy buyers default to a single costly move: **rerouting around the Cape of Good Hope**. 
 
+- Adds **+14 to +20 days** of transit time.
+- Adds **+$12 to +$18 per barrel** in landed fuel, war risk insurance, and freight costs.
+- Refineries hit catastrophic inventory drawdown within **4–7 days** without an optimized contingency plan.
+
+**POLY EXEA** dynamically scans and calculates **20 distinct physical and commercial strategy options** across 4 families, returning deterministically verified, cost-optimal solutions in minutes rather than days.
+
+---
+
+## ⚡ 20 Strategy Matrix (4 Commercial Families)
+
+| Family | Core Strategies | Real-World Application |
+|---|---|---|
+| **1. Move Differently** | Petroline / IPSA Pipeline Bypass, STS Transfer in Gulf of Oman, Cape of Good Hope Reroute | Offload before choke point, pipeline across Saudi Arabia / UAE to Red Sea terminals |
+| **2. Don't Move Your Cargo** | Strategic Inventory Swap, SPR / Commercial Stock Draw, Regional Refining Partner Exchange | Swap East-of-Suez cargo entitlement for West-of-Suez barrels without moving physical oil |
+| **3. Use the Network** | Divert Transiting VLCCs, Backhaul Capacity Utilization, Closed-Loop Triangulation | Capture spare capacity on empty return legs or re-route uncommitted vessels mid-ocean |
+| **4. Change Timing & Mode** | Alternate Discharge Hubs, Multi-Modal Rail/Barge, Wait-and-Bypass Economics | Stage inventory at intermediate deepwater hub (e.g., Fujairah, Salalah, Mundra) |
+
+---
+
+## 🏗️ Technical Architecture
+
+```
+                                  USER REQUIREMENT
+                               (Natural Language Prompt)
+                                          │
+                                          ▼
+                         ┌─────────────────────────────────┐
+                         │   Next.js 14 Web Application    │
+                         │   (App Router, Leaflet Canvas)  │
+                         └────────────────┬────────────────┘
+                                          │
+                     ┌────────────────────┴────────────────────┐
+                     ▼                                         ▼
+       ┌───────────────────────────┐             ┌───────────────────────────┐
+       │   FastAPI Decision Engine │             │   Gemini 1.5/2.0 AI       │
+       │   (Python 3.10+)          │             │   (Intake Parser +        │
+       └─────────────┬─────────────┘             │    Decision Rationale)    │
+                     │                           └───────────────────────────┘
+         ┌───────────┴───────────┐
+         ▼                       ▼
+┌──────────────────┐   ┌──────────────────────────┐
+│  Google OR-Tools │   │  Live AIS Stream Engine  │
+│  (Deterministic  │   │  (aisstream.io WebSocket │
+│   Solver & LP)   │   │   + 16 Global Seaports)  │
+└────────┬─────────┘   └─────────┬────────────────┘
+         │                       │
+         └───────────┬───────────┘
+                     ▼
+       ┌───────────────────────────┐
+       │  Supabase (PostgreSQL)    │
+       │  (16 Ports, 5 Pipelines,  │
+       │   Historical Benchmarks)  │
+       └───────────────────────────┘
+```
+
+### Core Tenets:
+1. **Deterministic Optimization:** Google OR-Tools computes the exact barrel allocations, logistics costs, and P&L. AI explains the rationale — it *never* invents financial numbers.
+2. **Strict Data Provenance:** Every single metric in the platform is badged with its origin (`CONFIRMED`, `REAL REFERENCE`, `ESTIMATED`, `CALCULATED`, `CANDIDATE_UNVERIFIED`).
+
+---
+
+## 🚀 Quick Start (Local Development)
+
+### 1. Prerequisites
+- **Node.js 18+** & **npm**
+- **Python 3.10+** & **pip**
+- (Optional) API Keys for Gemini, Supabase, and AISStream
+
+### 2. Clone and Setup
+```bash
+git clone https://github.com/naagasumukh8/BUILD-EON-EXEA.git
+cd BUILD-EON-EXEA
+
+# Configure environment variables
+cp .env.example .env
+```
+
+### 3. Start Frontend (Next.js 14)
+```bash
+npm install
+npm run dev
+# Running on http://localhost:3001
+```
+
+### 4. Start Backend (FastAPI)
 ```bash
 cd backend
 pip install -r requirements.txt
-# Copy environment template and fill in keys
-cp ../.env.example ../.env
-# Start backend (port 8000)
 python main.py
+# Running on http://localhost:8000 (Swagger docs: http://localhost:8000/api/docs)
 ```
 
-### 2. Frontend (Next.js)
+---
 
+## 🔑 Environment Configuration (`.env`)
+
+| Variable | Service | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | Google AI Studio | Natural language intake parser & strategy briefings |
+| `SUPABASE_URL` | Supabase | PostgreSQL database URL |
+| `SUPABASE_SERVICE_KEY` | Supabase | Database access key for ports, routes, and vessel tables |
+| `AISSTREAM_API_KEY` | AISStream.io | Live real-time maritime AIS satellite vessel tracking |
+
+> **Note:** The application includes full deterministic offline simulation fallbacks if API keys are not provided.
+
+---
+
+## 🧪 Verification & Golden Test Scenarios
+
+Run automated test scenarios and logic assertions:
 ```bash
-cd frontend
-npm install
-npm run dev          # starts on port 3001
-```
+# Run comprehensive core test suite
+pytest backend/tests/test_poly_exea_core.py -v
 
-### 3. Landing Page
-
-The cinematic landing page runs at port 3000:
-
-```bash
-python server.py     # serves landing page at http://localhost:3000
+# Run golden scenario verifications
+python run_golden_scenarios.py
+python final_scenario_validation.py
 ```
 
 ---
 
-## API Keys Configuration
+## 🛡️ Data Provenance System
 
-Edit `.env` with your keys:
-
-| Key | Service | Get it |
-|-----|---------|--------|
-| `GEMINI_API_KEY` | Gemini LLM | [aistudio.google.com](https://aistudio.google.com) |
-| `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` | Database | [supabase.com](https://supabase.com) |
-| `AISSTREAM_API_KEY` | Live vessel AIS | [aisstream.io](https://aisstream.io) |
-
-**Without keys:** App runs fully in SIMULATED mode. All simulated data is clearly labelled.
-
----
-
-## Complete Demo Flow
-
-1. Open `http://localhost:3000` (or Vercel app link) → cinematic landing page.
-2. Click **"Start Analysis"** → redirects to Next.js intake (`/intake`).
-3. Type: *"I need 2 million barrels of diesel delivered to India within 7 days."*
-4. Gemini parses requirements into structured scenario chips.
-5. Click **"Launch Network Map"** → AIS vessel candidates appear on interactive Leaflet map canvas (`CANDIDATE_UNVERIFIED`).
-6. Click a vessel → **"Verify Commercial Opportunity"**.
-7. Enter: 20% capacity, USD 3,000,000 quote.
-8. Deal Evaluator shows: **GO / NEGOTIATE / REJECT** with full P&L.
-9. Use **What-If slider** to test different price quotes in real time.
-10. Click **"Run Strategy Optimizer"** → OR-Tools computes optimal hybrid allocation (vessel / pipeline / alternate route).
-11. Click **"Generate Gemini Rationale"** → AI explains the solver decision.
-12. Click **"Generate Decision Report"** → executive briefing format + download (.md).
+| Provenance Badge | Description |
+|---|---|
+| `CONFIRMED` | Human-entered and verified commercial terms |
+| `REAL REFERENCE` | Benchmark pricing / capacity from official authorities (IEA, ADNOC, SUMED) |
+| `CALCULATED` | Deterministic mathematical output from Google OR-Tools solver |
+| `CANDIDATE_UNVERIFIED` | Raw AIS vessel position data requiring commercial verification |
+| `ESTIMATED` | Industry standard operational estimate |
+| `SIMULATED` | Fallback simulation data clearly marked for auditability |
 
 ---
 
-## Data Provenance Badges
+## 📄 License & Author
 
-Every number in the UI displays its provenance badge:
-
-| Badge | Meaning |
-|-------|---------|
-| `CONFIRMED` | Human-entered, verified commercial terms |
-| `REAL REFERENCE` | Official benchmark (IEA, ADNOC, SUMED) |
-| `ESTIMATED` | Industry estimate or user assumption |
-| `SIMULATED` | Demo/hackathon fallback data |
-| `CALCULATED` | Deterministic formula output |
-| `CANDIDATE_UNVERIFIED` | Raw AIS positioning data |
-
----
-
-## Database Setup (Supabase)
-
-Run `supabase/migrations/001_initial_schema.sql` in your Supabase SQL Editor.
-Includes seed data for 16 ports, 5 pipelines, and reference commodity pricing.
+- **Author:** Naaga Sumukh B S
+- **License:** MIT License
