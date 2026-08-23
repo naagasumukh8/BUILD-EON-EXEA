@@ -52,22 +52,13 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
           </Link>
         </nav>
 
-        {/* CTA Action — context-sensitive */}
-        {pathname.includes('map') ? (
-          <Link
-            href={`/report?scenario_id=${currentScenarioId}`}
-            className="rounded-full bg-[#18181B] border border-[#18181B] px-4 py-1.5 text-xs font-semibold text-white hover:bg-black transition-all"
-          >
-            Continue &rarr; AI Briefing
-          </Link>
-        ) : (
-          <Link
-            href="/intake"
-            className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
-          >
-            New Analysis &rarr;
-          </Link>
-        )}
+        {/* CTA Action */}
+        <Link
+          href={`/report?scenario_id=${currentScenarioId}`}
+          className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
+        >
+          Continue &rarr;
+        </Link>
       </div>
     </header>
   )
