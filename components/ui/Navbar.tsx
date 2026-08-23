@@ -52,23 +52,21 @@ export function Navbar({ scenarioId }: { scenarioId?: string }) {
           </Link>
         </nav>
 
-        {/* CTA Action — context-sensitive per page */}
-        {!pathname.includes('report') && (
-          pathname.includes('intake') ? (
-            <Link
-              href="/intake"
-              className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
-            >
-              New Analysis &rarr;
-            </Link>
-          ) : (
-            <Link
-              href={`/report?scenario_id=${currentScenarioId}`}
-              className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
-            >
-              Continue &rarr;
-            </Link>
-          )
+        {/* CTA Action — page flow */}
+        {pathname.includes('intake') ? null : pathname.includes('report') ? (
+          <Link
+            href="/intake"
+            className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
+          >
+            New Analysis &rarr;
+          </Link>
+        ) : (
+          <Link
+            href={`/report?scenario_id=${currentScenarioId}`}
+            className="rounded-full bg-[#18181B]/5 border border-[#18181B]/15 px-4 py-1.5 text-xs font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white transition-all"
+          >
+            Continue &rarr;
+          </Link>
         )}
       </div>
     </header>
